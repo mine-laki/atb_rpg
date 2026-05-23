@@ -1035,6 +1035,44 @@ button {
   color: #88ff66;
 }
 .btn-unlock:disabled { opacity: 0.35; cursor: default; }
+
+/* ---- Skill board tab ---- */
+.skill-tab { display: flex; flex-direction: column; gap: 6px; }
+
+.skill-node {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+}
+.skill-node.available {
+  background: rgba(40,70,150,0.15);
+  border-color: rgba(80,120,220,0.35);
+}
+.skill-node.unlocked {
+  background: rgba(30,80,30,0.18);
+  border-color: rgba(60,150,60,0.35);
+}
+.skill-node.locked {
+  opacity: 0.55;
+}
+
+.skill-node-info { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.skill-node-name { font-weight: bold; font-size: 0.9em; }
+.skill-node-desc { font-size: 0.82em; color: #88aacc; }
+.skill-node-cost { font-size: 0.76em; color: #aaaaaa; }
+.skill-node-req  { font-size: 0.75em; color: #886644; }
+
+.skill-node-action { display: flex; align-items: center; }
+.skill-unlocked-badge {
+  font-size: 0.8em;
+  color: #66cc66;
+  white-space: nowrap;
+}
 .inventory-list { display: flex; flex-direction: column; gap: 6px; }
 .inventory-list h3 { color: #aaaacc; margin-bottom: 6px; font-size: 0.9em; }
 

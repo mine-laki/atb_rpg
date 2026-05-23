@@ -5,6 +5,7 @@ import type {
 import { CHARACTERS, INITIAL_PARTY, INITIAL_UNLOCKED, getStatsAtLevel } from '../data/characters';
 import { ENEMIES } from '../data/enemies';
 import { getEquipmentById, ENHANCE_MULTIPLIERS } from '../data/equipment';
+import { calcSkillBonuses } from '../data/skillBoard';
 
 export function createCharacterInstance(
   charId: string,
@@ -47,17 +48,24 @@ export function createCharacterInstance(
     }
   }
 
+  // Skill board bonuses
+  const skillBonuses = calcSkillBonuses(data.growthType, save?.unlockedSkillNodes ?? []);
+  const totalHP  = stats.hp  + bonusHP  + skillBonuses.hp;
+  const totalSTR = stats.str + bonusSTR + skillBonuses.str;
+  const totalMAG = stats.mag + bonusMAG + skillBonuses.mag;
+  const totalATB = data.atbMax + bonusATB + skillBonuses.atbExtra;
+
   return {
     id: `${charId}_${Date.now()}_${Math.random()}`,
     dataId: charId,
     level,
     exp: save?.exp ?? 0,
-    currentHP: stats.hp + bonusHP,
-    maxHP: stats.hp + bonusHP,
-    str: stats.str + bonusSTR,
-    mag: stats.mag + bonusMAG,
+    currentHP: totalHP,
+    maxHP: totalHP,
+    str: totalSTR,
+    mag: totalMAG,
     currentRole: data.roles[0],
-    atb: { current: 0, max: data.atbMax + bonusATB, speedMultiplier: 1.0 + bonusATBSpeed },
+    atb: { current: 0, max: totalATB, speedMultiplier: 1.0 + bonusATBSpeed },
     statusEffects: [],
     equipment: eq,
     roleLevels: save?.roleLevels ?? {},

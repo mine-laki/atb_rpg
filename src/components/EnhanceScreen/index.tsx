@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { SaveData, RoleId, CharacterSaveData, EquipmentInstance } from '../../types';
 import { CHARACTERS, getStatsAtLevel, levelUpCost } from '../../data/characters';
 import { MATERIALS, getEquipmentById, ENHANCE_MULTIPLIERS } from '../../data/equipment';
+import { getSkillNodes } from '../../data/skillBoard';
 import { getRoleEmoji, getRoleLabel } from '../../systems/paradigm';
 
 interface EnhanceScreenProps {
@@ -10,7 +11,7 @@ interface EnhanceScreenProps {
   onBack: () => void;
 }
 
-type EnhanceTab = 'level' | 'role' | 'equip' | 'unlock';
+type EnhanceTab = 'level' | 'role' | 'equip' | 'skill' | 'unlock';
 
 const ROLE_CRYSTAL_MAP: Record<RoleId, string> = {
   ATK: 'crystal_atk', BLA: 'crystal_bla', DEF: 'crystal_def',
@@ -237,9 +238,10 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
 
       {/* Tabs */}
       <div className="enhance-tabs">
-        <button className={tab === 'level'  ? 'active' : ''} onClick={() => setTab('level')}>Lv強化</button>
+        <button className={tab === 'level'  ? 'active' : ''} onClick={() => setTab('level')}>Lv</button>
         <button className={tab === 'role'   ? 'active' : ''} onClick={() => setTab('role')}>ロール</button>
         <button className={tab === 'equip'  ? 'active' : ''} onClick={() => { setTab('equip'); setActiveSlot(null); }}>装備</button>
+        <button className={tab === 'skill'  ? 'active' : ''} onClick={() => setTab('skill')}>スキル</button>
         <button className={tab === 'unlock' ? 'active' : ''} onClick={() => setTab('unlock')}>解放</button>
       </div>
 
@@ -382,6 +384,100 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           )}
         </div>
       )}
+
+      {/* ── Skill board tab ── */}
+      {tab === 'skill' && (() => {
+        const nodes = getSkillNodes(charData.growthType);
+        const unlocked = new Set(charSave.unlockedSkillNodes ?? []);
+
+        const canUnlockNode = (nodeId: string): boolean => {
+          const node = nodes.find(n => n.id === nodeId);
+          if (!node) return false;
+          if (unlocked.has(nodeId)) return false;
+          // check prerequisites
+          if (!node.requires.every(r => unlocked.has(r))) return false;
+          // check gil
+          if (gil < node.cost.gil) return false;
+          // check materials
+          for (const mat of node.cost.materials) {
+            if (getMaterialQty(mat.itemId) < mat.quantity) return false;
+          }
+          return true;
+        };
+
+        const handleUnlockNode = (nodeId: string) => {
+          const node = nodes.find(n => n.id === nodeId);
+          if (!node || !canUnlockNode(nodeId)) return;
+
+          let newGil = gil - node.cost.gil;
+          let newMats = [...materials];
+          for (const mat of node.cost.materials) {
+            newMats = newMats.map(m =>
+              m.itemId === mat.itemId ? { ...m, quantity: m.quantity - mat.quantity } : m
+            ).filter(m => m.quantity > 0);
+          }
+
+          const newRoster = saveData.player.roster.map(r => {
+            if (r.id !== selectedCharId) return r;
+            return { ...r, unlockedSkillNodes: [...(r.unlockedSkillNodes ?? []), nodeId] };
+          });
+
+          onUpdate({
+            ...saveData,
+            player: { ...saveData.player, roster: newRoster },
+            progress: {
+              ...saveData.progress,
+              inventory: { ...saveData.progress.inventory, gil: newGil, materials: newMats },
+            },
+          });
+        };
+
+        return (
+          <div className="enhance-section skill-tab">
+            {nodes.map(node => {
+              const isUnlocked = unlocked.has(node.id);
+              const prereqsMet = node.requires.every(r => unlocked.has(r));
+              const affordable = canUnlockNode(node.id);
+              return (
+                <div
+                  key={node.id}
+                  className={`skill-node ${isUnlocked ? 'unlocked' : prereqsMet ? 'available' : 'locked'}`}
+                >
+                  <div className="skill-node-info">
+                    <span className="skill-node-name">{node.name}</span>
+                    <span className="skill-node-desc">{node.description}</span>
+                    {!isUnlocked && (
+                      <span className="skill-node-cost">
+                        💰{node.cost.gil.toLocaleString()}
+                        {node.cost.materials.map(m => (
+                          <span key={m.itemId}> · {getMaterialEmoji(m.itemId)}{getMaterialName(m.itemId)}×{m.quantity}(所持:{getMaterialQty(m.itemId)})</span>
+                        ))}
+                      </span>
+                    )}
+                    {node.requires.length > 0 && !prereqsMet && (
+                      <span className="skill-node-req">
+                        前提: {node.requires.map(r => nodes.find(n => n.id === r)?.name ?? r).join(', ')}
+                      </span>
+                    )}
+                  </div>
+                  <div className="skill-node-action">
+                    {isUnlocked
+                      ? <span className="skill-unlocked-badge">✓ 解放済</span>
+                      : <button
+                          className="btn-small"
+                          onClick={() => handleUnlockNode(node.id)}
+                          disabled={!affordable || !prereqsMet}
+                        >
+                          解放
+                        </button>
+                    }
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* ── Unlock tab ── */}
       {tab === 'unlock' && (() => {

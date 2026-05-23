@@ -6,10 +6,12 @@ import { HomeScreen } from './components/HomeScreen';
 import { SetupScreen } from './components/SetupScreen';
 import { BattleScreen } from './components/BattleScreen';
 import { ResultScreen } from './components/ResultScreen';
+import { EnhanceScreen } from './components/EnhanceScreen';
+import { ShopScreen } from './components/ShopScreen';
 import { STAGE_WAVES, getEnemyById } from './data/enemies';
 import './App.css';
 
-function buildBattleState(saveData: SaveData): BattleState {
+function buildBattleState(saveData: SaveData): { state: BattleState; waveEnemyIds: string[][] } {
   const party = saveData.player.party.map(id => {
     const charSave = saveData.player.roster.find(r => r.id === id);
     return createCharacterInstance(id, charSave);
@@ -17,9 +19,8 @@ function buildBattleState(saveData: SaveData): BattleState {
 
   const stageIdx = Math.min(saveData.progress.currentStage - 1, STAGE_WAVES.length - 1);
   const waveConfig = STAGE_WAVES[stageIdx] ?? STAGE_WAVES[0];
-  const wave = waveConfig.waves[0];
-
-  const enemies = wave.map((enemyId, idx) => createEnemyInstance(enemyId, idx));
+  const waveEnemyIds = waveConfig.waves;
+  const enemies = waveEnemyIds[0].map((enemyId, idx) => createEnemyInstance(enemyId, idx));
 
   const paradigm = saveData.paradigms[0];
   const partyWithRoles = party.map((char, idx) => ({
@@ -28,15 +29,18 @@ function buildBattleState(saveData: SaveData): BattleState {
   }));
 
   return {
-    phase: 'battle',
-    party: partyWithRoles,
-    enemies,
-    paradigms: saveData.paradigms,
-    activeParadigm: 0,
-    actionLog: [],
-    elapsed: 0,
-    waveIndex: 0,
-    breakCount: 0,
+    state: {
+      phase: 'battle',
+      party: partyWithRoles,
+      enemies,
+      paradigms: saveData.paradigms,
+      activeParadigm: 0,
+      actionLog: [],
+      elapsed: 0,
+      waveIndex: 0,
+      breakCount: 0,
+    },
+    waveEnemyIds,
   };
 }
 
@@ -91,6 +95,7 @@ export default function App() {
   const [screen, setScreen] = useState<GameScreen>('title');
   const [saveData, setSaveData] = useState<SaveData>(() => buildInitialSaveData());
   const [battleState, setBattleState] = useState<BattleState | null>(null);
+  const [waveEnemyIds, setWaveEnemyIds] = useState<string[][]>([]);
   const [lastRewards, setLastRewards] = useState<{ gil: number; drops: DropItem[] }>({ gil: 0, drops: [] });
   const [cacheChecked, setCacheChecked] = useState(false);
   const [showCachePrompt, setShowCachePrompt] = useState(false);
@@ -113,8 +118,9 @@ export default function App() {
 
   const handleSetupStart = useCallback((updatedSave: SaveData) => {
     setSaveData(updatedSave);
-    const bs = buildBattleState(updatedSave);
-    setBattleState(bs);
+    const { state, waveEnemyIds: waves } = buildBattleState(updatedSave);
+    setBattleState(state);
+    setWaveEnemyIds(waves);
     setScreen('battle');
   }, []);
 
@@ -202,6 +208,7 @@ export default function App() {
     return (
       <BattleScreen
         initialState={battleState}
+        waveEnemyIds={waveEnemyIds}
         onVictory={handleVictory}
         onDefeat={handleDefeat}
         onEscape={() => setScreen('home')}
@@ -217,8 +224,9 @@ export default function App() {
         drops={lastRewards.drops}
         onContinue={() => setScreen('home')}
         onRetry={() => {
-          const bs = buildBattleState(saveData);
-          setBattleState(bs);
+          const { state, waveEnemyIds: waves } = buildBattleState(saveData);
+          setBattleState(state);
+          setWaveEnemyIds(waves);
           setScreen('battle');
         }}
       />
@@ -227,22 +235,21 @@ export default function App() {
 
   if (screen === 'enhance') {
     return (
-      <div className="placeholder-screen">
-        <button className="btn-back" onClick={() => setScreen('home')}>← 戻る</button>
-        <h2>強化 (準備中)</h2>
-        <p>キャラクターの強化画面は現在開発中です。</p>
-      </div>
+      <EnhanceScreen
+        saveData={saveData}
+        onUpdate={setSaveData}
+        onBack={() => setScreen('home')}
+      />
     );
   }
 
   if (screen === 'shop') {
     return (
-      <div className="placeholder-screen">
-        <button className="btn-back" onClick={() => setScreen('home')}>← 戻る</button>
-        <h2>ショップ (準備中)</h2>
-        <p>ショップは現在開発中です。</p>
-        <p>所持Gil: {saveData.progress.inventory.gil.toLocaleString()}</p>
-      </div>
+      <ShopScreen
+        saveData={saveData}
+        onUpdate={setSaveData}
+        onBack={() => setScreen('home')}
+      />
     );
   }
 

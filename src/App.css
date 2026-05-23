@@ -96,6 +96,29 @@ button {
 .home-gil { color: #ffcc44; font-weight: bold; }
 .home-playtime { color: #8888aa; font-size: 0.8em; }
 
+/* ---- ホームパーティ表示 ---- */
+.home-party {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.home-party-member {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 10px 6px;
+}
+
+.home-party-emoji { font-size: 1.8em; line-height: 1; }
+.home-party-name { font-size: 0.82em; font-weight: bold; color: #dde; }
+.home-party-level { font-size: 0.75em; color: #aaccff; }
+
 .home-stage-info {
   text-align: center;
   color: #8888aa;
@@ -309,15 +332,25 @@ button {
   flex-direction: column;
   height: 100dvh;
   overflow: hidden;
-  padding: 12px;
-  gap: 10px;
+  padding: 8px 10px;
+  gap: 6px;
   position: relative;
+}
+
+.enemy-area {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 0 0 auto;
+  max-height: 38%;
+  overflow-y: auto;
+  min-height: 60px;
 }
 
 .party-area {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
   overflow-y: auto;
   min-height: 0;
@@ -392,6 +425,17 @@ button {
 
 /* Status badges */
 .char-status { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+
+/* 最後に使用したアビリティ */
+.char-last-action {
+  font-size: 0.72em;
+  color: #99bbff;
+  margin-top: 3px;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .status-badge {
   font-size: 0.8em;
   padding: 1px 4px;
@@ -411,15 +455,7 @@ button {
   text-shadow: 0 0 10px #ff4444;
 }
 
-/* ---- Enemy Area ---- */
-.enemy-area {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-}
+/* ---- Enemy Area ---- (moved above party-area in CSS) */
 
 .enemy-card {
   background: rgba(40,20,20,0.6);
@@ -551,29 +587,102 @@ button {
 .battle-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .btn-escape {
   background: rgba(120,30,30,0.4);
   border-color: rgba(200,80,80,0.3);
   color: #ffaaaa;
-  padding: 8px 14px;
+  padding: 8px 12px;
+  font-size: 12px;
 }
 
 .btn-pause {
   background: rgba(30,60,120,0.4);
   border-color: rgba(80,120,200,0.3);
   color: #aaccff;
-  padding: 8px 14px;
+  padding: 8px 12px;
+}
+
+.btn-log {
+  background: rgba(40,60,40,0.4);
+  border-color: rgba(80,160,80,0.3);
+  color: #aaffaa;
+  padding: 8px 10px;
+  font-size: 15px;
+  line-height: 1;
 }
 
 .battle-timer {
   margin-left: auto;
-  font-size: 1.1em;
+  font-size: 1em;
   font-weight: bold;
   color: #8888aa;
   font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.wave-label {
+  font-size: 0.7em;
+  color: #6666aa;
+  font-weight: normal;
+}
+
+/* ---- ログモーダル ---- */
+.log-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.log-modal {
+  background: #12121e;
+  border: 1px solid rgba(100,100,200,0.4);
+  border-radius: 12px 12px 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.log-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-weight: bold;
+  color: #aaccff;
+}
+
+.log-modal-close {
+  background: none;
+  border: none;
+  color: #8888aa;
+  font-size: 1.2em;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.log-modal-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 8px;
+}
+
+.log-modal-body .action-log {
+  max-height: none;
+  border: none;
+  background: none;
 }
 
 /* Phase Overlay */
@@ -873,6 +982,19 @@ button {
   font-size: 0.85em;
 }
 .btn-buy.disabled, .btn-buy:disabled { opacity: 0.4; cursor: default; }
+
+.shop-item.rare-item {
+  border-color: rgba(255,200,50,0.3);
+  background: rgba(255,180,0,0.04);
+}
+
+.rare-badge {
+  font-size: 0.75em;
+  color: #ffcc44;
+  font-weight: bold;
+}
+
+.item-owned { font-size: 0.75em; color: #aaaacc; }
 
 .enhance-tab { display: flex; flex-direction: column; gap: 12px; }
 

@@ -55,8 +55,8 @@ export const EQUIPMENT_DATA: EquipmentData[] = [
 ];
 
 export const MATERIALS: MaterialData[] = [
-  { id: 'enhance_stone_normal', name: '灰チタン石', emoji: '⚒️', description: '装備強化に使用' },
-  { id: 'enhance_stone_rare',   name: 'アダマンタイト', emoji: '💎', description: '高レベル装備強化に使用' },
+  { id: 'enhance_stone_normal', name: '灰チタン石',    emoji: '⚒️', description: '装備強化に使用' },
+  { id: 'enhance_stone_rare',   name: 'アダマンタイト', emoji: '💎', description: '高レベル装備強化に使用（レア）' },
   { id: 'crystal_atk',          name: '赤のクリスタル', emoji: '⚔️', description: 'ATKロールレベルアップに使用' },
   { id: 'crystal_bla',          name: '青のクリスタル', emoji: '🔮', description: 'BLAロールレベルアップに使用' },
   { id: 'crystal_def',          name: '橙のクリスタル', emoji: '🛡️', description: 'DEFロールレベルアップに使用' },
@@ -64,8 +64,38 @@ export const MATERIALS: MaterialData[] = [
   { id: 'crystal_enh',          name: '紫のクリスタル', emoji: '✨', description: 'ENHロールレベルアップに使用' },
   { id: 'crystal_jam',          name: '灰のクリスタル', emoji: '💜', description: 'JAMロールレベルアップに使用' },
   { id: 'crystal_all',          name: '万能クリスタル', emoji: '🌈', description: 'どのロールにも使用可能' },
-  { id: 'dragon_scale',         name: '竜の鱗',  emoji: '🐉', description: '強化素材' },
-  { id: 'dragon_fang',          name: '竜の牙',  emoji: '🦷', description: '希少強化素材' },
+  { id: 'dragon_scale',         name: '竜の鱗',        emoji: '🐉', description: '強化素材' },
+  { id: 'dragon_fang',          name: '竜の牙',        emoji: '🦷', description: '希少強化素材（レア）' },
+  { id: 'god_proof',            name: '神の証',         emoji: '🌟', description: '最高レアの素材（レア）' },
+  { id: 'acc_dark_stone',       name: 'ダーク石',       emoji: '🌑', description: '闇属性アクセサリ素材' },
+  { id: 'acc_ice_amulet',       name: '氷のお守り',     emoji: '❄️', description: '氷属性アクセサリ素材' },
+  { id: 'acc_thunder_amulet',   name: '雷のお守り',     emoji: '⚡', description: '雷属性アクセサリ素材' },
+];
+
+// ショップで購入できる素材リスト（price: Gilコスト, minCleared: 必要クリアステージ数, isRare: クリア後のみ）
+export interface MaterialShopEntry {
+  itemId: string;
+  price: number;
+  minCleared: number; // クリアステージ数が必要なら1以上
+  isRare: boolean;
+}
+
+export const MATERIAL_SHOP: MaterialShopEntry[] = [
+  // 通常素材 - 常時購入可
+  { itemId: 'enhance_stone_normal', price: 150,   minCleared: 0, isRare: false },
+  { itemId: 'dragon_scale',         price: 400,   minCleared: 1, isRare: false },
+  // クリスタル系 - 高価格
+  { itemId: 'crystal_atk',  price: 800,  minCleared: 1, isRare: false },
+  { itemId: 'crystal_bla',  price: 800,  minCleared: 1, isRare: false },
+  { itemId: 'crystal_def',  price: 800,  minCleared: 1, isRare: false },
+  { itemId: 'crystal_hlr',  price: 800,  minCleared: 1, isRare: false },
+  { itemId: 'crystal_enh',  price: 800,  minCleared: 1, isRare: false },
+  { itemId: 'crystal_jam',  price: 800,  minCleared: 1, isRare: false },
+  { itemId: 'crystal_all',  price: 2500, minCleared: 3, isRare: false },
+  // レア素材 - クリア後のみ高価で購入可
+  { itemId: 'enhance_stone_rare', price: 3000,  minCleared: 2, isRare: true },
+  { itemId: 'dragon_fang',        price: 5000,  minCleared: 3, isRare: true },
+  { itemId: 'god_proof',          price: 15000, minCleared: 5, isRare: true },
 ];
 
 export const ENHANCE_MULTIPLIERS: Record<number, number> = {

@@ -1,4 +1,5 @@
 import type { SaveData, GameScreen } from '../../types';
+import { CHARACTERS } from '../../data/characters';
 import { SaveLoadPanel } from '../SaveLoadPanel';
 
 interface HomeScreenProps {
@@ -24,6 +25,13 @@ function formatPlayTime(seconds: number): string {
 export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, currentStage, selectedStage, onSelectStage, ngPlus }: HomeScreenProps) {
   const playTime = saveData.progress.playTime ?? 0;
 
+  // パーティメンバー情報を取得
+  const partyMembers = saveData.player.party.map(id => {
+    const charData = CHARACTERS.find(c => c.id === id);
+    const charSave = saveData.player.roster.find(r => r.id === id);
+    return { charData, level: charSave?.level ?? 1 };
+  });
+
   return (
     <div className="home-screen">
       <div className="home-header">
@@ -33,6 +41,17 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
           {playTime > 0 && <span className="home-playtime">⏱ {formatPlayTime(playTime)}</span>}
         </div>
         <SaveLoadPanel gameData={saveData} onLoad={onLoad} />
+      </div>
+
+      {/* パーティ表示 */}
+      <div className="home-party">
+        {partyMembers.map(({ charData, level }) => charData ? (
+          <div key={charData.id} className="home-party-member">
+            <span className="home-party-emoji">{charData.emoji}</span>
+            <span className="home-party-name">{charData.name}</span>
+            <span className="home-party-level">Lv.{level}</span>
+          </div>
+        ) : null)}
       </div>
 
       <div className="home-stage-info">

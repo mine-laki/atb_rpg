@@ -123,6 +123,8 @@ export interface CharacterInstance {
   reviveUsed: boolean;  // for revive_once auto ability
   comboCount?: number;  // consecutive action bonus
   ultimateUsed?: boolean; // once-per-battle ultimate flag
+  lastActionName?: string;   // 最後に使ったアビリティ名
+  lastActionCount?: number;  // 連続使用回数
 }
 
 // ---- Enemy ----

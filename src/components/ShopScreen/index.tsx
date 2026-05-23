@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { SaveData, EquipmentInstance } from '../../types';
-import { EQUIPMENT_DATA, getEquipmentById, ENHANCE_COSTS, ENHANCE_MULTIPLIERS } from '../../data/equipment';
+import { EQUIPMENT_DATA, getEquipmentById, ENHANCE_COSTS, ENHANCE_MULTIPLIERS, MATERIAL_SHOP, MATERIALS } from '../../data/equipment';
 
 interface ShopScreenProps {
   saveData: SaveData;
@@ -8,7 +8,7 @@ interface ShopScreenProps {
   onBack: () => void;
 }
 
-type ShopTab = 'buy' | 'enhance';
+type ShopTab = 'buy' | 'material' | 'enhance';
 
 export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
   const [tab, setTab] = useState<ShopTab>('buy');
@@ -19,6 +19,34 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
   const maxStage = clearedStages.length > 0 ? Math.max(...clearedStages) : 0;
 
   const availableItems = EQUIPMENT_DATA.filter(e => e.shopPrice > 0 && e.unlockStage <= maxStage);
+
+  // 購入可能な素材リスト
+  const availableMaterials = MATERIAL_SHOP.filter(entry => {
+    if (entry.minCleared === 0) return true;
+    return maxStage >= entry.minCleared;
+  });
+
+  function buyMaterial(itemId: string, price: number) {
+    if (gil < price) return;
+    const newMaterials = [...saveData.progress.inventory.materials];
+    const existing = newMaterials.find(m => m.itemId === itemId);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      newMaterials.push({ itemId, quantity: 1 });
+    }
+    onUpdate({
+      ...saveData,
+      progress: {
+        ...saveData.progress,
+        inventory: {
+          ...saveData.progress.inventory,
+          gil: gil - price,
+          materials: newMaterials,
+        },
+      },
+    });
+  }
 
   function buyEquipment(itemId: string) {
     const item = getEquipmentById(itemId);
@@ -94,6 +122,7 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
 
       <div className="shop-tabs">
         <button className={tab === 'buy' ? 'active' : ''} onClick={() => setTab('buy')}>装備購入</button>
+        <button className={tab === 'material' ? 'active' : ''} onClick={() => setTab('material')}>素材購入</button>
         <button className={tab === 'enhance' ? 'active' : ''} onClick={() => setTab('enhance')}>装備強化</button>
       </div>
 
@@ -131,6 +160,42 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
                   disabled={!canBuy}
                 >
                   💰{item.shopPrice.toLocaleString()}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {tab === 'material' && (
+        <div className="shop-items">
+          {availableMaterials.length === 0 && (
+            <p className="no-items">ステージをクリアして素材を入荷しよう！</p>
+          )}
+          {availableMaterials.map(entry => {
+            const mat = MATERIALS.find(m => m.id === entry.itemId);
+            if (!mat) return null;
+            const owned = saveData.progress.inventory.materials.find(m => m.itemId === entry.itemId)?.quantity ?? 0;
+            const canBuy = gil >= entry.price;
+            return (
+              <div key={entry.itemId} className={`shop-item ${entry.isRare ? 'rare-item' : ''}`}>
+                <div className="shop-item-info">
+                  <span className="item-emoji">{mat.emoji}</span>
+                  <div className="item-details">
+                    <span className="item-name">
+                      {mat.name}
+                      {entry.isRare && <span className="rare-badge"> ★レア</span>}
+                    </span>
+                    <span className="item-stats">{mat.description}</span>
+                    <span className="item-owned">所持: {owned}個</span>
+                  </div>
+                </div>
+                <button
+                  className={`btn-buy ${canBuy ? '' : 'disabled'}`}
+                  onClick={() => buyMaterial(entry.itemId, entry.price)}
+                  disabled={!canBuy}
+                >
+                  💰{entry.price.toLocaleString()}
                 </button>
               </div>
             );

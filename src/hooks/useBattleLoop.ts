@@ -111,10 +111,13 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
 
           // ATBを消費（アルティメットは全消費）
           const actualCost = ability.isUltimate ? cur.atb.current : ability.cost;
+          const newLastCount = cur.lastActionName === ability.name ? ((cur.lastActionCount ?? 1) + 1) : 1;
           party[charIdx] = {
             ...consumeATB(cur, actualCost),
             comboCount: newComboCount,
             ultimateUsed: ability.isUltimate ? true : cur.ultimateUsed,
+            lastActionName: ability.name,
+            lastActionCount: newLastCount,
           };
 
         // ── Execute ability ──

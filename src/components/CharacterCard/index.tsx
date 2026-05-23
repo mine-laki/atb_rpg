@@ -39,6 +39,14 @@ export function CharacterCard({ char }: CharacterCardProps) {
         ))}
       </div>
 
+      {char.lastActionName && (
+        <div className="char-last-action">
+          {char.lastActionCount && char.lastActionCount > 1
+            ? `${char.lastActionName} ×${char.lastActionCount}`
+            : char.lastActionName}
+        </div>
+      )}
+
       {!char.isAlive && <div className="dead-overlay">KO</div>}
     </div>
   );

@@ -299,11 +299,11 @@ export const ENEMIES: EnemyData[] = [
 
 // ステージ構成
 export const STAGE_WAVES: { stageId: number; waves: string[][] }[] = [
-  { stageId: 1, waves: [['zako_a', 'zako_a', 'zako_a'], ['zako_a', 'zako_a'], ['dragon']] },
-  { stageId: 2, waves: [['zako_a', 'zako_a', 'zako_a'], ['machine'], ['dragon', 'dragon']] },
-  { stageId: 3, waves: [['machine', 'machine'], ['dragon'], ['deathord']] },
-  { stageId: 4, waves: [['dragon', 'dragon', 'dragon'], ['machine', 'machine'], ['chaosgod']] },
-  { stageId: 5, waves: [['dragon', 'machine'], ['deathord'], ['finalboss']] },
+  { stageId: 1, waves: [['slime', 'slime', 'slime'], ['slime', 'zako_a', 'slime'], ['dragon']] },
+  { stageId: 2, waves: [['zako_a', 'zako_a', 'zako_a'], ['ice_wyvern', 'thunder_hawk'], ['machine']] },
+  { stageId: 3, waves: [['golem', 'golem'], ['dark_soldier', 'dark_soldier'], ['deathord']] },
+  { stageId: 4, waves: [['ice_wyvern', 'dark_soldier', 'thunder_hawk'], ['chaos_knight'], ['arch_lich']] },
+  { stageId: 5, waves: [['golem', 'dark_soldier', 'machine'], ['sky_behemoth'], ['finalboss']] },
 ];
 
 export function getEnemyById(id: string): EnemyData | undefined {

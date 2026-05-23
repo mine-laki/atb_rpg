@@ -11,7 +11,7 @@ import { getItemById } from '../../data/items';
 
 interface BattleScreenProps {
   initialState: BattleState;
-  waveEnemyIds: string[][];  // wave[i] = list of enemy IDs
+  waveEnemyIds: string[][];
   onVictory: (state: BattleState) => void;
   onDefeat: () => void;
   onEscape: () => void;
@@ -21,7 +21,9 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
   const [state, setState] = useState<BattleState>(initialState);
   const [isRunning, setIsRunning] = useState(true);
   const [waveTransition, setWaveTransition] = useState(false);
+  const [showLogModal, setShowLogModal] = useState(false);
   const resultCalledRef = useRef(false);
+  const wasRunningBeforeModalRef = useRef(false);
 
   const handleStateUpdate = useCallback((updater: (prev: BattleState) => BattleState) => {
     setState(prev => {
@@ -32,7 +34,6 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
         const nextWave = next.waveIndex + 1;
 
         if (nextWave < waveEnemyIds.length) {
-          // load next wave after 2s
           setWaveTransition(true);
           setTimeout(() => {
             const enemies = waveEnemyIds[nextWave].map((id, i) => createEnemyInstance(id, i));
@@ -78,7 +79,6 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
 
   const handleParadigmSwitch = useCallback((slot: number) => {
     const wasRunning = isRunning;
-    // バトルループを一瞬停止してから作戦切り替え → 競合を完全回避
     setIsRunning(false);
     setState(prev => {
       const paradigm = prev.paradigms[slot];
@@ -98,14 +98,12 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
       const itemData = getItemById(itemId);
       if (!itemData || !itemData.healPercent) return prev;
 
-      // Heal all alive party members
       const newParty = prev.party.map(char => {
         if (!char.isAlive) return char;
         const heal = Math.floor(char.maxHP * itemData.healPercent!);
         return { ...char, currentHP: Math.min(char.maxHP, char.currentHP + heal) };
       });
 
-      // Decrement item quantity
       const newBattleItems = prev.battleItems.map(b =>
         b.itemId === itemId ? { ...b, quantity: b.quantity - 1 } : b
       );
@@ -114,17 +112,25 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
     });
   }, []);
 
+  const openLogModal = useCallback(() => {
+    wasRunningBeforeModalRef.current = isRunning;
+    setIsRunning(false);
+    setShowLogModal(true);
+  }, [isRunning]);
+
+  const closeLogModal = useCallback(() => {
+    setShowLogModal(false);
+    if (wasRunningBeforeModalRef.current) {
+      setIsRunning(true);
+    }
+  }, []);
+
   const aliveEnemies = state.enemies.filter(e => e.currentHP > 0);
   const totalWaves = waveEnemyIds.length;
 
   return (
     <div className="battle-screen">
-      {/* Wave indicator */}
-      <div className="wave-indicator">
-        Wave {state.waveIndex + 1} / {totalWaves}
-        {waveTransition && <span className="wave-transition"> — 次の波...</span>}
-      </div>
-
+      {/* オーバーレイ */}
       {state.phase === 'victory' && !waveTransition && (
         <div className="phase-overlay victory">勝利!</div>
       )}
@@ -135,6 +141,22 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
         <div className="phase-overlay wave-clear">Wave クリア!</div>
       )}
 
+      {/* ログモーダル */}
+      {showLogModal && (
+        <div className="log-modal-overlay" onClick={closeLogModal}>
+          <div className="log-modal" onClick={e => e.stopPropagation()}>
+            <div className="log-modal-header">
+              <span>バトルログ</span>
+              <button className="log-modal-close" onClick={closeLogModal}>✕</button>
+            </div>
+            <div className="log-modal-body">
+              <ActionLog entries={state.actionLog} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 敵エリア */}
       <div className="enemy-area">
         {aliveEnemies.map(enemy => (
           <EnemyCard key={enemy.id} enemy={enemy} />
@@ -144,12 +166,14 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
         )}
       </div>
 
+      {/* パーティエリア */}
       <div className="party-area">
         {state.party.map(char => (
           <CharacterCard key={char.id} char={char} />
         ))}
       </div>
 
+      {/* 作戦パネル */}
       <ParadigmPanel
         paradigms={state.paradigms}
         activeSlot={state.activeParadigm}
@@ -157,9 +181,7 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
         disabled={state.phase !== 'battle' || waveTransition}
       />
 
-      <ActionLog entries={state.actionLog} />
-
-      {/* Battle items */}
+      {/* バトルアイテム */}
       {state.battleItems.length > 0 && (
         <div className="battle-items-row">
           {state.battleItems.map(item => {
@@ -180,14 +202,19 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
         </div>
       )}
 
+      {/* コントロールバー */}
       <div className="battle-controls">
         <button className="btn-escape" onClick={() => { setIsRunning(false); onEscape(); }}>
           逃げる
+        </button>
+        <button className="btn-log" onClick={openLogModal} title="バトルログ">
+          📋
         </button>
         <button className="btn-pause" onClick={() => setIsRunning(r => !r)}>
           {isRunning ? '⏸' : '▶'}
         </button>
         <div className="battle-timer">
+          <span className="wave-label">Wave {state.waveIndex + 1}/{totalWaves}</span>
           {Math.floor(state.elapsed / 60).toString().padStart(2, '0')}:
           {Math.floor(state.elapsed % 60).toString().padStart(2, '0')}
         </div>

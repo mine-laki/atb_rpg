@@ -8,9 +8,10 @@ interface AbilityViewerProps {
   charSave: CharacterSaveData;
 }
 
-export function AbilityViewer({ charData, charSave }: AbilityViewerProps) {
-  const unlockedRoles = charSave.unlockedRoles ?? [charData.roles[0]];
-  const [activeRole, setActiveRole] = useState<RoleId>(unlockedRoles[0] ?? charData.roles[0]);
+export function AbilityViewer({ charData, charSave: _charSave }: AbilityViewerProps) {
+  // キャラが持つ全ロールを表示（unlockedRoles は初期1つだけなので charData.roles を使う）
+  const allRoles = charData.roles;
+  const [activeRole, setActiveRole] = useState<RoleId>(allRoles[0]);
 
   const roleAbilities = getAbilitiesForRole(activeRole, charData.id);
   const uniqueAbilities = charData.uniqueAbilities
@@ -22,7 +23,7 @@ export function AbilityViewer({ charData, charSave }: AbilityViewerProps) {
   return (
     <div className="ability-viewer">
       <div className="ability-viewer-tabs">
-        {unlockedRoles.map(role => (
+        {allRoles.map(role => (
           <button
             key={role}
             className={`ability-role-tab ${activeRole === role ? 'active' : ''}`}

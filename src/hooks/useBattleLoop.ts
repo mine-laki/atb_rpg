@@ -80,33 +80,39 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
 
       const newLogs: ActionLogEntry[] = [];
 
-      // ── 3. AI actions (sequential so each char sees up-to-date party/enemies) ──
+      // ── 3. AI actions (sequential; inner while-loop for consecutive actions) ──
       for (let charIdx = 0; charIdx < party.length; charIdx++) {
-        const char = party[charIdx];
-        if (!char.isAlive) continue;
+        if (!party[charIdx].isAlive) continue;
 
-        const decision = aiSelectAction(char, party, enemies, []);
-        if (!decision) continue;
-
-        const { ability, targetCharIdx, targetEnemyIdx } = decision;
-        if (!hasEnoughATB(char, ability.cost)) continue;
-
-        const charData = CHARACTERS.find(c => c.id === char.dataId);
+        const charData = CHARACTERS.find(c => c.id === party[charIdx].dataId);
         const actorEmoji = charData?.emoji ?? '';
-        const actorName  = charData?.name  ?? char.dataId;
+        const actorName  = charData?.name  ?? party[charIdx].dataId;
 
-        // Track combo count (consecutive action bonus, Item 19)
-        const wasAtbFull = char.atb.current >= char.atb.max - 0.1;
-        const newComboCount = wasAtbFull ? Math.min(5, (char.comboCount ?? 0) + 1) : 0;
+        // 連続行動: ATBが続く限り同じキャラが連続で行動（最大6回/ティックで安全装置）
+        let actionsThisTick = 0;
+        while (actionsThisTick < 6) {
+          const cur = party[charIdx];
+          if (!cur.isAlive) break;
 
-        // Consume ATB for this character
-        // For ultimates, consume all ATB
-        const actualCost = ability.isUltimate ? char.atb.current : ability.cost;
-        party[charIdx] = {
-          ...consumeATB(char, actualCost),
-          comboCount: newComboCount,
-          ultimateUsed: ability.isUltimate ? true : char.ultimateUsed,
-        };
+          const decision = aiSelectAction(cur, party, enemies, []);
+          if (!decision) break;
+
+          const { ability, targetCharIdx, targetEnemyIdx } = decision;
+          if (!hasEnoughATB(cur, ability.cost)) break;
+
+          actionsThisTick++;
+
+          // コンボカウント: ATBフルの状態で行動するとコンボ+1（最大5）
+          const wasAtbFull = cur.atb.current >= cur.atb.max - 0.1;
+          const newComboCount = wasAtbFull ? Math.min(5, (cur.comboCount ?? 0) + 1) : 0;
+
+          // ATBを消費（アルティメットは全消費）
+          const actualCost = ability.isUltimate ? cur.atb.current : ability.cost;
+          party[charIdx] = {
+            ...consumeATB(cur, actualCost),
+            comboCount: newComboCount,
+            ultimateUsed: ability.isUltimate ? true : cur.ultimateUsed,
+          };
 
         // ── Execute ability ──
         if (ability.healPercent && (ability.id.includes('raise') || ability.id.includes('arise'))) {
@@ -235,6 +241,7 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
             value: 0, type: 'buff',
           });
         }
+        } // end while (consecutive actions)
       }
 
       // ── 4. Enemy actions ──

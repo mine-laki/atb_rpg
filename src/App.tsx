@@ -12,9 +12,10 @@ import { STAGE_WAVES, getEnemyById } from './data/enemies';
 import './App.css';
 
 function buildBattleState(saveData: SaveData): { state: BattleState; waveEnemyIds: string[][] } {
+  const inventory = saveData.progress.inventory;
   const party = saveData.player.party.map(id => {
     const charSave = saveData.player.roster.find(r => r.id === id);
-    return createCharacterInstance(id, charSave);
+    return createCharacterInstance(id, charSave, inventory);
   });
 
   const stageIdx = Math.min(saveData.progress.currentStage - 1, STAGE_WAVES.length - 1);

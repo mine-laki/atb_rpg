@@ -1,13 +1,15 @@
 import type {
   CharacterInstance, EnemyInstance, SaveData,
-  CharacterSaveData, ProgressData, EquipmentInstance,
+  CharacterSaveData, ProgressData, EquipmentInstance, Inventory,
 } from '../types';
 import { CHARACTERS, INITIAL_PARTY, INITIAL_UNLOCKED, getStatsAtLevel } from '../data/characters';
 import { ENEMIES } from '../data/enemies';
+import { getEquipmentById, ENHANCE_MULTIPLIERS } from '../data/equipment';
 
 export function createCharacterInstance(
   charId: string,
   save?: CharacterSaveData,
+  inventory?: Inventory,
 ): CharacterInstance {
   const data = CHARACTERS.find(c => c.id === charId);
   if (!data) throw new Error(`Unknown character: ${charId}`);
@@ -15,25 +17,47 @@ export function createCharacterInstance(
   const level = save?.level ?? 1;
   const stats = getStatsAtLevel(data, level);
 
-  const eq = {
-    weapon:     null as EquipmentInstance | null,
-    accessory1: null as EquipmentInstance | null,
-    accessory2: null as EquipmentInstance | null,
+  // Resolve EquipmentInstances from save instance IDs
+  const resolveInst = (id: string | null | undefined): EquipmentInstance | null => {
+    if (!id || !inventory) return null;
+    return inventory.equipments.find(e => e.instanceId === id) ?? null;
   };
 
-  const bonusATB = 0;
+  const weaponInst    = resolveInst(save?.equipment?.weapon);
+  const accessory1Inst = resolveInst(save?.equipment?.accessory1);
+  const accessory2Inst = resolveInst(save?.equipment?.accessory2);
+
+  const eq = { weapon: weaponInst, accessory1: accessory1Inst, accessory2: accessory2Inst };
+
+  // Apply equipment stat bonuses
+  let bonusHP = 0, bonusSTR = 0, bonusMAG = 0;
+  let bonusATB = 0, bonusATBSpeed = 0;
+
+  for (const inst of [weaponInst, accessory1Inst, accessory2Inst]) {
+    if (!inst) continue;
+    const eData = getEquipmentById(inst.itemId);
+    if (!eData) continue;
+    const mult = ENHANCE_MULTIPLIERS[inst.enhanceLevel] ?? 1.0;
+    bonusHP  += Math.floor((eData.baseStats.hp  ?? 0) * mult);
+    bonusSTR += Math.floor((eData.baseStats.str ?? 0) * mult);
+    bonusMAG += Math.floor((eData.baseStats.mag ?? 0) * mult);
+    for (const eff of eData.effects) {
+      if (eff.type === 'atb_expand') bonusATB += eff.value;
+      if (eff.type === 'atb_speed')  bonusATBSpeed += eff.value;
+    }
+  }
 
   return {
     id: `${charId}_${Date.now()}_${Math.random()}`,
     dataId: charId,
     level,
     exp: save?.exp ?? 0,
-    currentHP: stats.hp,
-    maxHP: stats.hp,
-    str: stats.str,
-    mag: stats.mag,
+    currentHP: stats.hp + bonusHP,
+    maxHP: stats.hp + bonusHP,
+    str: stats.str + bonusSTR,
+    mag: stats.mag + bonusMAG,
     currentRole: data.roles[0],
-    atb: { current: 0, max: data.atbMax + bonusATB, speedMultiplier: 1.0 },
+    atb: { current: 0, max: data.atbMax + bonusATB, speedMultiplier: 1.0 + bonusATBSpeed },
     statusEffects: [],
     equipment: eq,
     roleLevels: save?.roleLevels ?? {},

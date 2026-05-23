@@ -867,6 +867,125 @@ button {
 .btn-buy.disabled, .btn-buy:disabled { opacity: 0.4; cursor: default; }
 
 .enhance-tab { display: flex; flex-direction: column; gap: 12px; }
+
+/* ---- Enhance screen tabs ---- */
+.enhance-tabs {
+  display: flex;
+  gap: 6px;
+}
+.enhance-tabs button {
+  flex: 1;
+  padding: 7px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #aaa;
+  font-size: 0.85em;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.enhance-tabs button.active {
+  background: rgba(60,100,180,0.35);
+  border-color: #4466cc;
+  color: #aaccff;
+}
+
+.stat-bonus { color: #88ff88; font-size: 0.85em; }
+
+/* ---- Equip tab ---- */
+.equip-tab { gap: 10px; }
+
+.equip-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.equip-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.equip-slot:hover { background: rgba(255,255,255,0.06); }
+.equip-slot.active {
+  background: rgba(40,80,160,0.25);
+  border-color: #4466cc;
+}
+.equip-slot-label {
+  color: #8888aa;
+  font-size: 0.8em;
+  min-width: 52px;
+}
+.equip-slot-item { flex: 1; font-size: 0.9em; }
+.no-equip { color: #555; font-style: italic; }
+
+.btn-unequip {
+  padding: 3px 8px;
+  font-size: 0.75em;
+  background: rgba(180,60,60,0.25);
+  border: 1px solid #cc4444;
+  color: #ff9999;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-unequip:hover { background: rgba(180,60,60,0.45); }
+
+.equip-picker {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(100,140,255,0.2);
+  border-radius: 8px;
+  padding: 10px;
+}
+.equip-picker h4 {
+  color: #aaccff;
+  font-size: 0.9em;
+  margin-bottom: 8px;
+}
+
+.equip-pick-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  margin-bottom: 4px;
+  transition: background 0.12s;
+}
+.equip-pick-item:hover { background: rgba(255,255,255,0.07); }
+.equip-pick-item.equipped-here {
+  background: rgba(60,120,60,0.2);
+  border-color: #44cc44;
+}
+.equip-pick-item.equipped-elsewhere {
+  opacity: 0.7;
+}
+
+.equip-pick-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.equip-pick-emoji { font-size: 1.4em; }
+.equip-pick-name { font-size: 0.9em; font-weight: bold; display: block; }
+.equip-pick-stats { font-size: 0.76em; color: #88aacc; }
+
+.equip-badge {
+  font-size: 0.72em;
+  padding: 2px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.equip-badge.equipped  { background: rgba(40,120,40,0.4);  border: 1px solid #44cc44; color: #88ff88; }
+.equip-badge.elsewhere { background: rgba(120,80,0,0.4);   border: 1px solid #aa6600; color: #ffaa44; }
+.equip-badge.free      { background: rgba(40,80,180,0.3);  border: 1px solid #4466cc; color: #aaccff; }
 .inventory-list { display: flex; flex-direction: column; gap: 6px; }
 .inventory-list h3 { color: #aaaacc; margin-bottom: 6px; font-size: 0.9em; }
 

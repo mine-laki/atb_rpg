@@ -1,6 +1,7 @@
 import type { BattleState, DropItem } from '../../types';
 import { getEnemyById } from '../../data/enemies';
 import { getMaterialById, getEquipmentById } from '../../data/equipment';
+import { CHARACTERS } from '../../data/characters';
 
 interface ResultScreenProps {
   state: BattleState;
@@ -42,12 +43,22 @@ export function ResultScreen({ state, gil, drops, onContinue, onRetry }: ResultS
             <div className="drops">
               <h3>ドロップアイテム</h3>
               {drops.map((drop, i) => {
-                const name = drop.type === 'material'
-                  ? getMaterialById(drop.itemId)?.name
-                  : getEquipmentById(drop.itemId)?.name;
+                let label = drop.itemId;
+                let emoji = '';
+                if (drop.itemId.startsWith('fragment_')) {
+                  const charId = drop.itemId.replace('fragment_', '');
+                  const char = CHARACTERS.find(c => c.id === charId);
+                  emoji = char?.emoji ?? '✨';
+                  label = `${char?.name ?? charId}フラグメント`;
+                } else {
+                  const matData = getMaterialById(drop.itemId);
+                  const eqData  = getEquipmentById(drop.itemId);
+                  emoji = matData?.emoji ?? eqData?.emoji ?? '📦';
+                  label = matData?.name ?? eqData?.name ?? drop.itemId;
+                }
                 return (
                   <div key={i} className="drop-item">
-                    {name ?? drop.itemId} ×{drop.quantity}
+                    {emoji} {label} ×{drop.quantity}
                   </div>
                 );
               })}

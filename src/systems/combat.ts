@@ -10,8 +10,24 @@ function makeLogId(): string {
   return `log_${++logIdCounter}`;
 }
 
+function getRoleLevelBonus(char: CharacterInstance): number {
+  const roleLv = (char.roleLevels?.[char.currentRole] ?? 1);
+  switch (char.currentRole) {
+    case 'ATK': return roleLv * 0.03;  // +3% physical damage per level
+    case 'BLA': return roleLv * 0.03;  // +3% magic damage per level
+    default:    return 0;
+  }
+}
+
 function calcDamageBoosts(char: CharacterInstance, ability: CommandAbility, enemy: EnemyInstance): number {
   let mult = 1.0;
+
+  // Role level bonus (ATK = physical, BLA = magic/elemental)
+  const roleLvBonus = getRoleLevelBonus(char);
+  if (ability.power !== undefined) {
+    if (!ability.element && char.currentRole === 'ATK') mult += roleLvBonus;
+    if ( ability.element && char.currentRole === 'BLA') mult += roleLvBonus;
+  }
 
   for (const eff of char.statusEffects) {
     if (eff.id === 'bravery' && ability.power && !ability.healValue) mult += 0.30;
@@ -87,6 +103,11 @@ export function executeHeal(
   const logs: ActionLogEntry[] = [];
   let healMult = 1.0;
 
+  // HLR role level bonus: +4% heal per level
+  if (char.currentRole === 'HLR') {
+    healMult += (char.roleLevels?.['HLR'] ?? 1) * 0.04;
+  }
+
   for (const eff of char.statusEffects) {
     if (eff.id === 'faith') healMult += 0.30;
   }
@@ -147,11 +168,16 @@ export function calcEnemyDamage(
   const raw = enemyData.str * power;
   let mult = 1.0;
 
+  // DEF role level bonus: +2% damage reduction per level
+  if (target.currentRole === 'DEF') {
+    mult -= (target.roleLevels?.['DEF'] ?? 1) * 0.02;
+  }
+
   for (const eff of target.statusEffects) {
     if (eff.id === 'prot')  mult *= 0.7;
     if (eff.id === 'shell') mult *= 0.7;
     if (eff.id === 'guard') mult *= 0.5;
   }
 
-  return Math.floor(raw * mult * (0.9 + Math.random() * 0.2));
+  return Math.floor(raw * Math.max(0.1, mult) * (0.9 + Math.random() * 0.2));
 }

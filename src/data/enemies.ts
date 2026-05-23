@@ -11,8 +11,8 @@ export const ENEMIES: EnemyData[] = [
     gilReward: 100,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 0.80 }],
-      uncommon: [{ itemId: 'crystal_atk', rate: 0.20 }],
-      rare:     [{ itemId: 'crystal_atk', rate: 0.40 }],
+      uncommon: [{ itemId: 'crystal_atk', rate: 0.20 }, { itemId: 'fragment_kuri', rate: 0.18 }, { itemId: 'fragment_kaze', rate: 0.15 }],
+      rare:     [{ itemId: 'crystal_atk', rate: 0.40 }, { itemId: 'fragment_taka', rate: 0.12 }],
     },
     actions: [
       { id: 'za_attack', name: 'たたかう', power: 0.8, cooldown: 2.5 },
@@ -28,8 +28,8 @@ export const ENEMIES: EnemyData[] = [
     gilReward: 300,
     dropTable: {
       common:   [{ itemId: 'dragon_scale', rate: 0.70 }],
-      uncommon: [{ itemId: 'acc_ice_amulet', rate: 0.25 }],
-      rare:     [{ itemId: 'dragon_fang', rate: 0.15 }],
+      uncommon: [{ itemId: 'acc_ice_amulet', rate: 0.25 }, { itemId: 'fragment_tora', rate: 0.18 }, { itemId: 'fragment_voru', rate: 0.15 }],
+      rare:     [{ itemId: 'dragon_fang', rate: 0.15 }, { itemId: 'fragment_reo', rate: 0.12 }],
     },
     actions: [
       { id: 'dr_bite',    name: 'バイト',     power: 1.2, cooldown: 3.0 },
@@ -46,8 +46,8 @@ export const ENEMIES: EnemyData[] = [
     gilReward: 200,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 0.75 }],
-      uncommon: [{ itemId: 'crystal_bla', rate: 0.25 }],
-      rare:     [{ itemId: 'acc_thunder_amulet', rate: 0.20 }],
+      uncommon: [{ itemId: 'crystal_bla', rate: 0.25 }, { itemId: 'fragment_bom', rate: 0.18 }, { itemId: 'fragment_sac', rate: 0.15 }],
+      rare:     [{ itemId: 'acc_thunder_amulet', rate: 0.20 }, { itemId: 'fragment_daku', rate: 0.12 }],
     },
     actions: [
       { id: 'mc_laser',   name: 'レーザー',   power: 1.0, element: 'thunder', cooldown: 3.0 },
@@ -66,8 +66,8 @@ export const ENEMIES: EnemyData[] = [
     isBoss: true,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_bla', rate: 1.0 }],
-      uncommon: [{ itemId: 'acc_dark_stone', rate: 0.10 }],
-      rare:     [{ itemId: 'acc_dark_stone', rate: 0.05 }],
+      uncommon: [{ itemId: 'acc_dark_stone', rate: 0.10 }, { itemId: 'fragment_en', rate: 0.35 }, { itemId: 'fragment_jio', rate: 0.30 }],
+      rare:     [{ itemId: 'acc_dark_stone', rate: 0.05 }, { itemId: 'fragment_doc', rate: 0.25 }, { itemId: 'fragment_roku', rate: 0.20 }],
     },
     actions: [
       { id: 'dl_dark',    name: 'ダーク',     power: 1.2, element: 'dark',  cooldown: 3.0 },
@@ -88,8 +88,8 @@ export const ENEMIES: EnemyData[] = [
     isBoss: true,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }],
-      uncommon: [{ itemId: 'god_proof', rate: 0.03 }],
-      rare:     [{ itemId: 'god_proof', rate: 0.05 }],
+      uncommon: [{ itemId: 'god_proof', rate: 0.03 }, { itemId: 'fragment_ran', rate: 0.40 }, { itemId: 'fragment_hana', rate: 0.40 }, { itemId: 'fragment_kou', rate: 0.35 }],
+      rare:     [{ itemId: 'god_proof', rate: 0.05 }, { itemId: 'fragment_roza', rate: 0.30 }, { itemId: 'fragment_cho', rate: 0.30 }, { itemId: 'fragment_kika', rate: 0.25 }],
     },
     actions: [
       { id: 'cg_quake',   name: 'クエイク',   power: 1.5, element: 'earth', aoe: true, cooldown: 5.0 },
@@ -111,8 +111,8 @@ export const ENEMIES: EnemyData[] = [
     isBoss: true,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_all', rate: 1.0 }],
-      uncommon: [{ itemId: 'god_proof', rate: 0.10 }],
-      rare:     [{ itemId: 'god_proof', rate: 0.15 }],
+      uncommon: [{ itemId: 'god_proof', rate: 0.10 }, { itemId: 'fragment_ryu', rate: 0.50 }, { itemId: 'fragment_ste', rate: 0.50 }, { itemId: 'fragment_baru', rate: 0.45 }],
+      rare:     [{ itemId: 'god_proof', rate: 0.15 }, { itemId: 'fragment_pose', rate: 0.40 }, { itemId: 'fragment_gan', rate: 0.40 }],
     },
     actions: [
       { id: 'fb_fire',    name: 'ファイガ',   power: 2.0, element: 'fire',    cooldown: 4.0 },

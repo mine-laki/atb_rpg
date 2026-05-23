@@ -986,6 +986,55 @@ button {
 .equip-badge.equipped  { background: rgba(40,120,40,0.4);  border: 1px solid #44cc44; color: #88ff88; }
 .equip-badge.elsewhere { background: rgba(120,80,0,0.4);   border: 1px solid #aa6600; color: #ffaa44; }
 .equip-badge.free      { background: rgba(40,80,180,0.3);  border: 1px solid #4466cc; color: #aaccff; }
+
+/* ---- Unlock tab ---- */
+.unlock-tab { display: flex; flex-direction: column; gap: 8px; }
+
+.unlock-hint {
+  color: #8888aa;
+  font-size: 0.82em;
+  margin-bottom: 4px;
+}
+
+.unlock-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+}
+.unlock-card.can-unlock {
+  background: rgba(60,100,40,0.15);
+  border-color: rgba(80,160,60,0.4);
+}
+
+.unlock-char-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.unlock-emoji { font-size: 1.6em; filter: grayscale(100%); }
+.unlock-card.can-unlock .unlock-emoji { filter: none; }
+.unlock-name  { display: block; font-weight: bold; font-size: 0.9em; }
+.unlock-roles { display: block; font-size: 0.75em; color: #8888aa; }
+
+.unlock-fragments {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fragment-count { font-size: 0.85em; color: #888; }
+.fragment-ready { font-size: 0.85em; color: #88ff88; font-weight: bold; }
+
+.btn-unlock {
+  background: rgba(60,120,40,0.35);
+  border-color: #44aa22;
+  color: #88ff66;
+}
+.btn-unlock:disabled { opacity: 0.35; cursor: default; }
 .inventory-list { display: flex; flex-direction: column; gap: 6px; }
 .inventory-list h3 { color: #aaaacc; margin-bottom: 6px; font-size: 0.9em; }
 

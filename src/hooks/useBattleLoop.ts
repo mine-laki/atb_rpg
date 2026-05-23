@@ -113,12 +113,18 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
             ? party.filter(p => p.isAlive)
             : [party[tIdx]].filter(Boolean) as CharacterInstance[];
 
+          // ENH role level bonus: +5% buff duration per level
+          const enhRoleLv = party[charIdx].currentRole === 'ENH'
+            ? (party[charIdx].roleLevels?.['ENH'] ?? 1) : 0;
+          const buffDurationMult = 1 + enhRoleLv * 0.05;
+
           for (const bt of targets) {
             const pi = party.findIndex(p => p.id === bt.id);
             if (pi < 0) continue;
             const newEffects = [...party[pi].statusEffects];
             for (const buffId of ability.buff!) {
-              const duration = buffId === 'haste' ? 20 : buffId === 'faith' ? 25 : buffId === 'regen' ? 30 : 30;
+              const baseDuration = buffId === 'haste' ? 20 : buffId === 'faith' ? 25 : buffId === 'regen' ? 30 : 30;
+              const duration = Math.round(baseDuration * buffDurationMult);
               const existing = newEffects.findIndex(e => e.id === buffId);
               const effect = { id: buffId as any, type: 'buff' as const, duration, value: 1 };
               if (existing >= 0) newEffects[existing] = effect;
@@ -139,9 +145,15 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
           // Debuff enemy
           const eIdx = targetEnemyIdx ?? enemies.findIndex(e => e.currentHP > 0);
           if (eIdx >= 0 && enemies[eIdx]) {
+            // JAM role level bonus: +5% debuff duration per level
+            const jamRoleLv = party[charIdx].currentRole === 'JAM'
+              ? (party[charIdx].roleLevels?.['JAM'] ?? 1) : 0;
+            const debuffDurationMult = 1 + jamRoleLv * 0.05;
+
             const newEffects = [...enemies[eIdx].statusEffects];
             for (const debuffId of ability.debuff!) {
-              const duration = debuffId === 'stop' ? 5 : debuffId === 'slow' ? 20 : 25;
+              const baseDuration = debuffId === 'stop' ? 5 : debuffId === 'slow' ? 20 : 25;
+              const duration = Math.round(baseDuration * debuffDurationMult);
               const existing = newEffects.findIndex(e => e.id === debuffId);
               const effect = { id: debuffId as any, type: 'debuff' as const, duration, value: 0.3 };
               if (existing >= 0) newEffects[existing] = effect;

@@ -13,15 +13,19 @@ export function applyChainHit(
   enemy: EnemyInstance,
   ability: CommandAbility,
   isWeakness: boolean,
-  _char: CharacterInstance,
+  char: CharacterInstance,
   timestamp: number,
 ): EnemyInstance {
   let chainIncrease = ability.chainBonus;
 
+  // BLA role level bonus: +3% chain per level
+  if (char.currentRole === 'BLA') {
+    chainIncrease *= 1 + (char.roleLevels?.['BLA'] ?? 1) * 0.03;
+  }
+
   // weakness multiplier
   if (isWeakness) chainIncrease *= 1.5;
 
-  // check char auto abilities for chain_boost
   const newGauge = Math.min(MAX_CHAIN, enemy.chainGauge + chainIncrease);
   const wasBreaking = enemy.isBreaking;
   const nowBreaking = newGauge >= enemy.chainGauge

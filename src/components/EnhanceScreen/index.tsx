@@ -10,7 +10,7 @@ interface EnhanceScreenProps {
   onBack: () => void;
 }
 
-type EnhanceTab = 'level' | 'role' | 'equip';
+type EnhanceTab = 'level' | 'role' | 'equip' | 'unlock';
 
 const ROLE_CRYSTAL_MAP: Record<RoleId, string> = {
   ATK: 'crystal_atk', BLA: 'crystal_bla', DEF: 'crystal_def',
@@ -237,9 +237,10 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
 
       {/* Tabs */}
       <div className="enhance-tabs">
-        <button className={tab === 'level' ? 'active' : ''} onClick={() => setTab('level')}>Lv強化</button>
-        <button className={tab === 'role'  ? 'active' : ''} onClick={() => setTab('role')}>ロール</button>
-        <button className={tab === 'equip' ? 'active' : ''} onClick={() => { setTab('equip'); setActiveSlot(null); }}>装備</button>
+        <button className={tab === 'level'  ? 'active' : ''} onClick={() => setTab('level')}>Lv強化</button>
+        <button className={tab === 'role'   ? 'active' : ''} onClick={() => setTab('role')}>ロール</button>
+        <button className={tab === 'equip'  ? 'active' : ''} onClick={() => { setTab('equip'); setActiveSlot(null); }}>装備</button>
+        <button className={tab === 'unlock' ? 'active' : ''} onClick={() => setTab('unlock')}>解放</button>
       </div>
 
       {/* ── Level up tab ── */}
@@ -382,6 +383,83 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
         </div>
       )}
 
+      {/* ── Unlock tab ── */}
+      {tab === 'unlock' && (() => {
+        const FRAGMENT_COST = 3;
+        const lockedChars = CHARACTERS.filter(
+          c => !saveData.progress.unlockedCharacters.includes(c.id)
+        );
+
+        const handleUnlock = (charId: string) => {
+          const fragmentId = `fragment_${charId}`;
+          const owned = getMaterialQty(fragmentId);
+          if (owned < FRAGMENT_COST) return;
+
+          const newMats = materials.map(m => {
+            if (m.itemId !== fragmentId) return m;
+            return { ...m, quantity: m.quantity - FRAGMENT_COST };
+          }).filter(m => m.quantity > 0);
+
+          const newRosterEntry = {
+            id: charId,
+            level: 1,
+            exp: 0,
+            equipment: { weapon: null, accessory1: null, accessory2: null },
+            unlockedRoles: [CHARACTERS.find(c => c.id === charId)!.roles[0]],
+            roleLevels: {},
+            unlockedSkillNodes: [],
+          };
+
+          onUpdate({
+            ...saveData,
+            player: {
+              ...saveData.player,
+              roster: [...saveData.player.roster.filter(r => r.id !== charId), newRosterEntry],
+            },
+            progress: {
+              ...saveData.progress,
+              unlockedCharacters: [...saveData.progress.unlockedCharacters, charId],
+              inventory: { ...saveData.progress.inventory, materials: newMats },
+            },
+          });
+        };
+
+        return (
+          <div className="enhance-section unlock-tab">
+            <p className="unlock-hint">フラグメントを{FRAGMENT_COST}個集めてキャラクターを解放しよう！</p>
+            {lockedChars.length === 0 && <p className="no-items">全キャラ解放済み！</p>}
+            {lockedChars.map(c => {
+              const fragmentId = `fragment_${c.id}`;
+              const owned = getMaterialQty(fragmentId);
+              const canUnlock = owned >= FRAGMENT_COST;
+              return (
+                <div key={c.id} className={`unlock-card ${canUnlock ? 'can-unlock' : ''}`}>
+                  <div className="unlock-char-info">
+                    <span className="unlock-emoji">{c.emoji}</span>
+                    <div>
+                      <span className="unlock-name">{c.name}</span>
+                      <span className="unlock-roles">{c.roles.join(' / ')}</span>
+                    </div>
+                  </div>
+                  <div className="unlock-fragments">
+                    <span className={owned >= FRAGMENT_COST ? 'fragment-ready' : 'fragment-count'}>
+                      {c.emoji}×{owned}/{FRAGMENT_COST}
+                    </span>
+                    <button
+                      className="btn-small btn-unlock"
+                      onClick={() => handleUnlock(c.id)}
+                      disabled={!canUnlock}
+                    >
+                      解放
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
+
       {/* Materials inventory */}
       {tab === 'level' && (
         <div className="enhance-section">
@@ -393,12 +471,22 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           <h3>所持素材</h3>
           <div className="materials-list">
             {materials.length === 0 && <p className="no-items">素材なし</p>}
-            {materials.map(m => (
-              <div key={m.itemId} className="material-row">
-                <span>{getMaterialEmoji(m.itemId)} {getMaterialName(m.itemId)}</span>
-                <span>×{m.quantity}</span>
-              </div>
-            ))}
+            {materials.map(m => {
+              let emoji = getMaterialEmoji(m.itemId);
+              let name  = getMaterialName(m.itemId);
+              if (m.itemId.startsWith('fragment_')) {
+                const charId = m.itemId.replace('fragment_', '');
+                const char = CHARACTERS.find(c => c.id === charId);
+                emoji = char?.emoji ?? '✨';
+                name  = `${char?.name ?? charId}フラグメント`;
+              }
+              return (
+                <div key={m.itemId} className="material-row">
+                  <span>{emoji} {name}</span>
+                  <span>×{m.quantity}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

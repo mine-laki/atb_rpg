@@ -137,7 +137,31 @@ export function getAutoById(id: string): AutoAbility | undefined {
   return AUTO_ABILITIES.find(a => a.id === id);
 }
 
-export function getAbilitiesForRole(role: string, charId?: string): CommandAbility[] {
+/** アビリティを使用可能になるキャラクターレベルを返す */
+export function getAbilityUnlockLevel(ab: CommandAbility): number {
+  if (ab.isUltimate) return 40;
+  const isUnique = ab.isUnique ?? false;
+  switch (ab.cost) {
+    case 1: return 1;
+    case 2: return isUnique ? 8  : 5;
+    case 3: return isUnique ? 18 : 12;
+    case 4: return isUnique ? 28 : 22;
+    default: return 35;
+  }
+}
+
+/** ロール+キャラID+レベルでアビリティを返す（アルティメットは除く） */
+export function getAbilitiesForRole(role: string, charId?: string, charLevel: number = 999): CommandAbility[] {
+  return COMMAND_ABILITIES.filter(ab =>
+    ab.role === role &&
+    !ab.isUltimate &&
+    (!ab.isUnique || ab.uniqueOwner === charId) &&
+    charLevel >= getAbilityUnlockLevel(ab)
+  );
+}
+
+/** AbilityViewer 用：ロックされているアビリティも含めて全件返す */
+export function getAllAbilitiesForRole(role: string, charId?: string): CommandAbility[] {
   return COMMAND_ABILITIES.filter(ab =>
     ab.role === role && (!ab.isUnique || ab.uniqueOwner === charId)
   );

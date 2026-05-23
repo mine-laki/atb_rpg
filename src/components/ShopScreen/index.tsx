@@ -8,13 +8,46 @@ interface ShopScreenProps {
   onBack: () => void;
 }
 
-type ShopTab = 'buy' | 'material' | 'enhance';
+type ShopTab = 'buy' | 'material' | 'sell' | 'enhance';
 
 export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
   const [tab, setTab] = useState<ShopTab>('buy');
   const [selectedEquipId, setSelectedEquipId] = useState<string | null>(null);
 
   const { gil, equipments } = saveData.progress.inventory;
+
+  // 装着中のinstanceIdセット（売却不可チェック用）
+  const equippedInstanceIds = new Set<string>();
+  for (const char of saveData.player.roster) {
+    const eq = char.equipment;
+    [eq.weapon, eq.accessory1, eq.accessory2, eq.accessory3, eq.accessory4]
+      .filter(Boolean).forEach(id => equippedInstanceIds.add(id!));
+  }
+
+  function calcSellPrice(shopPrice: number, enhanceLevel: number): number {
+    const base = shopPrice > 5000 ? Math.floor(shopPrice * 0.10) : Math.floor(shopPrice * 0.50);
+    // 強化レベル分の価値を少し加算
+    return base + enhanceLevel * Math.floor(base * 0.05);
+  }
+
+  function sellEquipment(instanceId: string) {
+    const inst = equipments.find(e => e.instanceId === instanceId);
+    if (!inst || equippedInstanceIds.has(instanceId)) return;
+    const data = getEquipmentById(inst.itemId);
+    if (!data) return;
+    const price = calcSellPrice(data.shopPrice, inst.enhanceLevel);
+    onUpdate({
+      ...saveData,
+      progress: {
+        ...saveData.progress,
+        inventory: {
+          ...saveData.progress.inventory,
+          gil: gil + price,
+          equipments: equipments.filter(e => e.instanceId !== instanceId),
+        },
+      },
+    });
+  }
   const clearedStages = saveData.progress.clearedStages;
   const maxStage = clearedStages.length > 0 ? Math.max(...clearedStages) : 0;
 
@@ -123,6 +156,7 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
       <div className="shop-tabs">
         <button className={tab === 'buy' ? 'active' : ''} onClick={() => setTab('buy')}>装備購入</button>
         <button className={tab === 'material' ? 'active' : ''} onClick={() => setTab('material')}>素材購入</button>
+        <button className={tab === 'sell' ? 'active' : ''} onClick={() => setTab('sell')}>売却</button>
         <button className={tab === 'enhance' ? 'active' : ''} onClick={() => setTab('enhance')}>装備強化</button>
       </div>
 
@@ -196,6 +230,40 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
                   disabled={!canBuy}
                 >
                   💰{entry.price.toLocaleString()}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {tab === 'sell' && (
+        <div className="shop-items">
+          {equipments.length === 0 && <p className="no-items">売却できる装備がありません</p>}
+          {equipments.map(inst => {
+            const data = getEquipmentById(inst.itemId);
+            if (!data) return null;
+            const isEquipped = equippedInstanceIds.has(inst.instanceId);
+            const price = calcSellPrice(data.shopPrice, inst.enhanceLevel);
+            return (
+              <div key={inst.instanceId} className={`shop-item ${isEquipped ? 'equipped-item' : ''}`}>
+                <div className="shop-item-info">
+                  <span className="item-emoji">{data.emoji}</span>
+                  <div className="item-details">
+                    <span className="item-name">
+                      {data.name} {inst.enhanceLevel > 0 ? `+${inst.enhanceLevel}` : ''}
+                      {isEquipped && <span className="equipped-badge"> 装備中</span>}
+                    </span>
+                    <span className="item-type">{data.type === 'weapon' ? '武器' : 'アクセサリ'}</span>
+                    <span className="item-stats">売値: 💰{price.toLocaleString()}</span>
+                  </div>
+                </div>
+                <button
+                  className={`btn-sell ${isEquipped ? 'disabled' : ''}`}
+                  onClick={() => sellEquipment(inst.instanceId)}
+                  disabled={isEquipped}
+                >
+                  売却
                 </button>
               </div>
             );

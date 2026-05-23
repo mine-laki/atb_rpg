@@ -215,15 +215,20 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
         <span className="gil-display">💰 {gil.toLocaleString()}</span>
       </div>
 
-      {/* Character selector */}
+      {/* Character selector — パーティキャラを先頭に */}
       <div className="char-selector">
-        {saveData.progress.unlockedCharacters.map(id => {
+        {[...saveData.progress.unlockedCharacters].sort((a, b) => {
+          const aInParty = saveData.player.party.includes(a) ? 0 : 1;
+          const bInParty = saveData.player.party.includes(b) ? 0 : 1;
+          return aInParty - bInParty;
+        }).map(id => {
           const cd = CHARACTERS.find(c => c.id === id);
           if (!cd) return null;
+          const isPartyMember = saveData.player.party.includes(id);
           return (
             <button
               key={id}
-              className={`char-selector-btn ${id === selectedCharId ? 'selected' : ''}`}
+              className={`char-selector-btn ${id === selectedCharId ? 'selected' : ''} ${isPartyMember ? 'in-party' : ''}`}
               onClick={() => { setSelectedCharId(id); setActiveSlot(null); }}
             >
               {cd.emoji}

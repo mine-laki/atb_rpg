@@ -52,6 +52,28 @@ export const EQUIPMENT_DATA: EquipmentData[] = [
     baseStats: {}, effects: [{ type: 'auto_regen', value: 0.003 }], unlockStage: 999, shopPrice: 5000 },
   { id: 'god_proof',      name: '神の証',     emoji: '🔱', type: 'accessory',
     baseStats: { str: 30, mag: 30, hp: 300 }, effects: [{ type: 'damage_boost', value: 0.10 }], unlockStage: 999, shopPrice: 0 },
+
+  // ---- 追加武器 ----
+  { id: 'sword_dragon',   name: '竜鱗の大剣', emoji: '🗡️', type: 'weapon', weaponType: 'sword',
+    preferredRole: 'ATK', baseStats: { str: 40, hp: 200 }, effects: [{ type: 'damage_boost', value: 0.10 }], unlockStage: 3, shopPrice: 2800 },
+  { id: 'staff_holy',     name: '聖光の杖',   emoji: '✨', type: 'weapon', weaponType: 'holy',
+    preferredRole: 'HLR', baseStats: { mag: 45 }, effects: [{ type: 'heal_boost', value: 0.25 }, { type: 'buff_extend', value: 0.15 }], unlockStage: 3, shopPrice: 3000 },
+  { id: 'staff_dark',     name: '闇の杖',     emoji: '🌑', type: 'weapon', weaponType: 'cursed',
+    preferredRole: 'BLA', baseStats: { mag: 50 }, effects: [{ type: 'debuff_rate', value: 0.20 }, { type: 'magic_cost_reduce', value: 1 }], unlockStage: 4, shopPrice: 3500 },
+  { id: 'bow_swift',      name: '疾風の弓',   emoji: '💨', type: 'weapon', weaponType: 'bow',
+    baseStats: { str: 20, mag: 20 }, effects: [{ type: 'atb_speed', value: 0.25 }, { type: 'chain_boost', value: 0.08 }], unlockStage: 4, shopPrice: 4000 },
+  { id: 'sword_masterwork', name: '極剣',     emoji: '⚔️', type: 'weapon', weaponType: 'sword',
+    preferredRole: 'ATK', baseStats: { str: 60 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'damage_boost', value: 0.12 }], unlockStage: 5, shopPrice: 6000 },
+
+  // ---- 追加アクセサリ（auto_buff: 戦闘開始時バフ付与）----
+  { id: 'acc_haste_ring',  name: '加速の石',   emoji: '⚡', type: 'accessory',
+    baseStats: {}, effects: [{ type: 'auto_buff', value: 15, buffId: 'haste' }], unlockStage: 2, shopPrice: 2000 },
+  { id: 'acc_prot_charm',  name: '鉄壁の守り', emoji: '🛡️', type: 'accessory',
+    baseStats: { hp: 200 }, effects: [{ type: 'auto_buff', value: 20, buffId: 'prot' }], unlockStage: 2, shopPrice: 1800 },
+  { id: 'acc_faith_gem',   name: '信念の宝玉', emoji: '🔮', type: 'accessory',
+    baseStats: {}, effects: [{ type: 'auto_buff', value: 18, buffId: 'faith' }], unlockStage: 3, shopPrice: 2200 },
+  { id: 'acc_regen_stone', name: 'リジェネ石',  emoji: '🌿', type: 'accessory',
+    baseStats: {}, effects: [{ type: 'auto_buff', value: 30, buffId: 'regen' }, { type: 'auto_regen', value: 0.002 }], unlockStage: 3, shopPrice: 2500 },
 ];
 
 export const MATERIALS: MaterialData[] = [

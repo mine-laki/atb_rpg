@@ -4,7 +4,7 @@ import { getEnemyById } from '../data/enemies';
 import { CHARACTERS } from '../data/characters';
 
 function getAbilitiesForChar(char: CharacterInstance): CommandAbility[] {
-  return getAbilitiesForRole(char.currentRole, char.dataId);
+  return getAbilitiesForRole(char.currentRole, char.dataId, char.level);
 }
 
 /** Returns the ultimate ability if it's usable this turn */

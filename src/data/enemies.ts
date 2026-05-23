@@ -113,6 +113,78 @@ export const ENEMIES: EnemyData[] = [
     ],
   },
   {
+    id: 'wolf', emoji: '🐺', name: 'ウルフ',
+    maxHP: 4000, str: 100, mag: 40,
+    breakThreshold: 220,
+    weaknesses: ['fire'],
+    resistances: [],
+    physDef: 0, magDef: 0,
+    gilReward: 120,
+    dropTable: {
+      common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
+      uncommon: [{ itemId: 'crystal_atk', rate: 0.40 }, { itemId: 'fragment_fa', rate: 0.35 }],
+      rare:     [{ itemId: 'fragment_rai', rate: 0.22 }, { itemId: 'fragment_tora', rate: 0.18 }],
+    },
+    actions: [
+      { id: 'wf_bite',  name: 'バイト',      power: 0.9, cooldown: 2.0 },
+      { id: 'wf_howl',  name: 'ハウリング',  power: 0.7, aoe: true, cooldown: 6.0 },
+    ],
+  },
+  {
+    id: 'bat', emoji: '🦇', name: 'バット',
+    maxHP: 2500, str: 50, mag: 80,
+    breakThreshold: 180,
+    weaknesses: ['fire', 'holy'],
+    resistances: ['dark'],
+    physDef: 0, magDef: 10,
+    gilReward: 90,
+    dropTable: {
+      common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
+      uncommon: [{ itemId: 'crystal_bla', rate: 0.38 }, { itemId: 'fragment_daku', rate: 0.32 }],
+      rare:     [{ itemId: 'fragment_ho', rate: 0.20 }],
+    },
+    actions: [
+      { id: 'bt_scratch', name: 'スクラッチ',  power: 0.6, cooldown: 2.5 },
+      { id: 'bt_sonic',   name: '超音波',      power: 0.5, aoe: true, cooldown: 7.0 },
+    ],
+  },
+  {
+    id: 'scorpion', emoji: '🦂', name: 'スコーピオン',
+    maxHP: 5500, str: 110, mag: 70,
+    breakThreshold: 280,
+    weaknesses: ['ice', 'water'],
+    resistances: [],
+    physDef: 10, magDef: 0,
+    gilReward: 150,
+    dropTable: {
+      common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
+      uncommon: [{ itemId: 'crystal_jam', rate: 0.42 }, { itemId: 'fragment_kaze', rate: 0.35 }],
+      rare:     [{ itemId: 'fragment_voru', rate: 0.22 }, { itemId: 'acc_dark_stone', rate: 0.15 }],
+    },
+    actions: [
+      { id: 'sc_sting', name: 'スティング',  power: 1.0, cooldown: 3.0 },
+      { id: 'sc_venom', name: 'ベノムテイル', power: 0.8, cooldown: 5.5 },
+    ],
+  },
+  {
+    id: 'snake', emoji: '🐍', name: 'スネーク',
+    maxHP: 3500, str: 90, mag: 85,
+    breakThreshold: 200,
+    weaknesses: ['ice'],
+    resistances: [],
+    physDef: 0, magDef: 5,
+    gilReward: 110,
+    dropTable: {
+      common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
+      uncommon: [{ itemId: 'crystal_jam', rate: 0.38 }, { itemId: 'fragment_kuri', rate: 0.32 }],
+      rare:     [{ itemId: 'fragment_bom', rate: 0.20 }],
+    },
+    actions: [
+      { id: 'sn_bite',   name: '毒牙',      power: 0.8, cooldown: 3.0 },
+      { id: 'sn_coil',   name: '締め付け',  power: 1.2, cooldown: 6.0 },
+    ],
+  },
+  {
     id: 'dragon', emoji: '🐉', name: 'ドラゴン',
     maxHP: 12000, str: 150, mag: 120,
     breakThreshold: 500,
@@ -299,9 +371,9 @@ export const ENEMIES: EnemyData[] = [
 
 // ステージ構成
 export const STAGE_WAVES: { stageId: number; waves: string[][] }[] = [
-  { stageId: 1, waves: [['slime', 'slime', 'slime'], ['slime', 'zako_a', 'slime'], ['dragon']] },
-  { stageId: 2, waves: [['zako_a', 'zako_a', 'zako_a'], ['ice_wyvern', 'thunder_hawk'], ['machine']] },
-  { stageId: 3, waves: [['golem', 'golem'], ['dark_soldier', 'dark_soldier'], ['deathord']] },
+  { stageId: 1, waves: [['slime', 'bat', 'slime'], ['wolf', 'wolf', 'bat'], ['dragon']] },
+  { stageId: 2, waves: [['wolf', 'snake', 'zako_a'], ['ice_wyvern', 'thunder_hawk'], ['machine']] },
+  { stageId: 3, waves: [['scorpion', 'golem', 'scorpion'], ['dark_soldier', 'dark_soldier'], ['deathord']] },
   { stageId: 4, waves: [['ice_wyvern', 'dark_soldier', 'thunder_hawk'], ['chaos_knight'], ['arch_lich']] },
   { stageId: 5, waves: [['golem', 'dark_soldier', 'machine'], ['sky_behemoth'], ['finalboss']] },
 ];

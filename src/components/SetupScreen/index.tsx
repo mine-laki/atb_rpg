@@ -14,9 +14,13 @@ export function SetupScreen({ saveData, onStart, onBack }: SetupScreenProps) {
   const [paradigms, setParadigms] = useState<ParadigmData[]>(saveData.paradigms);
   const [tab, setTab] = useState<'party' | 'paradigm'>('party');
 
-  const unlockedChars = CHARACTERS.filter(c =>
-    saveData.progress.unlockedCharacters.includes(c.id)
-  );
+  const unlockedChars = CHARACTERS
+    .filter(c => saveData.progress.unlockedCharacters.includes(c.id))
+    .sort((a, b) => {
+      const aInParty = party.includes(a.id) ? 0 : 1;
+      const bInParty = party.includes(b.id) ? 0 : 1;
+      return aInParty - bInParty;
+    });
 
   const handleCharSelect = (slot: 0 | 1 | 2, charId: string) => {
     const newParty = [...party] as [string, string, string];

@@ -203,9 +203,10 @@ export interface EquipmentData {
 export interface EquipmentEffect {
   type: 'atb_expand' | 'magic_cost_reduce' | 'atb_speed' | 'heal_boost' |
         'buff_extend' | 'debuff_rate' | 'chain_boost' | 'damage_boost' |
-        'auto_regen' | 'revive_once' | 'element_resist';
+        'auto_regen' | 'revive_once' | 'element_resist' | 'auto_buff';
   value: number;
   element?: Element;
+  buffId?: BuffId;  // auto_buff 用
 }
 
 export interface EquipmentInstance {

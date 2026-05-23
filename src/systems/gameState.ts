@@ -72,7 +72,21 @@ export function createCharacterInstance(
     mag: totalMAG,
     currentRole: data.roles[0],
     atb: { current: 0, max: totalATB, speedMultiplier: 1.0 + bonusATBSpeed },
-    statusEffects: [],
+    statusEffects: (() => {
+      // auto_buff 効果を持つ装備から戦闘開始バフを付与
+      const startBuffs: import('../types').StatusEffect[] = [];
+      for (const inst of [weaponInst, accessory1Inst, accessory2Inst, eq.accessory3, eq.accessory4]) {
+        if (!inst) continue;
+        const eData = getEquipmentById(inst.itemId);
+        if (!eData) continue;
+        for (const eff of eData.effects) {
+          if (eff.type === 'auto_buff' && eff.buffId) {
+            startBuffs.push({ id: eff.buffId, type: 'buff', duration: eff.value, value: 1 });
+          }
+        }
+      }
+      return startBuffs;
+    })(),
     equipment: eq,
     roleLevels: save?.roleLevels ?? {},
     unlockedSkillNodes: save?.unlockedSkillNodes ?? [],

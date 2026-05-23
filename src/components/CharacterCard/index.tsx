@@ -1,4 +1,5 @@
-import type { CharacterInstance } from '../../types';
+import { useState } from 'react';
+import type { CharacterInstance, StatusEffect } from '../../types';
 import { CHARACTERS } from '../../data/characters';
 import { ATBGauge } from '../ATBGauge';
 import { getRoleEmoji } from '../../systems/paradigm';
@@ -7,8 +8,29 @@ interface CharacterCardProps {
   char: CharacterInstance;
 }
 
+const BUFF_INFO: Record<string, { label: string; desc: string; emoji: string }> = {
+  prot:    { label: 'プロテス',    desc: '物理ダメージ軽減',        emoji: '🛡' },
+  shell:   { label: 'シェル',     desc: '魔法ダメージ軽減',        emoji: '🔮' },
+  haste:   { label: 'ヘイスト',   desc: 'ATB充填速度1.5倍',       emoji: '⚡' },
+  faith:   { label: 'フェイス',   desc: '魔法ダメージ増加',        emoji: '✨' },
+  bravery: { label: 'ブレイバリー',desc: '物理ダメージ増加',        emoji: '⚔' },
+  guard:   { label: 'ガード',     desc: '被ダメージを大幅軽減',    emoji: '🛡' },
+  regen:   { label: 'リジェネ',   desc: '毎秒HPが徐々に回復',     emoji: '🌿' },
+  veil:    { label: 'ヴェイル',   desc: 'デバフ耐性アップ',        emoji: '💫' },
+  deprot:  { label: 'デプロテ',   desc: '物理防御低下',            emoji: '💔' },
+  deshell: { label: 'デシェル',   desc: '魔法防御低下',            emoji: '💢' },
+  slow:    { label: 'スロウ',     desc: 'ATB充填速度0.5倍',       emoji: '🐌' },
+  pain:    { label: 'ペイン',     desc: '行動力低下',              emoji: '😣' },
+  imperil: { label: 'インペリル', desc: '属性弱点増加',            emoji: '🔥' },
+  curse:   { label: 'カース',     desc: 'ATB速度低下(呪い)',       emoji: '💀' },
+  stop:    { label: 'ストップ',   desc: 'ATB停止',                emoji: '⏹' },
+  poison:  { label: 'ポイズン',   desc: '毎秒ダメージ',            emoji: '☠️' },
+};
+
 export function CharacterCard({ char }: CharacterCardProps) {
   const data = CHARACTERS.find(c => c.id === char.dataId);
+  const [buffModal, setBuffModal] = useState<StatusEffect | null>(null);
+
   if (!data) return null;
 
   const hpRatio = char.currentHP / char.maxHP;
@@ -33,7 +55,12 @@ export function CharacterCard({ char }: CharacterCardProps) {
 
       <div className="char-status">
         {char.statusEffects.map(eff => (
-          <span key={eff.id} className={`status-badge ${eff.type}`} title={`${eff.id} (${eff.duration.toFixed(1)}s)`}>
+          <span
+            key={eff.id}
+            className={`status-badge ${eff.type}`}
+            onClick={() => setBuffModal(eff)}
+            title={`${eff.id} (${eff.duration.toFixed(1)}s)`}
+          >
             {getStatusEmoji(eff.id as string)}
           </span>
         ))}
@@ -48,16 +75,32 @@ export function CharacterCard({ char }: CharacterCardProps) {
       )}
 
       {!char.isAlive && <div className="dead-overlay">KO</div>}
+
+      {/* バフ詳細モーダル */}
+      {buffModal && (
+        <div className="buff-modal-overlay" onClick={() => setBuffModal(null)}>
+          <div className="buff-modal" onClick={e => e.stopPropagation()}>
+            {(() => {
+              const info = BUFF_INFO[buffModal.id as string];
+              return (
+                <>
+                  <div className="buff-modal-icon">{info?.emoji ?? '?'}</div>
+                  <div className="buff-modal-name">{info?.label ?? buffModal.id}</div>
+                  <div className="buff-modal-desc">{info?.desc ?? ''}</div>
+                  <div className="buff-modal-duration">残り {buffModal.duration.toFixed(1)}秒</div>
+                  <div className={`buff-modal-type ${buffModal.type}`}>
+                    {buffModal.type === 'buff' ? '強化効果' : '弱体効果'}
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 function getStatusEmoji(id: string): string {
-  const map: Record<string, string> = {
-    prot: '🛡', shell: '🔮', haste: '⚡', faith: '✨', bravery: '⚔',
-    guard: '🛡', regen: '🌿', veil: '💫',
-    deprot: '💔', deshell: '💢', slow: '🐌', pain: '😣',
-    imperil: '🔥', curse: '💀', stop: '⏹',
-  };
-  return map[id] ?? '?';
+  return BUFF_INFO[id]?.emoji ?? '?';
 }

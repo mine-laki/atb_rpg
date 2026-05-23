@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { SaveData, BattleState, GameScreen, DropItem } from './types';
 import { buildInitialSaveData, createCharacterInstance, createEnemyInstance } from './systems/gameState';
-import { loadFromCache } from './systems/save';
+import { loadFromCache, syncToCache } from './systems/save';
 import { HomeScreen } from './components/HomeScreen';
 import { SetupScreen } from './components/SetupScreen';
 import { BattleScreen } from './components/BattleScreen';
@@ -128,21 +128,25 @@ export default function App() {
   const handleVictory = useCallback((finalState: BattleState) => {
     const rewards = calcBattleRewards(finalState);
     setLastRewards(rewards);
-    setSaveData(prev => ({
-      ...prev,
-      progress: {
-        ...prev.progress,
-        inventory: {
-          ...prev.progress.inventory,
-          gil: prev.progress.inventory.gil + rewards.gil,
-          materials: mergeDrops(prev.progress.inventory.materials, rewards.drops),
+    setSaveData(prev => {
+      const updated: SaveData = {
+        ...prev,
+        progress: {
+          ...prev.progress,
+          inventory: {
+            ...prev.progress.inventory,
+            gil: prev.progress.inventory.gil + rewards.gil,
+            materials: mergeDrops(prev.progress.inventory.materials, rewards.drops),
+          },
+          clearedStages: prev.progress.clearedStages.includes(prev.progress.currentStage)
+            ? prev.progress.clearedStages
+            : [...prev.progress.clearedStages, prev.progress.currentStage],
+          currentStage: Math.min(prev.progress.currentStage + 1, STAGE_WAVES.length),
         },
-        clearedStages: prev.progress.clearedStages.includes(prev.progress.currentStage)
-          ? prev.progress.clearedStages
-          : [...prev.progress.clearedStages, prev.progress.currentStage],
-        currentStage: Math.min(prev.progress.currentStage + 1, STAGE_WAVES.length),
-      },
-    }));
+      };
+      syncToCache(updated);
+      return updated;
+    });
     setBattleState(finalState);
     setScreen('result');
   }, []);

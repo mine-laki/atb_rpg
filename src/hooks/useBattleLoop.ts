@@ -43,10 +43,19 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
       if (prev.phase !== 'battle') return prev;
 
       // Working copies — we mutate these throughout the tick
-      let party: CharacterInstance[] = prev.party.map(char => ({
-        ...updateATB(char, delta),
-        statusEffects: updateStatusEffects(char.statusEffects, delta),
-      }));
+      let party: CharacterInstance[] = prev.party.map(char => {
+        const updated = {
+          ...updateATB(char, delta),
+          statusEffects: updateStatusEffects(char.statusEffects, delta),
+        };
+
+        // Regen: heal 2% max HP per second while regen buff is active
+        if (updated.isAlive && updated.statusEffects.some(e => e.id === 'regen')) {
+          const heal = Math.floor(updated.maxHP * 0.02 * delta);
+          updated.currentHP = Math.min(updated.maxHP, updated.currentHP + heal);
+        }
+        return updated;
+      });
 
       let enemies = prev.enemies.map(e => updateChain(e, delta, now));
 

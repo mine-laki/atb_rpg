@@ -44,6 +44,14 @@ export async function importSave(file: File): Promise<SaveData> {
   });
 }
 
+/** Write to localStorage without triggering a file download (used for auto-save on victory). */
+export function syncToCache(data: SaveData): void {
+  try {
+    const payload: SaveData = { ...data, version: SAVE_VERSION, savedAt: new Date().toISOString() };
+    localStorage.setItem(LS_KEY, JSON.stringify(payload));
+  } catch { /* ignore quota errors */ }
+}
+
 export function loadFromCache(): SaveData | null {
   try {
     const raw = localStorage.getItem(LS_KEY);

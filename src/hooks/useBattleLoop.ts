@@ -5,6 +5,7 @@ import { updateChain } from '../systems/chain';
 import { aiSelectAction } from '../systems/ai';
 import { executeAttack, executeHeal, executeRevive, calcEnemyDamage } from '../systems/combat';
 import { getEnemyById } from '../data/enemies';
+import { getEquipmentById, ENHANCE_MULTIPLIERS } from '../data/equipment';
 import { CHARACTERS } from '../data/characters';
 
 const MAX_LOG = 30;
@@ -53,6 +54,24 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
         if (updated.isAlive && updated.statusEffects.some(e => e.id === 'regen')) {
           const heal = Math.floor(updated.maxHP * 0.02 * delta);
           updated.currentHP = Math.min(updated.maxHP, updated.currentHP + heal);
+        }
+
+        // Equipment auto_regen effect (passive, always-on)
+        if (updated.isAlive) {
+          let autoRegenRate = 0;
+          for (const inst of [updated.equipment.weapon, updated.equipment.accessory1, updated.equipment.accessory2]) {
+            if (!inst) continue;
+            const d = getEquipmentById(inst.itemId);
+            if (!d) continue;
+            const mult = ENHANCE_MULTIPLIERS[inst.enhanceLevel] ?? 1.0;
+            for (const eff of d.effects) {
+              if (eff.type === 'auto_regen') autoRegenRate += eff.value * mult;
+            }
+          }
+          if (autoRegenRate > 0) {
+            const heal = Math.floor(updated.maxHP * autoRegenRate * delta);
+            updated.currentHP = Math.min(updated.maxHP, updated.currentHP + heal);
+          }
         }
         return updated;
       });

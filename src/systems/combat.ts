@@ -3,6 +3,22 @@ import type {
 } from '../types';
 import { calcChainBonus, isWeakness, applyChainHit } from './chain';
 import { getEnemyById } from '../data/enemies';
+import { getEquipmentById, ENHANCE_MULTIPLIERS } from '../data/equipment';
+
+/** Sum a specific effect type across all equipped items. */
+function sumEquipEffect(char: CharacterInstance, effectType: string): number {
+  let total = 0;
+  for (const inst of [char.equipment.weapon, char.equipment.accessory1, char.equipment.accessory2]) {
+    if (!inst) continue;
+    const d = getEquipmentById(inst.itemId);
+    if (!d) continue;
+    const mult = ENHANCE_MULTIPLIERS[inst.enhanceLevel] ?? 1.0;
+    for (const eff of d.effects) {
+      if (eff.type === effectType) total += eff.value * mult;
+    }
+  }
+  return total;
+}
 
 let logIdCounter = 0;
 
@@ -28,6 +44,9 @@ function calcDamageBoosts(char: CharacterInstance, ability: CommandAbility, enem
     if (!ability.element && char.currentRole === 'ATK') mult += roleLvBonus;
     if ( ability.element && char.currentRole === 'BLA') mult += roleLvBonus;
   }
+
+  // Equipment damage_boost effect
+  mult += sumEquipEffect(char, 'damage_boost');
 
   for (const eff of char.statusEffects) {
     if (eff.id === 'bravery' && ability.power && !ability.healValue) mult += 0.30;
@@ -107,6 +126,9 @@ export function executeHeal(
   if (char.currentRole === 'HLR') {
     healMult += (char.roleLevels?.['HLR'] ?? 1) * 0.04;
   }
+
+  // Equipment heal_boost effect
+  healMult += sumEquipEffect(char, 'heal_boost');
 
   for (const eff of char.statusEffects) {
     if (eff.id === 'faith') healMult += 0.30;

@@ -1,4 +1,19 @@
 import type { EnemyInstance, CharacterInstance, CommandAbility, Element } from '../types';
+import { getEquipmentById, ENHANCE_MULTIPLIERS } from '../data/equipment';
+
+function getEquipChainBoost(char: CharacterInstance): number {
+  let total = 0;
+  for (const inst of [char.equipment.weapon, char.equipment.accessory1, char.equipment.accessory2]) {
+    if (!inst) continue;
+    const d = getEquipmentById(inst.itemId);
+    if (!d) continue;
+    const mult = ENHANCE_MULTIPLIERS[inst.enhanceLevel] ?? 1.0;
+    for (const eff of d.effects) {
+      if (eff.type === 'chain_boost') total += eff.value * mult;
+    }
+  }
+  return total;
+}
 
 const CHAIN_DECAY_RATE = 15;    // %/second
 const BREAK_DURATION = 15;      // seconds
@@ -22,6 +37,10 @@ export function applyChainHit(
   if (char.currentRole === 'BLA') {
     chainIncrease *= 1 + (char.roleLevels?.['BLA'] ?? 1) * 0.03;
   }
+
+  // Equipment chain_boost
+  const equipChain = getEquipChainBoost(char);
+  if (equipChain > 0) chainIncrease *= 1 + equipChain;
 
   // weakness multiplier
   if (isWeakness) chainIncrease *= 1.5;

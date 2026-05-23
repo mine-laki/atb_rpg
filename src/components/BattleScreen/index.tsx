@@ -22,10 +22,23 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
   const [isRunning, setIsRunning] = useState(true);
   const [waveTransition, setWaveTransition] = useState(false);
   const resultCalledRef = useRef(false);
+  // パラダイム切り替えをバトルループ内で原子的に処理するためのref
+  const pendingParadigmRef = useRef<number | null>(null);
 
   const handleStateUpdate = useCallback((updater: (prev: BattleState) => BattleState) => {
     setState(prev => {
-      const next = updater(prev);
+      // 保留中のパラダイム切り替えをバトル更新前に適用（競合防止）
+      let workPrev = prev;
+      if (pendingParadigmRef.current !== null) {
+        const slot = pendingParadigmRef.current;
+        pendingParadigmRef.current = null;
+        const paradigm = prev.paradigms[slot];
+        if (paradigm) {
+          const newParty = switchParadigm(prev.party, paradigm);
+          workPrev = { ...prev, party: newParty, activeParadigm: slot };
+        }
+      }
+      const next = updater(workPrev);
 
       if (next.phase === 'victory' && prev.phase !== 'victory') {
         setIsRunning(false);
@@ -77,12 +90,10 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
   useBattleLoop({ state, onStateUpdate: handleStateUpdate, isRunning });
 
   const handleParadigmSwitch = useCallback((slot: number) => {
-    setState(prev => {
-      const paradigm = prev.paradigms[slot];
-      if (!paradigm) return prev;
-      const newParty = switchParadigm(prev.party, paradigm);
-      return { ...prev, party: newParty, activeParadigm: slot };
-    });
+    // 即座に activeParadigm を更新（ボタンハイライト用）
+    setState(prev => ({ ...prev, activeParadigm: slot }));
+    // ロール変更は次のバトルtickで原子的に適用（競合防止）
+    pendingParadigmRef.current = slot;
   }, []);
 
   const handleUseItem = useCallback((itemId: string) => {

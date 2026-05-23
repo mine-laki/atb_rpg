@@ -1175,3 +1175,243 @@ button {
   .action-log { grid-column: 1 / -1; }
   .battle-controls { grid-column: 1 / -1; }
 }
+
+/* ---- Battle Items ---- */
+.battle-items-row {
+  display: flex;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.3);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  flex-wrap: wrap;
+}
+
+.btn-battle-item {
+  background: linear-gradient(135deg, #204060, #306080);
+  color: #88ccff;
+  border-color: #406080;
+  font-size: 12px;
+  padding: 6px 10px;
+}
+.btn-battle-item:hover:not(:disabled) { filter: brightness(1.3); }
+.btn-battle-item:disabled { opacity: 0.4; cursor: default; }
+
+/* ---- Enemy Report Screen ---- */
+.enemy-report-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-bottom: 2rem;
+}
+
+.enemy-report-count {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.enemy-report-section {
+  padding: 0 12px;
+  margin-top: 16px;
+}
+
+.enemy-report-section-title {
+  font-size: 13px;
+  color: #88aaff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(136,170,255,0.2);
+}
+
+.enemy-report-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.enemy-report-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.enemy-report-card.boss {
+  border-color: rgba(255,180,60,0.4);
+  background: rgba(255,180,60,0.05);
+}
+
+.enemy-report-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.enemy-report-emoji { font-size: 22px; }
+
+.enemy-report-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.enemy-report-name {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.boss-tag {
+  background: rgba(255,180,60,0.3);
+  color: #ffb43c;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,180,60,0.4);
+}
+
+.enemy-report-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.enemy-report-stat {
+  font-size: 12px;
+  color: #aab;
+}
+
+.enemy-report-elements {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.element-label {
+  color: #888;
+  font-size: 11px;
+}
+
+.element-tag {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.element-tag.weak {
+  background: rgba(255,120,60,0.25);
+  color: #ff9060;
+  border: 1px solid rgba(255,120,60,0.4);
+}
+
+.element-tag.resist {
+  background: rgba(80,120,255,0.2);
+  color: #80a0ff;
+  border: 1px solid rgba(80,120,255,0.3);
+}
+
+/* ---- Ability Viewer ---- */
+.ability-viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ability-viewer-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ability-role-tab {
+  padding: 5px 10px;
+  font-size: 12px;
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.1);
+  color: #aaa;
+}
+
+.ability-role-tab.active {
+  background: rgba(80,120,255,0.25);
+  border-color: #6080ff;
+  color: #88aaff;
+}
+
+.ability-viewer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.ability-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.ability-item.unique {
+  border-color: rgba(255,200,60,0.3);
+  background: rgba(255,200,60,0.05);
+}
+
+.ability-item.ultimate {
+  border-color: rgba(200,80,255,0.4);
+  background: rgba(200,80,255,0.08);
+}
+
+.ability-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ability-name {
+  font-weight: bold;
+  font-size: 13px;
+  flex: 1;
+}
+
+.ability-cost {
+  font-size: 11px;
+  color: #88aaff;
+}
+
+.ability-badge {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.ability-badge.unique-badge {
+  background: rgba(255,200,60,0.2);
+  color: #ffc03c;
+  border: 1px solid rgba(255,200,60,0.3);
+}
+
+.ability-badge.ult-badge {
+  background: rgba(200,80,255,0.25);
+  color: #c850ff;
+  border: 1px solid rgba(200,80,255,0.4);
+}
+
+.ability-item-details {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ability-detail {
+  font-size: 11px;
+  color: #aab;
+  background: rgba(255,255,255,0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+}

@@ -4,6 +4,7 @@ import { CHARACTERS, getStatsAtLevel, levelUpCost } from '../../data/characters'
 import { MATERIALS, getEquipmentById, ENHANCE_MULTIPLIERS } from '../../data/equipment';
 import { getSkillNodes } from '../../data/skillBoard';
 import { getRoleEmoji, getRoleLabel } from '../../systems/paradigm';
+import { AbilityViewer } from '../AbilityViewer';
 
 interface EnhanceScreenProps {
   saveData: SaveData;
@@ -11,7 +12,7 @@ interface EnhanceScreenProps {
   onBack: () => void;
 }
 
-type EnhanceTab = 'level' | 'role' | 'equip' | 'skill' | 'unlock';
+type EnhanceTab = 'level' | 'role' | 'equip' | 'skill' | 'unlock' | 'abilities';
 
 const ROLE_CRYSTAL_MAP: Record<RoleId, string> = {
   ATK: 'crystal_atk', BLA: 'crystal_bla', DEF: 'crystal_def',
@@ -28,12 +29,12 @@ function roleLevelCost(role: RoleId, currentRoleLv: number): { gil: number; crys
 
 function roleBonusDesc(role: RoleId, lv: number): string {
   const descriptions: Record<RoleId, string> = {
-    ATK: `物理ダメージ +${lv * 3}%`,
-    BLA: `チェーンボーナス +${lv * 3}%`,
+    ATK: `物理ダメージ +${lv * 10}%`,
+    BLA: `魔法ダメージ +${lv * 10}%`,
     DEF: `被ダメ軽減 +${lv * 2}%`,
-    HLR: `回復量 +${lv * 4}%`,
-    ENH: `バフ効果時間 +${lv * 5}%`,
-    JAM: `デバフ成功率 +${lv * 5}%`,
+    HLR: `回復量 +${lv * 8}%`,
+    ENH: `バフ効果時間 +${lv * 8}%`,
+    JAM: `デバフ効果時間 +${lv * 8}%`,
   };
   return descriptions[role];
 }
@@ -249,11 +250,12 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
 
       {/* Tabs */}
       <div className="enhance-tabs">
-        <button className={tab === 'level'  ? 'active' : ''} onClick={() => setTab('level')}>Lv</button>
-        <button className={tab === 'role'   ? 'active' : ''} onClick={() => setTab('role')}>ロール</button>
-        <button className={tab === 'equip'  ? 'active' : ''} onClick={() => { setTab('equip'); setActiveSlot(null); }}>装備</button>
-        <button className={tab === 'skill'  ? 'active' : ''} onClick={() => setTab('skill')}>スキル</button>
-        <button className={tab === 'unlock' ? 'active' : ''} onClick={() => setTab('unlock')}>解放</button>
+        <button className={tab === 'level'     ? 'active' : ''} onClick={() => setTab('level')}>Lv</button>
+        <button className={tab === 'role'      ? 'active' : ''} onClick={() => setTab('role')}>ロール</button>
+        <button className={tab === 'equip'     ? 'active' : ''} onClick={() => { setTab('equip'); setActiveSlot(null); }}>装備</button>
+        <button className={tab === 'skill'     ? 'active' : ''} onClick={() => setTab('skill')}>スキル</button>
+        <button className={tab === 'abilities' ? 'active' : ''} onClick={() => setTab('abilities')}>アビリティ</button>
+        <button className={tab === 'unlock'    ? 'active' : ''} onClick={() => setTab('unlock')}>解放</button>
       </div>
 
       {/* ── Level up tab ── */}
@@ -395,6 +397,13 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── Ability viewer tab ── */}
+      {tab === 'abilities' && (
+        <div className="enhance-section">
+          <AbilityViewer charData={charData} charSave={charSave} />
         </div>
       )}
 

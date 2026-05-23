@@ -7,9 +7,10 @@ export const CHARACTERS: CharacterData[] = [
     roles: ['ATK', 'BLA', 'DEF'],
     baseHP: 1800, baseSTR: 180, baseMAG: 160, atbMax: 4,
     autoAbilities: ['speed_up', 'brave_heart'],
-    uniqueAbilities: ['atk_blitz', 'atk_tkick'],
+    uniqueAbilities: ['atk_blitz', 'atk_tkick', 'rai_ult'],
     growthType: 'attacker',
     weaponAffinity: 'sword',
+    attackType: 'physical', physDef: 0, magDef: 0,
   },
   {
     id: 'ifu', emoji: '🔥', name: 'イフ',
@@ -19,15 +20,17 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['atk_omega', 'atk_berserk'],
     growthType: 'attacker',
     weaponAffinity: 'sword',
+    attackType: 'physical', physDef: 0, magDef: 0,
   },
   {
     id: 'fa', emoji: '🐺', name: 'ファ',
     roles: ['ATK', 'BLA', 'DEF'],
     baseHP: 2500, baseSTR: 210, baseMAG: 90, atbMax: 5,
     autoAbilities: ['chain_master', 'counter'],
-    uniqueAbilities: ['atk_twinfang'],
+    uniqueAbilities: ['atk_twinfang', 'fa_ult'],
     growthType: 'attacker',
     weaponAffinity: 'sword',
+    attackType: 'physical', physDef: 0, magDef: 0,
   },
   {
     id: 'kuri', emoji: '🧊', name: 'クリ',
@@ -37,6 +40,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['atk_iceedge', 'bla_blizzaja'],
     growthType: 'magic',
     weaponAffinity: 'staff',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
   {
     id: 'kaze', emoji: '🌀', name: 'カゼ',
@@ -46,6 +50,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['atk_whirlwind', 'bla_aeroga', 'jam_dispel'],
     growthType: 'allround',
     weaponAffinity: 'bow',
+    attackType: 'mixed', physDef: 0, magDef: 0,
   },
   {
     id: 'tora', emoji: '🐯', name: 'トラ',
@@ -55,6 +60,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: [],
     growthType: 'tank',
     weaponAffinity: 'sword',
+    attackType: 'physical', physDef: 0, magDef: 0,
   },
   {
     id: 'taka', emoji: '🦅', name: 'タカ',
@@ -64,6 +70,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['atk_whirlwind'],
     growthType: 'attacker',
     weaponAffinity: 'bow',
+    attackType: 'physical', physDef: 0, magDef: 0,
   },
   {
     id: 'voru', emoji: '🌋', name: 'ヴォル',
@@ -73,6 +80,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['atk_berserk'],
     growthType: 'attacker',
     weaponAffinity: 'sword',
+    attackType: 'physical', physDef: 0, magDef: 0,
   },
   {
     id: 'reo', emoji: '🦁', name: 'レオ',
@@ -82,6 +90,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['atk_omega'],
     growthType: 'attacker',
     weaponAffinity: 'sword',
+    attackType: 'physical', physDef: 0, magDef: 0,
   },
   {
     id: 'bom', emoji: '💥', name: 'ボム',
@@ -91,6 +100,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['bla_magicburst'],
     growthType: 'magic',
     weaponAffinity: 'staff',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
 
   // ---- 魔法・支援系 10体 ----
@@ -102,6 +112,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['bla_tridisaster'],
     growthType: 'magic',
     weaponAffinity: 'staff',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
   {
     id: 'sac', emoji: '🌊', name: 'サッ',
@@ -111,15 +122,17 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['bla_waterga', 'enh_faithall'],
     growthType: 'magic',
     weaponAffinity: 'staff',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
   {
     id: 'va', emoji: '🌿', name: 'ヴァ',
     roles: ['HLR', 'ENH', 'BLA'],
     baseHP: 1600, baseSTR: 80, baseMAG: 190, atbMax: 3,
     autoAbilities: ['medic_plus', 'enhance_ex'],
-    uniqueAbilities: ['hlr_curaall', 'hlr_regen'],
+    uniqueAbilities: ['hlr_curaall', 'hlr_regen', 'va_ult'],
     growthType: 'healer',
     weaponAffinity: 'holy',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
   {
     id: 'daku', emoji: '🌑', name: 'ダク',
@@ -129,6 +142,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['bla_darkflare', 'jam_imperil', 'jam_curse', 'jam_stop'],
     growthType: 'magic',
     weaponAffinity: 'cursed',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
   {
     id: 'en', emoji: '✨', name: 'エン',
@@ -138,6 +152,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['bla_holy', 'enh_bravery', 'hlr_arise'],
     growthType: 'healer',
     weaponAffinity: 'holy',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
   {
     id: 'jio', emoji: '🌍', name: 'ジオ',
@@ -147,6 +162,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['bla_quake', 'jam_gravity'],
     growthType: 'magic',
     weaponAffinity: 'staff',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
   {
     id: 'doc', emoji: '💊', name: 'ドク',
@@ -156,6 +172,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['hlr_curaja', 'hlr_esuna', 'enh_veil'],
     growthType: 'healer',
     weaponAffinity: 'holy',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
   {
     id: 'ran', emoji: '🎲', name: 'ラン',
@@ -165,6 +182,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['bla_magicburst', 'enh_chainboost', 'jam_gravity'],
     growthType: 'magic',
     weaponAffinity: 'staff',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
   {
     id: 'hana', emoji: '🌸', name: 'ハナ',
@@ -174,6 +192,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['hlr_curaall'],
     growthType: 'healer',
     weaponAffinity: 'holy',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
   {
     id: 'kou', emoji: '🌈', name: 'コウ',
@@ -183,6 +202,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['bla_tridisaster'],
     growthType: 'magic',
     weaponAffinity: 'staff',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
 
   // ---- 防衛・万能系 10体 ----
@@ -194,6 +214,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['atk_psrike'],
     growthType: 'tank',
     weaponAffinity: 'shield',
+    attackType: 'mixed', physDef: 0, magDef: 0,
   },
   {
     id: 'roku', emoji: '🏔️', name: 'ロク',
@@ -203,6 +224,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: [],
     growthType: 'tank',
     weaponAffinity: 'shield',
+    attackType: 'physical', physDef: 0, magDef: 0,
   },
   {
     id: 'roza', emoji: '🌺', name: 'ロザ',
@@ -212,6 +234,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: [],
     growthType: 'allround',
     weaponAffinity: 'bow',
+    attackType: 'mixed', physDef: 0, magDef: 0,
   },
   {
     id: 'cho', emoji: '🦋', name: 'チョ',
@@ -221,6 +244,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['enh_chainboost'],
     growthType: 'allround',
     weaponAffinity: 'bow',
+    attackType: 'mixed', physDef: 0, magDef: 0,
   },
   {
     id: 'ryu', emoji: '🐲', name: 'リュ',
@@ -230,6 +254,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: [],
     growthType: 'tank',
     weaponAffinity: 'sword',
+    attackType: 'physical', physDef: 0, magDef: 0,
   },
   {
     id: 'kika', emoji: '⚙️', name: 'キカ',
@@ -239,6 +264,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['enh_veil', 'jam_imperil'],
     growthType: 'healer',
     weaponAffinity: 'instrument',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
   {
     id: 'ste', emoji: '🌟', name: 'ステ',
@@ -248,6 +274,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: [],
     growthType: 'allround',
     weaponAffinity: 'bow',
+    attackType: 'mixed', physDef: 0, magDef: 0,
   },
   {
     id: 'baru', emoji: '🎵', name: 'バル',
@@ -257,6 +284,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['enh_chainboost', 'hlr_arise'],
     growthType: 'healer',
     weaponAffinity: 'instrument',
+    attackType: 'magical', physDef: 0, magDef: 0,
   },
   {
     id: 'pose', emoji: '🔱', name: 'ポセ',
@@ -266,6 +294,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['bla_waterga', 'jam_gravity'],
     growthType: 'allround',
     weaponAffinity: 'staff',
+    attackType: 'mixed', physDef: 0, magDef: 0,
   },
   {
     id: 'gan', emoji: '👁️', name: 'ガン',
@@ -275,6 +304,7 @@ export const CHARACTERS: CharacterData[] = [
     uniqueAbilities: ['bla_magicburst', 'jam_imperil'],
     growthType: 'allround',
     weaponAffinity: 'cursed',
+    attackType: 'mixed', physDef: 0, magDef: 0,
   },
 ];
 

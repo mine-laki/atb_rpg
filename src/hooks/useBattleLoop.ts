@@ -95,8 +95,18 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
         const actorEmoji = charData?.emoji ?? '';
         const actorName  = charData?.name  ?? char.dataId;
 
+        // Track combo count (consecutive action bonus, Item 19)
+        const wasAtbFull = char.atb.current >= char.atb.max - 0.1;
+        const newComboCount = wasAtbFull ? Math.min(5, (char.comboCount ?? 0) + 1) : 0;
+
         // Consume ATB for this character
-        party[charIdx] = consumeATB(char, ability.cost);
+        // For ultimates, consume all ATB
+        const actualCost = ability.isUltimate ? char.atb.current : ability.cost;
+        party[charIdx] = {
+          ...consumeATB(char, actualCost),
+          comboCount: newComboCount,
+          ultimateUsed: ability.isUltimate ? true : char.ultimateUsed,
+        };
 
         // ── Execute ability ──
         if (ability.healPercent && (ability.id.includes('raise') || ability.id.includes('arise'))) {
@@ -141,10 +151,10 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
             ? party.filter(p => p.isAlive)
             : [party[tIdx]].filter(Boolean) as CharacterInstance[];
 
-          // ENH role level bonus: +5% buff duration per level
+          // ENH role level bonus: +8% buff duration per level
           const enhRoleLv = party[charIdx].currentRole === 'ENH'
             ? (party[charIdx].roleLevels?.['ENH'] ?? 1) : 0;
-          const buffDurationMult = 1 + enhRoleLv * 0.05;
+          const buffDurationMult = 1 + enhRoleLv * 0.08;
 
           for (const bt of targets) {
             const pi = party.findIndex(p => p.id === bt.id);
@@ -173,10 +183,10 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
           // Debuff enemy
           const eIdx = targetEnemyIdx ?? enemies.findIndex(e => e.currentHP > 0);
           if (eIdx >= 0 && enemies[eIdx]) {
-            // JAM role level bonus: +5% debuff duration per level
+            // JAM role level bonus: +8% debuff duration per level
             const jamRoleLv = party[charIdx].currentRole === 'JAM'
               ? (party[charIdx].roleLevels?.['JAM'] ?? 1) : 0;
-            const debuffDurationMult = 1 + jamRoleLv * 0.05;
+            const debuffDurationMult = 1 + jamRoleLv * 0.08;
 
             const newEffects = [...enemies[eIdx].statusEffects];
             for (const debuffId of ability.debuff!) {
@@ -203,7 +213,7 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
           const eIdx = targetEnemyIdx ?? enemies.findIndex(e => e.currentHP > 0);
           if (eIdx >= 0 && enemies[eIdx]?.currentHP > 0) {
             const wasBreaking = enemies[eIdx].isBreaking;
-            const { newTarget, logs } = executeAttack(party[charIdx], ability, enemies[eIdx], prev, now);
+            const { newTarget, logs } = executeAttack(party[charIdx], ability, enemies[eIdx], prev, now, party);
             const eData = getEnemyById(newTarget.dataId);
             logs.forEach(l => {
               l.actorEmoji = actorEmoji;

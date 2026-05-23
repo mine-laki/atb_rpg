@@ -1,9 +1,26 @@
 import type { CharacterInstance, EnemyInstance, CommandAbility } from '../types';
-import { getAbilitiesForRole } from '../data/abilities';
+import { getAbilitiesForRole, getAbilityById } from '../data/abilities';
 import { getEnemyById } from '../data/enemies';
+import { CHARACTERS } from '../data/characters';
 
 function getAbilitiesForChar(char: CharacterInstance): CommandAbility[] {
   return getAbilitiesForRole(char.currentRole, char.dataId);
+}
+
+/** Returns the ultimate ability if it's usable this turn */
+function getUltimateIfUsable(char: CharacterInstance): CommandAbility | null {
+  if (char.ultimateUsed) return null;
+  if (char.level < 40) return null;
+  if ((char.roleLevels?.[char.currentRole] ?? 1) < 5) return null;
+  if (char.atb.current < char.atb.max - 0.1) return null;  // must be at full ATB
+
+  const charData = CHARACTERS.find(c => c.id === char.dataId);
+  if (!charData) return null;
+  for (const abId of charData.uniqueAbilities) {
+    const ab = getAbilityById(abId);
+    if (ab?.isUltimate && ab.role === char.currentRole) return ab;
+  }
+  return null;
 }
 
 function hasBuff(char: CharacterInstance, buffId: string): boolean {
@@ -53,6 +70,15 @@ export function aiSelectAction(
   const targetEnemyIdx = enemies.findIndex(e =>
     e.currentHP === Math.min(...aliveEnemies.map(x => x.currentHP))
   );
+
+  // Check for ultimate ability (opportunistic use)
+  const ult = getUltimateIfUsable(char);
+  if (ult) {
+    if (ult.healPercent) {
+      return { ability: ult, targetCharIdx: 0 };
+    }
+    return { ability: ult, targetEnemyIdx };
+  }
 
   const hpRatio = char.currentHP / char.maxHP;
   const atbSegs = Math.floor(char.atb.current);

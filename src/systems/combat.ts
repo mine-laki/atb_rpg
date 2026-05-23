@@ -29,13 +29,25 @@ function makeLogId(): string {
 function getRoleLevelBonus(char: CharacterInstance): number {
   const roleLv = (char.roleLevels?.[char.currentRole] ?? 1);
   switch (char.currentRole) {
-    case 'ATK': return roleLv * 0.03;  // +3% physical damage per level
-    case 'BLA': return roleLv * 0.03;  // +3% magic damage per level
+    case 'ATK': return roleLv * 0.10;  // +10% physical damage per level (up to +50% at lv 5)
+    case 'BLA': return roleLv * 0.10;  // +10% magic damage per level
     default:    return 0;
   }
 }
 
-function calcDamageBoosts(char: CharacterInstance, ability: CommandAbility, enemy: EnemyInstance): number {
+/** Returns +0.15 if any other alive party member has ATK role lv >= 3 and this char is ATK */
+export function getAllyATKBonus(char: CharacterInstance, party: CharacterInstance[]): number {
+  if (char.currentRole !== 'ATK') return 0;
+  const hasHighLvATKAlly = party.some(p =>
+    p.id !== char.id &&
+    p.isAlive &&
+    p.currentRole === 'ATK' &&
+    (p.roleLevels?.['ATK'] ?? 1) >= 3
+  );
+  return hasHighLvATKAlly ? 0.15 : 0;
+}
+
+function calcDamageBoosts(char: CharacterInstance, ability: CommandAbility, enemy: EnemyInstance, party?: CharacterInstance[]): number {
   let mult = 1.0;
 
   // Role level bonus (ATK = physical, BLA = magic/elemental)
@@ -43,6 +55,16 @@ function calcDamageBoosts(char: CharacterInstance, ability: CommandAbility, enem
   if (ability.power !== undefined) {
     if (!ability.element && char.currentRole === 'ATK') mult += roleLvBonus;
     if ( ability.element && char.currentRole === 'BLA') mult += roleLvBonus;
+  }
+
+  // Ally ATK bonus
+  if (party) {
+    mult += getAllyATKBonus(char, party);
+  }
+
+  // Combo count bonus (+5% per chain, max +25% at 5 chains)
+  if (char.comboCount && char.comboCount > 0) {
+    mult += char.comboCount * 0.05;
   }
 
   // Equipment damage_boost effect
@@ -73,6 +95,7 @@ export function executeAttack(
   target: EnemyInstance,
   _state: BattleState,
   timestamp: number,
+  party?: CharacterInstance[],
 ): { newTarget: EnemyInstance; logs: ActionLogEntry[] } {
   const logs: ActionLogEntry[] = [];
   const enemyData = getEnemyById(target.dataId);
@@ -82,12 +105,16 @@ export function executeAttack(
 
   for (let h = 0; h < hits; h++) {
     const weakness = isWeakness(enemyData?.weaknesses ?? [], ability.element);
-    const physMult = !ability.element && enemyData?.physResist ? (1 - (enemyData.physResist ?? 0)) : 1;
+    // Legacy physResist check (kept for backward compat)
+    const physResistMult = !ability.element && enemyData?.physResist ? (1 - (enemyData.physResist ?? 0)) : 1;
+    // New physDef/magDef system
+    const physDefMult = !ability.element ? (1 - (enemyData?.physDef ?? 0) / 100) : 1;
+    const magDefMult  =  ability.element ? (1 - (enemyData?.magDef  ?? 0) / 100) : 1;
     const weakMult = weakness ? 1.5 : 1.0;
 
     const baseStat = ability.element ? char.mag : char.str;
-    const rawDamage = baseStat * (ability.power ?? 1.0) * physMult * weakMult;
-    const boostMult = calcDamageBoosts(char, ability, newTarget);
+    const rawDamage = baseStat * (ability.power ?? 1.0) * physResistMult * physDefMult * magDefMult * weakMult;
+    const boostMult = calcDamageBoosts(char, ability, newTarget, party);
     const damage = Math.floor(rawDamage * boostMult * (0.9 + Math.random() * 0.2));
 
     newTarget = {
@@ -122,9 +149,9 @@ export function executeHeal(
   const logs: ActionLogEntry[] = [];
   let healMult = 1.0;
 
-  // HLR role level bonus: +4% heal per level
+  // HLR role level bonus: +8% heal per level
   if (char.currentRole === 'HLR') {
-    healMult += (char.roleLevels?.['HLR'] ?? 1) * 0.04;
+    healMult += (char.roleLevels?.['HLR'] ?? 1) * 0.08;
   }
 
   // Equipment heal_boost effect

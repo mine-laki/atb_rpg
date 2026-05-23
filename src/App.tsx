@@ -8,6 +8,7 @@ import { BattleScreen } from './components/BattleScreen';
 import { ResultScreen } from './components/ResultScreen';
 import { EnhanceScreen } from './components/EnhanceScreen';
 import { ShopScreen } from './components/ShopScreen';
+import { EnemyReportScreen } from './components/EnemyReportScreen';
 import { STAGE_WAVES, getEnemyById } from './data/enemies';
 import './App.css';
 
@@ -43,6 +44,7 @@ function buildBattleState(saveData: SaveData, stageOverride?: number): { state: 
       elapsed: 0,
       waveIndex: 0,
       breakCount: 0,
+      battleItems: saveData.progress.inventory.battleItems ?? [],
     },
     waveEnemyIds,
   };
@@ -152,6 +154,12 @@ export default function App() {
       const newNGPlus = isNGPlusTrigger ? (prev.newGamePlus ?? 0) + 1 : (prev.newGamePlus ?? 0);
       const resetStage = isNGPlusTrigger ? 1 : nextStage;
 
+      // Update encountered enemies
+      const newEncountered = [...(prev.progress.encounteredEnemies ?? [])];
+      for (const enemy of finalState.enemies) {
+        if (!newEncountered.includes(enemy.dataId)) newEncountered.push(enemy.dataId);
+      }
+
       const updated: SaveData = {
         ...prev,
         newGamePlus: newNGPlus,
@@ -161,10 +169,12 @@ export default function App() {
             ...prev.progress.inventory,
             gil: prev.progress.inventory.gil + rewards.gil,
             materials: mergeDrops(prev.progress.inventory.materials, rewards.drops),
+            battleItems: finalState.battleItems,
           },
           clearedStages: isNewStageRecord ? newClearedStages : prev.progress.clearedStages,
           currentStage: resetStage,
           playTime: prev.progress.playTime + Math.floor(finalState.elapsed),
+          encounteredEnemies: newEncountered,
         },
       };
       syncToCache(updated);
@@ -281,6 +291,15 @@ export default function App() {
       <ShopScreen
         saveData={saveData}
         onUpdate={setSaveData}
+        onBack={() => setScreen('home')}
+      />
+    );
+  }
+
+  if (screen === 'enemyReport') {
+    return (
+      <EnemyReportScreen
+        encounteredEnemies={saveData.progress.encounteredEnemies ?? []}
         onBack={() => setScreen('home')}
       />
     );

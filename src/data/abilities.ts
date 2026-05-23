@@ -59,6 +59,12 @@ export const COMMAND_ABILITIES: CommandAbility[] = [
   { id: 'enh_shell',      name: 'シェル',         role: 'ENH', cost: 2, buff: ['shell'],   chainBonus: 0 },
   { id: 'enh_haste',      name: 'ヘイスト',       role: 'ENH', cost: 2, buff: ['haste'],   chainBonus: 0 },
   { id: 'enh_faith',      name: 'フェイス',       role: 'ENH', cost: 2, buff: ['faith'],   chainBonus: 0 },
+  // ENH general (non-unique)
+  { id: 'enh_bravall',    name: 'ブレイバリーオール', role: 'ENH', cost: 4, buff: ['bravery'], aoe: true, chainBonus: 0 },
+  { id: 'enh_protall',    name: 'プロテスオール',     role: 'ENH', cost: 3, buff: ['prot'],    aoe: true, chainBonus: 0 },
+  { id: 'enh_shellall',   name: 'シェルオール',       role: 'ENH', cost: 3, buff: ['shell'],   aoe: true, chainBonus: 0 },
+  { id: 'enh_hasteall',   name: 'ヘイストオール',     role: 'ENH', cost: 4, buff: ['haste'],   aoe: true, chainBonus: 0 },
+  { id: 'enh_barfire',    name: 'バーファイア',       role: 'ENH', cost: 2, chainBonus: 0 },
   // ENH unique
   { id: 'enh_bravery',    name: 'ブレイバリー',   role: 'ENH', cost: 3, buff: ['bravery'], aoe: true, chainBonus: 0, isUnique: true, uniqueOwner: 'en' },
   { id: 'enh_faithall',   name: 'フェイスオール', role: 'ENH', cost: 3, buff: ['faith'],   aoe: true, chainBonus: 0, isUnique: true, uniqueOwner: 'sac' },
@@ -70,12 +76,22 @@ export const COMMAND_ABILITIES: CommandAbility[] = [
   { id: 'jam_deshell',    name: 'デシェル',       role: 'JAM', cost: 2, debuff: ['deshell'], chainBonus: 0 },
   { id: 'jam_slow',       name: 'スロウ',         role: 'JAM', cost: 3, debuff: ['slow'],    chainBonus: 0 },
   { id: 'jam_pain',       name: 'ペイン',         role: 'JAM', cost: 3, debuff: ['pain'],    chainBonus: 0 },
+  // JAM general (non-unique)
+  { id: 'jam_imperil_g',  name: 'インペリル',     role: 'JAM', cost: 3, debuff: ['imperil'], chainBonus: 0 },
+  { id: 'jam_fog',        name: 'フォグ',         role: 'JAM', cost: 2, debuff: ['curse'],   chainBonus: 0 },
+  { id: 'jam_poison',     name: 'ポイズン',       role: 'JAM', cost: 2, debuff: ['poison'],  chainBonus: 0 },
+  { id: 'jam_instant',    name: 'インスタント',   role: 'JAM', cost: 1, power: 0,            chainBonus: 0 },
   // JAM unique
   { id: 'jam_imperil',    name: 'インペリル',     role: 'JAM', cost: 3, debuff: ['imperil'], chainBonus: 0, isUnique: true, uniqueOwner: 'daku' },
   { id: 'jam_curse',      name: 'カース',         role: 'JAM', cost: 2, debuff: ['curse'],   chainBonus: 0, isUnique: true, uniqueOwner: 'daku' },
   { id: 'jam_dispel',     name: 'ディスペル',     role: 'JAM', cost: 2,                      chainBonus: 0, isUnique: true, uniqueOwner: 'kaze' },
   { id: 'jam_gravity',    name: 'グラビデ',       role: 'JAM', cost: 3,                      chainBonus: 0, isUnique: true, uniqueOwner: 'ran' },
   { id: 'jam_stop',       name: 'ストップ',       role: 'JAM', cost: 4, debuff: ['stop'],    chainBonus: 0, isUnique: true, uniqueOwner: 'daku' },
+
+  // ---- Ultimates (Item 14) ----
+  { id: 'rai_ult', name: 'ライトニングスフィア', role: 'ATK', cost: 4, power: 8.0, hits: 3, element: 'thunder', chainBonus: 100, isUnique: true, isUltimate: true, uniqueOwner: 'rai' },
+  { id: 'va_ult',  name: '聖なる癒し',           role: 'HLR', cost: 3, healPercent: 1.0, aoe: true, chainBonus: 0, isUnique: true, isUltimate: true, uniqueOwner: 'va' },
+  { id: 'fa_ult',  name: '獣王の怒り',           role: 'ATK', cost: 5, power: 12.0, chainBonus: 80, isUnique: true, isUltimate: true, uniqueOwner: 'fa' },
 ];
 
 export const AUTO_ABILITIES: AutoAbility[] = [

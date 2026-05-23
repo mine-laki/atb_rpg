@@ -83,6 +83,10 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
             <span>🏪</span>
             <span>ショップ</span>
           </button>
+          <button className="home-btn" onClick={() => onNavigate('enemyReport')}>
+            <span>📋</span>
+            <span>エネミーレポート</span>
+          </button>
         </div>
       </div>
     </div>

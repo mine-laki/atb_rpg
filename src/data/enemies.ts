@@ -8,6 +8,7 @@ export const ENEMIES: EnemyData[] = [
     breakThreshold: 200,
     weaknesses: ['fire'],
     resistances: [],
+    physDef: 0, magDef: 0,
     gilReward: 100,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 0.80 }],
@@ -25,6 +26,7 @@ export const ENEMIES: EnemyData[] = [
     breakThreshold: 500,
     weaknesses: ['ice'],
     resistances: ['fire'],
+    physDef: 20, magDef: 0,
     gilReward: 300,
     dropTable: {
       common:   [{ itemId: 'dragon_scale', rate: 0.70 }],
@@ -43,6 +45,7 @@ export const ENEMIES: EnemyData[] = [
     weaknesses: ['thunder'],
     resistances: [],
     physResist: 0.5,
+    physDef: 50, magDef: 10,
     gilReward: 200,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 0.75 }],
@@ -62,6 +65,7 @@ export const ENEMIES: EnemyData[] = [
     breakThreshold: 600,
     weaknesses: ['holy'],
     resistances: ['dark'],
+    physDef: 30, magDef: 30,
     gilReward: 2000,
     isBoss: true,
     dropTable: {
@@ -84,6 +88,7 @@ export const ENEMIES: EnemyData[] = [
     breakThreshold: 700,
     weaknesses: [],
     resistances: ['fire', 'ice', 'thunder'],
+    physDef: 30, magDef: 30,
     gilReward: 4000,
     isBoss: true,
     dropTable: {
@@ -107,6 +112,7 @@ export const ENEMIES: EnemyData[] = [
     breakThreshold: 800,
     weaknesses: [],
     resistances: [],
+    physDef: 30, magDef: 30,
     gilReward: 8000,
     isBoss: true,
     dropTable: {

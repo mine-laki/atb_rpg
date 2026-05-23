@@ -4,7 +4,7 @@ export type RoleId = 'ATK' | 'BLA' | 'DEF' | 'HLR' | 'ENH' | 'JAM';
 export type Element = 'fire' | 'ice' | 'thunder' | 'wind' | 'water' | 'earth' | 'holy' | 'dark' | 'none';
 export type StatId = 'hp' | 'str' | 'mag' | 'def' | 'mdef' | 'spd';
 export type BuffId = 'prot' | 'shell' | 'haste' | 'faith' | 'bravery' | 'guard' | 'regen' | 'veil';
-export type DebuffId = 'deprot' | 'deshell' | 'slow' | 'pain' | 'imperil' | 'curse' | 'stop';
+export type DebuffId = 'deprot' | 'deshell' | 'slow' | 'pain' | 'imperil' | 'curse' | 'stop' | 'poison';
 
 // ---- ATB ----
 
@@ -75,6 +75,7 @@ export interface CommandAbility {
   chainBonus: number;
   isUnique?: boolean;
   uniqueOwner?: string;
+  isUltimate?: boolean;
 }
 
 // ---- Character ----
@@ -92,6 +93,9 @@ export interface CharacterData {
   uniqueAbilities: string[]; // CommandAbility IDs (unique to this char)
   growthType: 'attacker' | 'magic' | 'tank' | 'healer' | 'allround';
   weaponAffinity?: string;
+  attackType: 'physical' | 'magical' | 'mixed';
+  physDef: number;   // 0-100, default 0
+  magDef: number;    // 0-100, default 0
 }
 
 export interface CharacterInstance {
@@ -117,6 +121,8 @@ export interface CharacterInstance {
   unlockedSkillNodes: string[];
   isAlive: boolean;
   reviveUsed: boolean;  // for revive_once auto ability
+  comboCount?: number;  // consecutive action bonus
+  ultimateUsed?: boolean; // once-per-battle ultimate flag
 }
 
 // ---- Enemy ----
@@ -133,6 +139,8 @@ export interface EnemyData {
   resistances: Element[];
   physResist?: number;      // e.g. 0.5 = 50% physical resist
   magResist?: number;
+  physDef?: number;         // physical defense reduction %, 0-100
+  magDef?: number;          // magic defense reduction %, 0-100
   gilReward: number;
   dropTable: DropTable;
   actions: EnemyAction[];
@@ -239,6 +247,7 @@ export interface Inventory {
   gil: number;
   equipments: EquipmentInstance[];
   materials: { itemId: string; quantity: number }[];
+  battleItems: { itemId: string; quantity: number }[];
 }
 
 // ---- Shop ----
@@ -292,6 +301,7 @@ export interface BattleState {
   elapsed: number;     // seconds
   waveIndex: number;
   breakCount: number;  // for reward calc
+  battleItems: { itemId: string; quantity: number }[];
 }
 
 export interface ActionLogEntry {
@@ -341,6 +351,7 @@ export interface ProgressData {
   unlockedShopStage: number;
   unlockedCharacters: string[];
   selectedStage?: number;
+  encounteredEnemies: string[];
 }
 
 export interface PlayerSaveData {
@@ -359,4 +370,4 @@ export interface SaveData {
 
 // ---- Game Screen ----
 
-export type GameScreen = 'title' | 'home' | 'setup' | 'battle' | 'result' | 'enhance' | 'shop';
+export type GameScreen = 'title' | 'home' | 'setup' | 'battle' | 'result' | 'enhance' | 'shop' | 'enemyReport';

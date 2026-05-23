@@ -7,6 +7,7 @@ import { ActionLog } from '../ActionLog';
 import { useBattleLoop } from '../../hooks/useBattleLoop';
 import { switchParadigm } from '../../systems/paradigm';
 import { createEnemyInstance } from '../../systems/gameState';
+import { getItemById } from '../../data/items';
 
 interface BattleScreenProps {
   initialState: BattleState;
@@ -84,6 +85,30 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
     });
   }, []);
 
+  const handleUseItem = useCallback((itemId: string) => {
+    setState(prev => {
+      if (prev.phase !== 'battle') return prev;
+      const itemEntry = prev.battleItems.find(b => b.itemId === itemId);
+      if (!itemEntry || itemEntry.quantity <= 0) return prev;
+      const itemData = getItemById(itemId);
+      if (!itemData || !itemData.healPercent) return prev;
+
+      // Heal all alive party members
+      const newParty = prev.party.map(char => {
+        if (!char.isAlive) return char;
+        const heal = Math.floor(char.maxHP * itemData.healPercent!);
+        return { ...char, currentHP: Math.min(char.maxHP, char.currentHP + heal) };
+      });
+
+      // Decrement item quantity
+      const newBattleItems = prev.battleItems.map(b =>
+        b.itemId === itemId ? { ...b, quantity: b.quantity - 1 } : b
+      );
+
+      return { ...prev, party: newParty, battleItems: newBattleItems };
+    });
+  }, []);
+
   const aliveEnemies = state.enemies.filter(e => e.currentHP > 0);
   const totalWaves = waveEnemyIds.length;
 
@@ -128,6 +153,27 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
       />
 
       <ActionLog entries={state.actionLog} />
+
+      {/* Battle items */}
+      {state.battleItems.length > 0 && (
+        <div className="battle-items-row">
+          {state.battleItems.map(item => {
+            const data = getItemById(item.itemId);
+            if (!data) return null;
+            return (
+              <button
+                key={item.itemId}
+                className="btn-battle-item"
+                disabled={item.quantity <= 0 || state.phase !== 'battle'}
+                onClick={() => handleUseItem(item.itemId)}
+                title={data.description}
+              >
+                {data.emoji} {data.name} ×{item.quantity}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div className="battle-controls">
         <button className="btn-escape" onClick={() => { setIsRunning(false); onEscape(); }}>

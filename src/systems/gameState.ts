@@ -78,6 +78,8 @@ export function createCharacterInstance(
     unlockedSkillNodes: save?.unlockedSkillNodes ?? [],
     isAlive: true,
     reviveUsed: false,
+    comboCount: 0,
+    ultimateUsed: false,
   };
 }
 
@@ -119,10 +121,12 @@ export function buildInitialSaveData(): SaveData {
       gil: 500,
       equipments: [],
       materials: [],
+      battleItems: [{ itemId: 'potion', quantity: 3 }],
     },
     playTime: 0,
     unlockedShopStage: 0,
     unlockedCharacters: INITIAL_UNLOCKED,
+    encounteredEnemies: [],
   };
 
   return {

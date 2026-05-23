@@ -17,7 +17,9 @@ export function updateATB(char: CharacterInstance, delta: number): CharacterInst
   if (!char.isAlive) return char;
 
   const speedMult = getATBSpeedMultiplier(char) * char.atb.speedMultiplier;
-  const fillRate = delta / SEGMENT_FILL_TIME * speedMult;
+  // ゲージ最大が多いほど有利：全ゲージ充填時間を一定(3セグ分=9秒)に統一
+  // max=3→9秒, max=5→9秒 でどちらも同じ。ゲージ多い方がバーストが強い
+  const fillRate = (char.atb.max / 3) * delta / SEGMENT_FILL_TIME * speedMult;
   const newCurrent = Math.min(char.atb.current + fillRate, char.atb.max);
 
   return {

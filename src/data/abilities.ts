@@ -2,19 +2,19 @@ import type { CommandAbility, AutoAbility } from '../types';
 
 export const COMMAND_ABILITIES: CommandAbility[] = [
   // ---- ATK ----
-  { id: 'atk_fight',      name: 'たたかう',       role: 'ATK', cost: 1, power: 1.0,  chainBonus: 20 },
-  { id: 'atk_rush',       name: 'ラッシュ',       role: 'ATK', cost: 2, power: 0.7,  hits: 3, chainBonus: 15 },
-  { id: 'atk_braver',     name: 'ブレイバー',     role: 'ATK', cost: 3, power: 2.5,  chainBonus: 25 },
-  { id: 'atk_areablast',  name: 'エリアブラスト', role: 'ATK', cost: 4, power: 1.5,  aoe: true, chainBonus: 18 },
+  { id: 'atk_fight',      name: 'たたかう',       role: 'ATK', cost: 1, power: 1.5,  chainBonus: 20 },
+  { id: 'atk_rush',       name: 'ラッシュ',       role: 'ATK', cost: 2, power: 2.0,  hits: 3, chainBonus: 15 },
+  { id: 'atk_braver',     name: 'ブレイバー',     role: 'ATK', cost: 3, power: 4,  chainBonus: 25 },
+  { id: 'atk_areablast',  name: 'エリアブラスト', role: 'ATK', cost: 3, power: 2.0,  aoe: true, chainBonus: 18 },
   // ATK unique
-  { id: 'atk_blitz',      name: 'ブリッツ',       role: 'ATK', cost: 2, power: 1.8,  chainBonus: 30, isUnique: true, uniqueOwner: 'rai' },
-  { id: 'atk_omega',      name: 'オメガドライブ', role: 'ATK', cost: 4, power: 4.0,  chainBonus: 20, isUnique: true, uniqueOwner: 'ifu' },
-  { id: 'atk_whirlwind',  name: 'ウィンドブレード',role: 'ATK', cost: 3, power: 2.0,  aoe: true, element: 'wind', chainBonus: 22, isUnique: true, uniqueOwner: 'kaze' },
-  { id: 'atk_twinfang',   name: 'ツインファング', role: 'ATK', cost: 2, power: 1.0,  hits: 2, chainBonus: 25, isUnique: true, uniqueOwner: 'fa' },
-  { id: 'atk_tkick',      name: 'サンダーキック', role: 'ATK', cost: 3, power: 2.2,  element: 'thunder', chainBonus: 28, isUnique: true, uniqueOwner: 'rai' },
-  { id: 'atk_iceedge',    name: 'アイスエッジ',   role: 'ATK', cost: 2, power: 1.6,  element: 'ice', chainBonus: 25, isUnique: true, uniqueOwner: 'kuri' },
-  { id: 'atk_berserk',    name: 'バーサクブロウ', role: 'ATK', cost: 3, power: 3.0,  chainBonus: 20, isUnique: true, uniqueOwner: 'ifu' },
-  { id: 'atk_psrike',     name: '挑発打ち',       role: 'ATK', cost: 1, power: 0.8,  chainBonus: 15, isUnique: true, uniqueOwner: 'gar' },
+  { id: 'atk_blitz',      name: 'ブリッツ',       role: 'ATK', cost: 2, power: 3.5,  chainBonus: 30, isUnique: true, uniqueOwner: 'rai' },
+  { id: 'atk_omega',      name: 'オメガドライブ', role: 'ATK', cost: 4, power: 5.0,  chainBonus: 20, isUnique: true, uniqueOwner: 'ifu' },
+  { id: 'atk_whirlwind',  name: 'ウィンドブレード',role: 'ATK', cost: 3, power: 4.0,  aoe: true, element: 'wind', chainBonus: 22, isUnique: true, uniqueOwner: 'kaze' },
+  { id: 'atk_twinfang',   name: 'ツインファング', role: 'ATK', cost: 2, power: 1.5,  hits: 2, chainBonus: 25, isUnique: true, uniqueOwner: 'fa' },
+  { id: 'atk_tkick',      name: 'サンダーキック', role: 'ATK', cost: 3, power: 3.5,  element: 'thunder', chainBonus: 28, isUnique: true, uniqueOwner: 'rai' },
+  { id: 'atk_iceedge',    name: 'アイスエッジ',   role: 'ATK', cost: 2, power: 2.5,  element: 'ice', chainBonus: 25, isUnique: true, uniqueOwner: 'kuri' },
+  { id: 'atk_berserk',    name: 'バーサクブロウ', role: 'ATK', cost: 3, power: 4.0,  chainBonus: 20, isUnique: true, uniqueOwner: 'ifu' },
+  { id: 'atk_psrike',     name: '挑発打ち',       role: 'ATK', cost: 1, power: 1,  chainBonus: 15, isUnique: true, uniqueOwner: 'gar' },
 
   // ---- BLA ----
   { id: 'bla_fire',       name: 'ファイア',       role: 'BLA', cost: 1, power: 1.0,  element: 'fire',    chainBonus: 45 },

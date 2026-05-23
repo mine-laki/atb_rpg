@@ -92,7 +92,9 @@ button {
 }
 
 .home-header .game-title { font-size: 1.4em; }
+.home-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
 .home-gil { color: #ffcc44; font-weight: bold; }
+.home-playtime { color: #8888aa; font-size: 0.8em; }
 
 .home-stage-info {
   text-align: center;
@@ -871,17 +873,20 @@ button {
 /* ---- Enhance screen tabs ---- */
 .enhance-tabs {
   display: flex;
-  gap: 6px;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 .enhance-tabs button {
   flex: 1;
-  padding: 7px;
+  min-width: 52px;
+  padding: 6px 4px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
   color: #aaa;
-  font-size: 0.85em;
+  font-size: 0.78em;
   border-radius: 6px;
   cursor: pointer;
+  white-space: nowrap;
 }
 .enhance-tabs button.active {
   background: rgba(60,100,180,0.35);

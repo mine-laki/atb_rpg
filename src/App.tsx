@@ -142,6 +142,7 @@ export default function App() {
             ? prev.progress.clearedStages
             : [...prev.progress.clearedStages, prev.progress.currentStage],
           currentStage: Math.min(prev.progress.currentStage + 1, STAGE_WAVES.length),
+          playTime: prev.progress.playTime + Math.floor(finalState.elapsed),
         },
       };
       syncToCache(updated);

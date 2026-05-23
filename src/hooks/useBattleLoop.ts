@@ -88,7 +88,10 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
         const actorEmoji = charData?.emoji ?? '';
         const actorName  = charData?.name  ?? party[charIdx].dataId;
 
-        // 連続行動: ATBが続く限り同じキャラが連続で行動（最大6回/ティックで安全装置）
+        // 「ゲージをためてから一気に行動」: ATBがフルになるまで行動しない
+        if (party[charIdx].atb.current < party[charIdx].atb.max - 0.1) continue;
+
+        // ATBフル → 使い切るまで連続行動（最大6回/ティックで安全装置）
         let actionsThisTick = 0;
         while (actionsThisTick < 6) {
           const cur = party[charIdx];

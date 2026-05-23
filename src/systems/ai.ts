@@ -129,16 +129,26 @@ export function aiSelectAction(
     }
 
     case 'HLR': {
-      // revive first
+      // 1. 戦闘不能を最優先でレイズ
       const dead = findDeadChar(party);
       if (dead) {
         const raise = abilities.find(a => (a.id === 'hlr_raise' || a.id === 'hlr_arise') && a.cost <= atbSegs);
         if (raise) return { ability: raise, targetCharIdx: party.indexOf(dead) };
       }
 
+      // 2. HP最低のメンバーを回復（全体回復も考慮）
       const lowest = lowestHPChar(party);
       if (lowest) {
         const lowestRatio = lowest.currentHP / lowest.maxHP;
+
+        // 全体的に低いなら全体回復
+        const avgHPRatio = party.filter(p => p.isAlive)
+          .reduce((sum, p) => sum + p.currentHP / p.maxHP, 0) / party.filter(p => p.isAlive).length;
+        if (avgHPRatio < 0.6) {
+          const aoeHeal = abilities.find(a => a.aoe && (a.healValue || a.healPercent) && a.cost <= atbSegs);
+          if (aoeHeal) return { ability: aoeHeal };
+        }
+
         if (lowestRatio < 0.5) {
           const curaga = abilities.find(a => a.id === 'hlr_curaga' && a.cost <= atbSegs);
           if (curaga) return { ability: curaga, targetCharIdx: party.indexOf(lowest) };
@@ -148,8 +158,9 @@ export function aiSelectAction(
           if (cura) return { ability: cura, targetCharIdx: party.indexOf(lowest) };
         }
       }
+      // 3. ケアルは最低HPのメンバーへ（0番ではなく）
       const cure = abilities.find(a => a.id === 'hlr_cure' && a.cost <= atbSegs);
-      if (cure) return { ability: cure, targetCharIdx: 0 };
+      if (cure) return { ability: cure, targetCharIdx: party.indexOf(lowestHPChar(party) ?? party[0]) };
       const best = highestCostAbility(abilities, atbSegs);
       if (best) return { ability: best, targetCharIdx: party.indexOf(lowestHPChar(party) ?? party[0]) };
       return null;
@@ -157,22 +168,34 @@ export function aiSelectAction(
 
     case 'ENH': {
       const buffsToApply = ['prot', 'haste', 'faith', 'shell'] as const;
-      for (const p of party) {
-        if (!p.isAlive) continue;
-        for (const buffId of buffsToApply) {
-          if (!hasBuff(p, buffId)) {
-            const buffAb = abilities.find(a =>
-              a.buff?.includes(buffId as any) && a.cost <= atbSegs
-            );
-            if (buffAb) return { ability: buffAb, targetCharIdx: party.indexOf(p) };
-          }
-        }
+
+      // バフ種別ごとに「誰か1人でも未付与なら付与」を優先
+      // AoEアビリティが使えれば全体に付与、なければ未付与の最初のメンバーに付与
+      for (const buffId of buffsToApply) {
+        const needsBuffList = party.filter(p => p.isAlive && !hasBuff(p, buffId));
+        if (!needsBuffList.length) continue;
+
+        // AoEバフを優先（全体を一括で）
+        const aoeAb = abilities.find(a =>
+          a.buff?.includes(buffId as any) && a.aoe && a.cost <= atbSegs
+        );
+        if (aoeAb) return { ability: aoeAb };  // AoEはtargetCharIdxなし
+
+        // シングルターゲット版で未付与の最初のメンバーへ
+        const singleAb = abilities.find(a =>
+          a.buff?.includes(buffId as any) && !a.aoe && a.cost <= atbSegs
+        );
+        if (singleAb) return { ability: singleAb, targetCharIdx: party.indexOf(needsBuffList[0]) };
       }
-      // all buffed - use cure
-      const cure = abilities.find(a => a.id === 'hlr_cure' && a.cost <= atbSegs);
-      if (cure) return { ability: cure, targetCharIdx: party.indexOf(lowestHPChar(party) ?? party[0]) };
+
+      // 全バフ適用済み → HP最低メンバーを回復
+      const lowest = lowestHPChar(party);
+      if (lowest && lowest.currentHP / lowest.maxHP < 0.85) {
+        const cure = abilities.find(a => (a.healValue || a.healPercent) && a.cost <= atbSegs);
+        if (cure) return { ability: cure, targetCharIdx: party.indexOf(lowest) };
+      }
       const best = highestCostAbility(abilities, atbSegs);
-      if (best) return { ability: best, targetCharIdx: 0 };
+      if (best) return { ability: best, targetCharIdx: party.indexOf(lowestHPChar(party) ?? party[0]) };
       return null;
     }
 

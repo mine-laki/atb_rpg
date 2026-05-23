@@ -105,12 +105,6 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
         <div className="phase-overlay wave-clear">Wave クリア!</div>
       )}
 
-      <div className="party-area">
-        {state.party.map(char => (
-          <CharacterCard key={char.id} char={char} />
-        ))}
-      </div>
-
       <div className="enemy-area">
         {aliveEnemies.map(enemy => (
           <EnemyCard key={enemy.id} enemy={enemy} />
@@ -118,6 +112,12 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
         {aliveEnemies.length === 0 && state.phase === 'battle' && (
           <div className="loading-text">...</div>
         )}
+      </div>
+
+      <div className="party-area">
+        {state.party.map(char => (
+          <CharacterCard key={char.id} char={char} />
+        ))}
       </div>
 
       <ParadigmPanel

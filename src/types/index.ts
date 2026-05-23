@@ -91,6 +91,7 @@ export interface CharacterData {
   autoAbilities: string[];   // AutoAbility IDs
   uniqueAbilities: string[]; // CommandAbility IDs (unique to this char)
   growthType: 'attacker' | 'magic' | 'tank' | 'healer' | 'allround';
+  weaponAffinity?: string;
 }
 
 export interface CharacterInstance {
@@ -109,6 +110,8 @@ export interface CharacterInstance {
     weapon: EquipmentInstance | null;
     accessory1: EquipmentInstance | null;
     accessory2: EquipmentInstance | null;
+    accessory3: EquipmentInstance | null;
+    accessory4: EquipmentInstance | null;
   };
   roleLevels: Partial<Record<RoleId, number>>;
   unlockedSkillNodes: string[];
@@ -322,6 +325,8 @@ export interface CharacterSaveData {
     weapon: string | null;
     accessory1: string | null;
     accessory2: string | null;
+    accessory3: string | null;
+    accessory4: string | null;
   };
   unlockedRoles: RoleId[];
   roleLevels: Partial<Record<RoleId, number>>;
@@ -335,6 +340,7 @@ export interface ProgressData {
   playTime: number;
   unlockedShopStage: number;
   unlockedCharacters: string[];
+  selectedStage?: number;
 }
 
 export interface PlayerSaveData {
@@ -348,6 +354,7 @@ export interface SaveData {
   player: PlayerSaveData;
   progress: ProgressData;
   paradigms: ParadigmData[];
+  newGamePlus?: number;
 }
 
 // ---- Game Screen ----

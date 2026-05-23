@@ -5,6 +5,11 @@ interface HomeScreenProps {
   saveData: SaveData;
   onNavigate: (screen: GameScreen) => void;
   onLoad: (data: SaveData) => void;
+  clearedStages: number[];
+  currentStage: number;
+  selectedStage: number | null;
+  onSelectStage: (stage: number | null) => void;
+  ngPlus?: number;
 }
 
 function formatPlayTime(seconds: number): string {
@@ -16,9 +21,7 @@ function formatPlayTime(seconds: number): string {
   return `${s}秒`;
 }
 
-export function HomeScreen({ saveData, onNavigate, onLoad }: HomeScreenProps) {
-  const clearedStages = saveData.progress.clearedStages;
-  const currentStage = saveData.progress.currentStage;
+export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, currentStage, selectedStage, onSelectStage, ngPlus }: HomeScreenProps) {
   const playTime = saveData.progress.playTime ?? 0;
 
   return (
@@ -38,10 +41,30 @@ export function HomeScreen({ saveData, onNavigate, onLoad }: HomeScreenProps) {
           : 'Stage 1 挑戦中'}
       </div>
 
+      <div className="stage-selector">
+        <h3>ステージ選択</h3>
+        <div className="stage-list">
+          {[1, 2, 3, 4, 5].map(s => {
+            if (s > currentStage) return null;
+            const isSelected = selectedStage === s || (!selectedStage && s === currentStage);
+            return (
+              <button
+                key={s}
+                className={`stage-btn ${isSelected ? 'active' : ''} ${clearedStages.includes(s) ? 'cleared' : ''}`}
+                onClick={() => onSelectStage(s === currentStage && !clearedStages.includes(s) ? null : s)}
+              >
+                {clearedStages.includes(s) ? '★' : '►'} Stage {s}
+              </button>
+            );
+          })}
+        </div>
+        {ngPlus ? <div className="ng-plus-badge">NG+{ngPlus}</div> : null}
+      </div>
+
       <div className="home-menu">
         <button className="home-btn battle" onClick={() => onNavigate('setup')}>
           <span>⚔️</span>
-          <span>バトル開始</span>
+          <span>バトル開始{selectedStage ? ` (Stage ${selectedStage})` : ''}</span>
         </button>
 
         <div className="home-menu-row">

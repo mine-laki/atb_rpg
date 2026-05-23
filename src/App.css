@@ -307,7 +307,8 @@ button {
 .battle-screen {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   padding: 12px;
   gap: 10px;
   position: relative;
@@ -317,6 +318,9 @@ button {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 /* Character Card */
@@ -412,6 +416,9 @@ button {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .enemy-card {
@@ -519,9 +526,8 @@ button {
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 8px;
   padding: 8px;
-  flex: 1;
   overflow-y: auto;
-  max-height: 150px;
+  max-height: 120px;
 }
 
 .log-entry {
@@ -1107,3 +1113,65 @@ button {
 .enhance-detail { display: flex; flex-direction: column; gap: 10px; }
 .enhance-preview { color: #88aaff; font-size: 0.9em; }
 .enhance-cost { display: flex; flex-direction: column; gap: 4px; font-size: 0.85em; color: #aaaaaa; }
+
+/* ---- Stage Selector ---- */
+.stage-selector {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.stage-selector h3 {
+  color: #aaaacc;
+  font-size: 0.85em;
+  margin-bottom: 8px;
+}
+
+.stage-list { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.stage-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #aaa;
+  cursor: pointer;
+  font-size: 0.85em;
+}
+
+.stage-btn:hover { background: rgba(255,255,255,0.1); }
+
+.stage-btn.active {
+  background: rgba(60,100,200,0.3);
+  border-color: #4466cc;
+  color: #aaccff;
+}
+
+.stage-btn.cleared { color: #ffcc44; }
+
+.ng-plus-badge {
+  margin-top: 8px;
+  color: #ffcc44;
+  font-weight: bold;
+  font-size: 0.85em;
+}
+
+/* ---- PC Layout ---- */
+@media (min-width: 768px) {
+  .app-container { max-width: 960px; }
+
+  .battle-screen {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr auto;
+    height: 100dvh;
+  }
+
+  .wave-indicator { grid-column: 1 / -1; }
+  .enemy-area { grid-column: 1; }
+  .party-area { grid-column: 2; }
+  .paradigm-panel { grid-column: 1 / -1; }
+  .action-log { grid-column: 1 / -1; }
+  .battle-controls { grid-column: 1 / -1; }
+}

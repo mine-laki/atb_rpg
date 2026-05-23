@@ -16,7 +16,7 @@ export function getATBSpeedMultiplier(char: CharacterInstance): number {
 export function updateATB(char: CharacterInstance, delta: number): CharacterInstance {
   if (!char.isAlive) return char;
 
-  const speedMult = getATBSpeedMultiplier(char);
+  const speedMult = getATBSpeedMultiplier(char) * char.atb.speedMultiplier;
   const fillRate = delta / SEGMENT_FILL_TIME * speedMult;
   const newCurrent = Math.min(char.atb.current + fillRate, char.atb.max);
 

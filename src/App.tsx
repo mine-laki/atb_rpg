@@ -11,14 +11,17 @@ import { ShopScreen } from './components/ShopScreen';
 import { STAGE_WAVES, getEnemyById } from './data/enemies';
 import './App.css';
 
-function buildBattleState(saveData: SaveData): { state: BattleState; waveEnemyIds: string[][] } {
+function buildBattleState(saveData: SaveData, stageOverride?: number): { state: BattleState; waveEnemyIds: string[][] } {
   const inventory = saveData.progress.inventory;
   const party = saveData.player.party.map(id => {
     const charSave = saveData.player.roster.find(r => r.id === id);
     return createCharacterInstance(id, charSave, inventory);
   });
 
-  const stageIdx = Math.min(saveData.progress.currentStage - 1, STAGE_WAVES.length - 1);
+  const stageIdx = Math.min(
+    (stageOverride ?? saveData.progress.currentStage) - 1,
+    STAGE_WAVES.length - 1
+  );
   const waveConfig = STAGE_WAVES[stageIdx] ?? STAGE_WAVES[0];
   const waveEnemyIds = waveConfig.waves;
   const enemies = waveEnemyIds[0].map((enemyId, idx) => createEnemyInstance(enemyId, idx));
@@ -45,9 +48,10 @@ function buildBattleState(saveData: SaveData): { state: BattleState; waveEnemyId
   };
 }
 
-function calcBattleRewards(state: BattleState): { gil: number; drops: DropItem[] } {
+function calcBattleRewards(state: BattleState, ngPlus: number = 0): { gil: number; drops: DropItem[] } {
   let gil = 0;
   const drops: DropItem[] = [];
+  const ngMult = 1 + 0.5 * ngPlus;
 
   for (const enemy of state.enemies) {
     if (enemy.currentHP > 0) continue;
@@ -60,23 +64,25 @@ function calcBattleRewards(state: BattleState): { gil: number; drops: DropItem[]
     else if (state.elapsed < 60) gil += 100;
 
     for (const drop of data.dropTable.common) {
-      if (Math.random() < drop.rate) {
+      if (Math.random() < drop.rate * ngMult) {
         drops.push({ type: 'material', itemId: drop.itemId, quantity: 1 });
       }
     }
     for (const drop of data.dropTable.uncommon) {
-      if (Math.random() < drop.rate) {
+      if (Math.random() < drop.rate * ngMult) {
         drops.push({ type: 'material', itemId: drop.itemId, quantity: 1 });
       }
     }
     if (enemy.breakTimer > 0 || !enemy.isBreaking) {
       for (const drop of data.dropTable.rare) {
-        if (Math.random() < drop.rate) {
+        if (Math.random() < drop.rate * ngMult) {
           drops.push({ type: 'material', itemId: drop.itemId, quantity: 1 });
         }
       }
     }
   }
+
+  gil = Math.floor(gil * ngMult);
 
   return { gil, drops };
 }
@@ -100,6 +106,7 @@ export default function App() {
   const [lastRewards, setLastRewards] = useState<{ gil: number; drops: DropItem[] }>({ gil: 0, drops: [] });
   const [cacheChecked, setCacheChecked] = useState(false);
   const [showCachePrompt, setShowCachePrompt] = useState(false);
+  const [selectedStage, setSelectedStage] = useState<number | null>(null);
 
   useEffect(() => {
     if (cacheChecked) return;
@@ -119,18 +126,35 @@ export default function App() {
 
   const handleSetupStart = useCallback((updatedSave: SaveData) => {
     setSaveData(updatedSave);
-    const { state, waveEnemyIds: waves } = buildBattleState(updatedSave);
+    const { state, waveEnemyIds: waves } = buildBattleState(updatedSave, selectedStage ?? undefined);
     setBattleState(state);
     setWaveEnemyIds(waves);
     setScreen('battle');
-  }, []);
+  }, [selectedStage]);
 
   const handleVictory = useCallback((finalState: BattleState) => {
-    const rewards = calcBattleRewards(finalState);
+    const ngPlus = saveData.newGamePlus ?? 0;
+    const rewards = calcBattleRewards(finalState, ngPlus);
     setLastRewards(rewards);
     setSaveData(prev => {
+      const isNewStageRecord = !selectedStage || selectedStage >= prev.progress.currentStage;
+      const battleedStage = selectedStage ?? prev.progress.currentStage;
+      const newClearedStages = prev.progress.clearedStages.includes(battleedStage)
+        ? prev.progress.clearedStages
+        : [...prev.progress.clearedStages, battleedStage];
+      const nextStage = isNewStageRecord
+        ? Math.min(prev.progress.currentStage + 1, STAGE_WAVES.length)
+        : prev.progress.currentStage;
+
+      // NG+ check: all stages cleared and at max stage
+      const allCleared = newClearedStages.length >= STAGE_WAVES.length;
+      const isNGPlusTrigger = allCleared && isNewStageRecord && nextStage > STAGE_WAVES.length - 1;
+      const newNGPlus = isNGPlusTrigger ? (prev.newGamePlus ?? 0) + 1 : (prev.newGamePlus ?? 0);
+      const resetStage = isNGPlusTrigger ? 1 : nextStage;
+
       const updated: SaveData = {
         ...prev,
+        newGamePlus: newNGPlus,
         progress: {
           ...prev.progress,
           inventory: {
@@ -138,10 +162,8 @@ export default function App() {
             gil: prev.progress.inventory.gil + rewards.gil,
             materials: mergeDrops(prev.progress.inventory.materials, rewards.drops),
           },
-          clearedStages: prev.progress.clearedStages.includes(prev.progress.currentStage)
-            ? prev.progress.clearedStages
-            : [...prev.progress.clearedStages, prev.progress.currentStage],
-          currentStage: Math.min(prev.progress.currentStage + 1, STAGE_WAVES.length),
+          clearedStages: isNewStageRecord ? newClearedStages : prev.progress.clearedStages,
+          currentStage: resetStage,
           playTime: prev.progress.playTime + Math.floor(finalState.elapsed),
         },
       };
@@ -150,7 +172,7 @@ export default function App() {
     });
     setBattleState(finalState);
     setScreen('result');
-  }, []);
+  }, [selectedStage, saveData.newGamePlus]);
 
   const handleDefeat = useCallback(() => {
     setLastRewards({ gil: 0, drops: [] });
@@ -196,6 +218,11 @@ export default function App() {
         saveData={saveData}
         onNavigate={setScreen}
         onLoad={handleLoad}
+        clearedStages={saveData.progress.clearedStages}
+        currentStage={saveData.progress.currentStage}
+        selectedStage={selectedStage}
+        onSelectStage={setSelectedStage}
+        ngPlus={saveData.newGamePlus}
       />
     );
   }
@@ -230,7 +257,7 @@ export default function App() {
         drops={lastRewards.drops}
         onContinue={() => setScreen('home')}
         onRetry={() => {
-          const { state, waveEnemyIds: waves } = buildBattleState(saveData);
+          const { state, waveEnemyIds: waves } = buildBattleState(saveData, selectedStage ?? undefined);
           setBattleState(state);
           setWaveEnemyIds(waves);
           setScreen('battle');

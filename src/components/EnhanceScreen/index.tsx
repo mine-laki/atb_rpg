@@ -52,7 +52,7 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
   );
   const [tab, setTab] = useState<EnhanceTab>('level');
   // For equip tab: which slot is being actively swapped
-  const [activeSlot, setActiveSlot] = useState<'weapon' | 'accessory1' | 'accessory2' | null>(null);
+  const [activeSlot, setActiveSlot] = useState<'weapon' | 'accessory1' | 'accessory2' | 'accessory3' | 'accessory4' | null>(null);
 
   const charData = CHARACTERS.find(c => c.id === selectedCharId);
   const charSave = saveData.player.roster.find(r => r.id === selectedCharId);
@@ -119,7 +119,9 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
   };
 
   // ── Equip helpers ──────────────────────────────────────────
-  const currentEquip = charSave.equipment ?? { weapon: null, accessory1: null, accessory2: null };
+  const currentEquip = charSave.equipment;
+  // Accessory slots unlocked by level
+  const accessorySlotCount = charSave.level >= 30 ? 4 : charSave.level >= 20 ? 3 : charSave.level >= 10 ? 2 : 1;
 
   const getInst = (instanceId: string | null): EquipmentInstance | null =>
     instanceId ? (equipments.find(e => e.instanceId === instanceId) ?? null) : null;
@@ -132,22 +134,26 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
   const equippedWeaponName    = getInstData(currentEquip.weapon)?.name ?? '未装備';
   const equippedAcc1Name      = getInstData(currentEquip.accessory1)?.name ?? '未装備';
   const equippedAcc2Name      = getInstData(currentEquip.accessory2)?.name ?? '未装備';
+  const equippedAcc3Name      = getInstData(currentEquip.accessory3)?.name ?? '未装備';
+  const equippedAcc4Name      = getInstData(currentEquip.accessory4)?.name ?? '未装備';
   const equippedWeaponEmoji   = getInstData(currentEquip.weapon)?.emoji   ?? '—';
   const equippedAcc1Emoji     = getInstData(currentEquip.accessory1)?.emoji ?? '—';
   const equippedAcc2Emoji     = getInstData(currentEquip.accessory2)?.emoji ?? '—';
+  const equippedAcc3Emoji     = getInstData(currentEquip.accessory3)?.emoji ?? '—';
+  const equippedAcc4Emoji     = getInstData(currentEquip.accessory4)?.emoji ?? '—';
 
   // Items already equipped on THIS character (to prevent double-equip in same char)
-  const myEquippedIds = [currentEquip.weapon, currentEquip.accessory1, currentEquip.accessory2].filter(Boolean) as string[];
+  const myEquippedIds = [currentEquip.weapon, currentEquip.accessory1, currentEquip.accessory2, currentEquip.accessory3, currentEquip.accessory4].filter(Boolean) as string[];
 
   // Items equipped on OTHER characters (we'll still allow equipping — just show a warning color)
   const otherEquippedIds = new Set<string>();
   for (const r of saveData.player.roster) {
     if (r.id === selectedCharId) continue;
-    const eq = r.equipment ?? { weapon: null, accessory1: null, accessory2: null };
-    [eq.weapon, eq.accessory1, eq.accessory2].forEach(id => { if (id) otherEquippedIds.add(id); });
+    const eq = r.equipment;
+    [eq.weapon, eq.accessory1, eq.accessory2, eq.accessory3, eq.accessory4].forEach(id => { if (id) otherEquippedIds.add(id); });
   }
 
-  const handleEquip = (slot: 'weapon' | 'accessory1' | 'accessory2', instanceId: string) => {
+  const handleEquip = (slot: 'weapon' | 'accessory1' | 'accessory2' | 'accessory3' | 'accessory4', instanceId: string) => {
     // If this item is already equipped in the same slot of this char, unequip
     if (currentEquip[slot] === instanceId) {
       onUpdate(updateRoster({ ...charSave, equipment: { ...currentEquip, [slot]: null } }));
@@ -159,7 +165,7 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
     setActiveSlot(null);
   };
 
-  const handleUnequip = (slot: 'weapon' | 'accessory1' | 'accessory2') => {
+  const handleUnequip = (slot: 'weapon' | 'accessory1' | 'accessory2' | 'accessory3' | 'accessory4') => {
     onUpdate(updateRoster({ ...charSave, equipment: { ...currentEquip, [slot]: null } }));
     setActiveSlot(null);
   };
@@ -169,14 +175,19 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
   const filteredInventory = slotFilterType
     ? equipments.filter(inst => {
         const d = getEquipmentById(inst.itemId);
-        return d?.type === slotFilterType;
+        if (!d || d.type !== slotFilterType) return false;
+        // For weapons, filter by character's weapon affinity
+        if (slotFilterType === 'weapon' && charData.weaponAffinity && charData.weaponAffinity !== 'any') {
+          return d.weaponType === charData.weaponAffinity;
+        }
+        return true;
       })
     : [];
 
   // ── Equipment stat summary ──────────────────────────────────
   const calcEquipBonus = () => {
     let hp = 0, str = 0, mag = 0, atbExtra = 0, speedPct = 0;
-    for (const id of [currentEquip.weapon, currentEquip.accessory1, currentEquip.accessory2]) {
+    for (const id of [currentEquip.weapon, currentEquip.accessory1, currentEquip.accessory2, currentEquip.accessory3, currentEquip.accessory4]) {
       const inst = getInst(id ?? null);
       if (!inst) continue;
       const d = getEquipmentById(inst.itemId);
@@ -302,11 +313,13 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           <div className="equip-slots">
             {(
               [
-                { slot: 'weapon'     as const, label: '武器',       emoji: equippedWeaponEmoji, name: equippedWeaponName,  id: currentEquip.weapon },
-                { slot: 'accessory1' as const, label: 'アクセ1',    emoji: equippedAcc1Emoji,   name: equippedAcc1Name,    id: currentEquip.accessory1 },
-                { slot: 'accessory2' as const, label: 'アクセ2',    emoji: equippedAcc2Emoji,   name: equippedAcc2Name,    id: currentEquip.accessory2 },
+                { slot: 'weapon'     as const, label: '武器',       emoji: equippedWeaponEmoji, name: equippedWeaponName,  id: currentEquip.weapon, show: true },
+                { slot: 'accessory1' as const, label: 'アクセ1',    emoji: equippedAcc1Emoji,   name: equippedAcc1Name,    id: currentEquip.accessory1, show: accessorySlotCount >= 1 },
+                { slot: 'accessory2' as const, label: 'アクセ2',    emoji: equippedAcc2Emoji,   name: equippedAcc2Name,    id: currentEquip.accessory2, show: accessorySlotCount >= 2 },
+                { slot: 'accessory3' as const, label: 'アクセ3',    emoji: equippedAcc3Emoji,   name: equippedAcc3Name,    id: currentEquip.accessory3, show: accessorySlotCount >= 3 },
+                { slot: 'accessory4' as const, label: 'アクセ4',    emoji: equippedAcc4Emoji,   name: equippedAcc4Name,    id: currentEquip.accessory4, show: accessorySlotCount >= 4 },
               ]
-            ).map(({ slot, label, emoji, name, id }) => (
+            ).filter(s => s.show).map(({ slot, label, emoji, name, id }) => (
               <div
                 key={slot}
                 className={`equip-slot ${activeSlot === slot ? 'active' : ''}`}
@@ -500,7 +513,7 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
             id: charId,
             level: 1,
             exp: 0,
-            equipment: { weapon: null, accessory1: null, accessory2: null },
+            equipment: { weapon: null, accessory1: null, accessory2: null, accessory3: null, accessory4: null },
             unlockedRoles: [CHARACTERS.find(c => c.id === charId)!.roles[0]],
             roleLevels: {},
             unlockedSkillNodes: [],

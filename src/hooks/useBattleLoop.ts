@@ -232,6 +232,16 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
         const enemy = enemies[eIdx];
         if (enemy.currentHP <= 0) continue;
 
+        // ブレイク中は行動しない（クールダウンは進める）
+        if (enemy.isBreaking) {
+          const newCooldowns: Record<string, number> = {};
+          for (const [k, v] of Object.entries(enemy.actionCooldowns)) {
+            newCooldowns[k] = Math.max(0, v - delta);
+          }
+          enemies[eIdx] = { ...enemy, actionCooldowns: newCooldowns };
+          continue;
+        }
+
         const enemyData = getEnemyById(enemy.dataId);
         if (!enemyData) continue;
 
@@ -268,7 +278,7 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
           const aliveParty = party.filter(p => p.isAlive);
           if (!aliveParty.length) break;
 
-          newCooldowns[action.id] = action.cooldown;
+          newCooldowns[action.id] = action.cooldown * 2;
           didAct = true;
 
           const targets = action.aoe ? aliveParty : [aliveParty[Math.floor(Math.random() * aliveParty.length)]];

@@ -28,13 +28,19 @@ export function createCharacterInstance(
   const accessory1Inst = resolveInst(save?.equipment?.accessory1);
   const accessory2Inst = resolveInst(save?.equipment?.accessory2);
 
-  const eq = { weapon: weaponInst, accessory1: accessory1Inst, accessory2: accessory2Inst };
+  const eq = {
+    weapon:     weaponInst,
+    accessory1: accessory1Inst,
+    accessory2: accessory2Inst,
+    accessory3: resolveInst(save?.equipment?.accessory3),
+    accessory4: resolveInst(save?.equipment?.accessory4),
+  };
 
   // Apply equipment stat bonuses
   let bonusHP = 0, bonusSTR = 0, bonusMAG = 0;
   let bonusATB = 0, bonusATBSpeed = 0;
 
-  for (const inst of [weaponInst, accessory1Inst, accessory2Inst]) {
+  for (const inst of [weaponInst, accessory1Inst, accessory2Inst, eq.accessory3, eq.accessory4]) {
     if (!inst) continue;
     const eData = getEquipmentById(inst.itemId);
     if (!eData) continue;
@@ -100,7 +106,7 @@ export function buildInitialSaveData(): SaveData {
     id: c.id,
     level: 1,
     exp: 0,
-    equipment: { weapon: null, accessory1: null, accessory2: null },
+    equipment: { weapon: null, accessory1: null, accessory2: null, accessory3: null, accessory4: null },
     unlockedRoles: [c.roles[0]],
     roleLevels: {},
     unlockedSkillNodes: [],
@@ -128,12 +134,12 @@ export function buildInitialSaveData(): SaveData {
     },
     progress,
     paradigms: [
-      { slot: 0, name: '攻撃', roles: ['ATK', 'BLA', 'HLR'] },
-      { slot: 1, name: '魔法', roles: ['BLA', 'BLA', 'HLR'] },
-      { slot: 2, name: '防衛', roles: ['DEF', 'ENH', 'HLR'] },
-      { slot: 3, name: 'ブレイク', roles: ['ATK', 'ATK', 'BLA'] },
-      { slot: 4, name: 'バフ', roles: ['ENH', 'ENH', 'HLR'] },
-      { slot: 5, name: 'デバフ', roles: ['JAM', 'ATK', 'HLR'] },
+      { slot: 0, name: '電撃攻撃',  roles: ['ATK', 'HLR', 'ATK'] },
+      { slot: 1, name: '猛攻撃',    roles: ['BLA', 'BLA', 'BLA'] },
+      { slot: 2, name: '均衡',      roles: ['ATK', 'ENH', 'DEF'] },
+      { slot: 3, name: '強化特化',  roles: ['BLA', 'ENH', 'ATK'] },
+      { slot: 4, name: '回復重視',  roles: ['ATK', 'HLR', 'DEF'] },
+      { slot: 5, name: '魔法攻撃',  roles: ['BLA', 'HLR', 'ATK'] },
     ],
   };
 }

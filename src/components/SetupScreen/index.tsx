@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { SaveData, RoleId, ParadigmData } from '../../types';
 import { CHARACTERS } from '../../data/characters';
-import { getRoleEmoji, getRoleLabel } from '../../systems/paradigm';
+import { getRoleEmoji, getRoleLabel, getParadigmAutoName } from '../../systems/paradigm';
 
 interface SetupScreenProps {
   saveData: SaveData;
@@ -33,7 +33,7 @@ export function SetupScreen({ saveData, onStart, onBack }: SetupScreenProps) {
       if (p.slot !== paradigmSlot) return p;
       const newRoles = [...p.roles] as [RoleId, RoleId, RoleId];
       newRoles[charSlot] = role;
-      return { ...p, roles: newRoles };
+      return { ...p, roles: newRoles, name: getParadigmAutoName(newRoles) };
     }));
   };
 

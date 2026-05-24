@@ -4,7 +4,7 @@ export const ENEMIES: EnemyData[] = [
   // ---- 通常戦 ----
   {
     id: 'zako_a', emoji: '👾', name: 'ザコA',
-    maxHP: 45000, str: 80, mag: 60,
+    maxHP: 25000, str: 80, mag: 60,
     weaknesses: ['fire'],
     resistances: [],
     physDef: 0, magDef: 0,
@@ -21,7 +21,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'slime', emoji: '(ﾉ◕ヮ◕)ﾉ', name: 'スライム',
-    maxHP: 30000, str: 60, mag: 50,
+    maxHP: 15000, str: 60, mag: 50,
     weaknesses: ['fire', 'thunder'],
     resistances: [],
     physResist: 0.3,
@@ -39,7 +39,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'ice_wyvern', emoji: '❄️🐲❄️', name: 'アイスワイバーン',
-    maxHP: 150000, str: 140, mag: 130,
+    maxHP: 75000, str: 140, mag: 130,
     weaknesses: ['fire'],
     resistances: ['ice'],
     physDef: 10, magDef: 20,
@@ -56,7 +56,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'thunder_hawk', emoji: '⚡🦅⚡', name: 'サンダーホーク',
-    maxHP: 100000, str: 160, mag: 80,
+    maxHP: 50000, str: 160, mag: 80,
     weaknesses: ['ice'],
     resistances: ['thunder'],
     physDef: 0, magDef: 15,
@@ -73,7 +73,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'dark_soldier', emoji: '🌑⚔️🌑', name: 'ダークソルジャー',
-    maxHP: 130000, str: 180, mag: 60,
+    maxHP: 65000, str: 180, mag: 60,
     weaknesses: ['holy'],
     resistances: ['dark'],
     physDef: 30, magDef: 5,
@@ -91,7 +91,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'golem', emoji: '🪨⚙️🪨', name: 'ゴーレム',
-    maxHP: 220000, str: 120, mag: 40,
+    maxHP: 110000, str: 120, mag: 40,
     weaknesses: ['thunder', 'water'],
     resistances: [],
     physResist: 0.4,
@@ -109,7 +109,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'wolf', emoji: '🐺', name: 'ウルフ',
-    maxHP: 60000, str: 100, mag: 40,
+    maxHP: 30000, str: 100, mag: 40,
     weaknesses: ['fire'],
     resistances: [],
     physDef: 0, magDef: 0,
@@ -126,7 +126,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'bat', emoji: '🦇', name: 'バット',
-    maxHP: 40000, str: 50, mag: 80,
+    maxHP: 20000, str: 50, mag: 80,
     weaknesses: ['fire', 'holy'],
     resistances: ['dark'],
     physDef: 0, magDef: 10,
@@ -143,7 +143,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'scorpion', emoji: '🦂', name: 'スコーピオン',
-    maxHP: 80000, str: 110, mag: 70,
+    maxHP: 40000, str: 110, mag: 70,
     weaknesses: ['ice', 'water'],
     resistances: [],
     physDef: 10, magDef: 0,
@@ -161,7 +161,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'snake', emoji: '🐍', name: 'スネーク',
-    maxHP: 50000, str: 90, mag: 85,
+    maxHP: 25000, str: 90, mag: 85,
     weaknesses: ['ice'],
     resistances: [],
     physDef: 0, magDef: 5,
@@ -178,7 +178,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'dragon', emoji: '🐉', name: 'ドラゴン',
-    maxHP: 180000, str: 150, mag: 120,
+    maxHP: 90000, str: 150, mag: 120,
     weaknesses: ['ice'],
     resistances: ['fire'],
     physDef: 20, magDef: 0,
@@ -195,7 +195,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'machine', emoji: '🤖', name: 'マシン',
-    maxHP: 120000, str: 130, mag: 80,
+    maxHP: 60000, str: 130, mag: 80,
     weaknesses: ['thunder'],
     resistances: [],
     physResist: 0.5,
@@ -215,7 +215,7 @@ export const ENEMIES: EnemyData[] = [
   // ---- ボス戦 ----
   {
     id: 'deathord', emoji: '💀👑💀', name: 'デスロード',
-    maxHP: 1000000, str: 200, mag: 250,
+    maxHP: 500000, str: 200, mag: 250,
     chainResistMax: 500, chainBuildRate: 1.0,  // 普通
     weaknesses: ['holy'],
     resistances: ['dark'],
@@ -239,7 +239,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'chaos_knight', emoji: '👑💀⚔️💀👑', name: 'カオスナイト',
-    maxHP: 1200000, str: 270, mag: 200,
+    maxHP: 600000, str: 270, mag: 200,
     chainResistMax: 900, chainBuildRate: 2.0,  // 高閾値・上がりやすい
     weaknesses: ['holy'],
     resistances: ['dark'],
@@ -264,7 +264,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'arch_lich', emoji: '💀🔮✨🔮💀', name: 'アーチリッチ',
-    maxHP: 1400000, str: 150, mag: 350,
+    maxHP: 700000, str: 150, mag: 350,
     chainResistMax: 250, chainBuildRate: 0.4,  // 低閾値・上がりにくい
     weaknesses: ['holy', 'fire'],
     resistances: ['dark', 'ice'],
@@ -289,7 +289,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'chaosgod', emoji: '🌋🔥🌋', name: 'カオスゴッド',
-    maxHP: 1600000, str: 240, mag: 280,
+    maxHP: 800000, str: 240, mag: 280,
     chainResistMax: 200, chainBuildRate: 0.4,  // 低閾値・上がりにくい
     weaknesses: [],
     resistances: ['fire', 'ice', 'thunder'],
@@ -315,7 +315,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'sky_behemoth', emoji: '🌩️🦬💥🦬🌩️', name: 'スカイベヒーモス',
-    maxHP: 1800000, str: 320, mag: 200,
+    maxHP: 900000, str: 320, mag: 200,
     chainResistMax: 850, chainBuildRate: 1.8,  // 高閾値・上がりやすい
     weaknesses: [],
     resistances: [],
@@ -341,7 +341,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'finalboss', emoji: '✨👑🌟👑✨', name: 'ラスボス',
-    maxHP: 2400000, str: 300, mag: 320,
+    maxHP: 1200000, str: 300, mag: 320,
     chainResistMax: 600, chainBuildRate: 1.0,  // 普通
     weaknesses: [],
     resistances: [],
@@ -354,7 +354,7 @@ export const ENEMIES: EnemyData[] = [
       rare:     [{ itemId: 'god_proof', rate: 0.50 }, { itemId: 'fragment_pose', rate: 0.55 }, { itemId: 'fragment_gan', rate: 0.55 }, { itemId: 'relic_seraph', rate: 0.10, dropType: 'equipment' as const }, { itemId: 'relic_omega', rate: 0.08, dropType: 'equipment' as const }, { itemId: 'chaos_trident', rate: 0.10, dropType: 'equipment' as const }, { itemId: 'dark_grimoire', rate: 0.08, dropType: 'equipment' as const }, { itemId: 'starlight_codex', rate: 0.12, dropType: 'equipment' as const }],
     },
     actions: [
-      { id: 'fb_doom',    name: '運命の宣告',   power: 0, powerPercent: 0.99, aoe: true, cooldown: 120.0 },
+      { id: 'fb_doom',    name: '運命の宣告',   power: 0, powerPercent: 0.90, aoe: true, cooldown: 120.0 },
       { id: 'fb_fire',    name: 'ファイガ',     power: 2.0, element: 'fire',    cooldown: 4.0 },
       { id: 'fb_ice',     name: 'ブリザガ',     power: 2.0, element: 'ice',     cooldown: 4.0 },
       { id: 'fb_thunder', name: 'サンダガ',     power: 2.0, element: 'thunder', cooldown: 4.0 },

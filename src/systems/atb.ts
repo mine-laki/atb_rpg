@@ -3,7 +3,7 @@ import type { CharacterInstance, StatusEffect } from '../types';
 const SEGMENT_FILL_TIME = 3.0; // seconds per segment
 
 export function getATBSpeedMultiplier(char: CharacterInstance): number {
-  let mult = 1.0;
+  let mult = 2;
   for (const effect of char.statusEffects) {
     if (effect.id === 'haste')  mult *= 1.5;
     if (effect.id === 'slow')   mult *= 0.5;

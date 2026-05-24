@@ -117,7 +117,9 @@ export function createEnemyInstance(enemyId: string, idx: number, ngPlus: number
     chainDecayTimer: 0,
     statusEffects: [],
     currentPhase: 0,
-    actionCooldowns: {},
+    actionCooldowns: Object.fromEntries(
+      data.actions.map(a => [a.id, 4.0 + Math.random() * 1.0])
+    ),
     lastHitTime: 0,
     statScale: ngPlus > 0 ? strScale : undefined,
     chainBuildRate: data.chainBuildRate,

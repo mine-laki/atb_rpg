@@ -225,7 +225,7 @@ export const ENEMIES: EnemyData[] = [
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_bla', rate: 1.0 }],
       uncommon: [{ itemId: 'acc_dark_stone', rate: 0.35 }, { itemId: 'fragment_en', rate: 0.55 }, { itemId: 'fragment_jio', rate: 0.50 }],
-      rare:     [{ itemId: 'acc_dark_stone', rate: 0.25 }, { itemId: 'fragment_doc', rate: 0.42 }, { itemId: 'fragment_roku', rate: 0.38 }, { itemId: 'relic_lich', rate: 0.06, dropType: 'equipment' as const }],
+      rare:     [{ itemId: 'acc_dark_stone', rate: 0.25 }, { itemId: 'fragment_doc', rate: 0.42 }, { itemId: 'fragment_roku', rate: 0.38 }, { itemId: 'relic_lich', rate: 0.06, dropType: 'equipment' as const }, { itemId: 'soul_blade', rate: 0.12, dropType: 'equipment' as const }],
     },
     actions: [
       { id: 'dl_dark',    name: 'ダーク',       power: 1.2, element: 'dark',  cooldown: 3.0 },
@@ -249,7 +249,7 @@ export const ENEMIES: EnemyData[] = [
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_atk', rate: 1.0 }],
       uncommon: [{ itemId: 'acc_dark_stone', rate: 0.40 }, { itemId: 'fragment_ifu', rate: 0.55 }, { itemId: 'fragment_fa', rate: 0.50 }],
-      rare:     [{ itemId: 'dragon_fang', rate: 0.35 }, { itemId: 'fragment_gar', rate: 0.40 }, { itemId: 'fragment_ryo', rate: 0.30 }, { itemId: 'relic_chaos', rate: 0.07, dropType: 'equipment' as const }],
+      rare:     [{ itemId: 'dragon_fang', rate: 0.35 }, { itemId: 'fragment_gar', rate: 0.40 }, { itemId: 'fragment_ryo', rate: 0.30 }, { itemId: 'relic_chaos', rate: 0.07, dropType: 'equipment' as const }, { itemId: 'soul_blade', rate: 0.15, dropType: 'equipment' as const }],
     },
     actions: [
       { id: 'ck_slash',    name: 'カオスブレイド',  power: 1.5, element: 'dark', cooldown: 3.5 },
@@ -274,7 +274,7 @@ export const ENEMIES: EnemyData[] = [
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_bla', rate: 1.0 }],
       uncommon: [{ itemId: 'acc_dark_stone', rate: 0.45 }, { itemId: 'fragment_daku', rate: 0.55 }, { itemId: 'fragment_jio', rate: 0.50 }],
-      rare:     [{ itemId: 'god_proof', rate: 0.20 }, { itemId: 'fragment_ran', rate: 0.42 }, { itemId: 'fragment_bom', rate: 0.38 }, { itemId: 'relic_lich', rate: 0.08, dropType: 'equipment' as const }],
+      rare:     [{ itemId: 'god_proof', rate: 0.20 }, { itemId: 'fragment_ran', rate: 0.42 }, { itemId: 'fragment_bom', rate: 0.38 }, { itemId: 'relic_lich', rate: 0.08, dropType: 'equipment' as const }, { itemId: 'dark_grimoire', rate: 0.18, dropType: 'equipment' as const }],
     },
     actions: [
       { id: 'al_dark',    name: 'ダークフレア',    power: 1.8, element: 'dark', cooldown: 4.0 },
@@ -299,7 +299,7 @@ export const ENEMIES: EnemyData[] = [
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }],
       uncommon: [{ itemId: 'god_proof', rate: 0.20 }, { itemId: 'fragment_ran', rate: 0.55 }, { itemId: 'fragment_hana', rate: 0.55 }, { itemId: 'fragment_kou', rate: 0.50 }],
-      rare:     [{ itemId: 'god_proof', rate: 0.30 }, { itemId: 'fragment_roza', rate: 0.45 }, { itemId: 'fragment_cho', rate: 0.45 }, { itemId: 'fragment_kika', rate: 0.40 }],
+      rare:     [{ itemId: 'god_proof', rate: 0.30 }, { itemId: 'fragment_roza', rate: 0.45 }, { itemId: 'fragment_cho', rate: 0.45 }, { itemId: 'fragment_kika', rate: 0.40 }, { itemId: 'chaos_trident', rate: 0.20, dropType: 'equipment' as const }],
     },
     actions: [
       { id: 'cg_quake',   name: 'クエイク',     power: 1.5, element: 'earth', aoe: true, cooldown: 5.0 },
@@ -326,7 +326,7 @@ export const ENEMIES: EnemyData[] = [
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_def', rate: 1.0 }],
       uncommon: [{ itemId: 'god_proof', rate: 0.25 }, { itemId: 'fragment_ryu', rate: 0.55 }, { itemId: 'fragment_ste', rate: 0.50 }],
-      rare:     [{ itemId: 'god_proof', rate: 0.35 }, { itemId: 'fragment_baru', rate: 0.45 }, { itemId: 'fragment_pose', rate: 0.40 }, { itemId: 'relic_guardian', rate: 0.08, dropType: 'equipment' as const }],
+      rare:     [{ itemId: 'god_proof', rate: 0.35 }, { itemId: 'fragment_baru', rate: 0.45 }, { itemId: 'fragment_pose', rate: 0.40 }, { itemId: 'relic_guardian', rate: 0.08, dropType: 'equipment' as const }, { itemId: 'starlight_codex', rate: 0.15, dropType: 'equipment' as const }],
     },
     actions: [
       { id: 'sb_charge',  name: 'チャージ',           power: 2.0, cooldown: 4.0 },
@@ -351,7 +351,7 @@ export const ENEMIES: EnemyData[] = [
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_all', rate: 1.0 }],
       uncommon: [{ itemId: 'god_proof', rate: 0.35 }, { itemId: 'fragment_ryu', rate: 0.60 }, { itemId: 'fragment_ste', rate: 0.60 }, { itemId: 'fragment_baru', rate: 0.55 }],
-      rare:     [{ itemId: 'god_proof', rate: 0.50 }, { itemId: 'fragment_pose', rate: 0.55 }, { itemId: 'fragment_gan', rate: 0.55 }, { itemId: 'relic_seraph', rate: 0.10, dropType: 'equipment' as const }, { itemId: 'relic_omega', rate: 0.08, dropType: 'equipment' as const }],
+      rare:     [{ itemId: 'god_proof', rate: 0.50 }, { itemId: 'fragment_pose', rate: 0.55 }, { itemId: 'fragment_gan', rate: 0.55 }, { itemId: 'relic_seraph', rate: 0.10, dropType: 'equipment' as const }, { itemId: 'relic_omega', rate: 0.08, dropType: 'equipment' as const }, { itemId: 'chaos_trident', rate: 0.10, dropType: 'equipment' as const }, { itemId: 'dark_grimoire', rate: 0.08, dropType: 'equipment' as const }, { itemId: 'starlight_codex', rate: 0.12, dropType: 'equipment' as const }],
     },
     actions: [
       { id: 'fb_doom',    name: '運命の宣告',   power: 0, powerPercent: 0.99, aoe: true, cooldown: 120.0 },
@@ -376,6 +376,9 @@ export const STAGE_WAVES: { stageId: number; waves: string[][] }[] = [
   { stageId: 3, waves: [['scorpion', 'golem', 'scorpion'], ['dark_soldier', 'dark_soldier'], ['deathord']] },
   { stageId: 4, waves: [['ice_wyvern', 'dark_soldier', 'thunder_hawk'], ['chaos_knight'], ['arch_lich']] },
   { stageId: 5, waves: [['golem', 'dark_soldier', 'machine'], ['sky_behemoth'], ['finalboss']] },
+  { stageId: 6, waves: [['golem', 'arch_lich', 'golem'], ['dark_soldier', 'chaos_knight', 'dark_soldier'], ['chaosgod']] },
+  { stageId: 7, waves: [['arch_lich', 'sky_behemoth'], ['chaos_knight', 'chaosgod'], ['finalboss']] },
+  { stageId: 8, waves: [['deathord', 'chaosgod', 'deathord'], ['sky_behemoth', 'arch_lich'], ['finalboss']] },
 ];
 
 export function getEnemyById(id: string): EnemyData | undefined {

@@ -1743,6 +1743,75 @@ button {
   border-radius: 3px;
 }
 
+/* ---- Auto Abilities ---- */
+.auto-ability-section {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.char-auto-ability-section {
+  border-color: rgba(255,210,80,0.25);
+  background: rgba(255,200,60,0.04);
+}
+
+.auto-ability-title {
+  font-size: 11px;
+  font-weight: bold;
+  color: #aaa;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.auto-ability-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 5px;
+  padding: 6px 8px;
+}
+
+.char-auto-ability-item {
+  border-color: rgba(255,210,80,0.20);
+  background: rgba(255,200,60,0.06);
+}
+
+.auto-ability-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.auto-ability-name {
+  font-size: 12px;
+  font-weight: bold;
+  color: #e8e8e8;
+  flex: 1;
+}
+
+.auto-ability-source {
+  font-size: 11px;
+  color: #888;
+}
+
+.auto-ability-trigger {
+  font-size: 10px;
+  color: #ffcc55;
+  background: rgba(255,200,60,0.12);
+  border: 1px solid rgba(255,200,60,0.20);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+.auto-ability-desc {
+  font-size: 11px;
+  color: #aab;
+}
+
 /* ---- Party Card (screenshot feature) ---- */
 .home-btn.card-btn {
   background: linear-gradient(135deg, #2a1a44, #3d2266);

@@ -285,7 +285,7 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
                       <>
                         <span className="enhance-inline-preview">→ ×{nextMult.toFixed(2)}</span>
                         <span className="enhance-inline-cost">
-                          💰{cost.gil.toLocaleString()} / {cost.material.itemId.replace(/_/g, ' ')}×{cost.material.quantity}(所持:{matQty})
+                          💰{cost.gil.toLocaleString()} / {(MATERIALS.find(m => m.id === cost.material.itemId)?.name ?? cost.material.itemId.replace(/_/g, ' '))}×{cost.material.quantity}(所持:{matQty})
                         </span>
                         <button
                           className="btn-small btn-enhance-inline"

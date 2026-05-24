@@ -7,7 +7,8 @@ interface ATBGaugeProps {
 
 export function ATBGauge({ char, pendingAbilityName }: ATBGaugeProps) {
   const segments = char.atb.max;
-  const filled = char.atb.current;
+  // 浮動小数点誤差で微小値が残った場合も0として扱う（閾値: 0.05未満）
+  const filled = char.atb.current < 0.05 ? 0 : char.atb.current;
 
   return (
     <div className="atb-gauge">

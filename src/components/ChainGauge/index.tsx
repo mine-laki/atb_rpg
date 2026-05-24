@@ -1,5 +1,5 @@
 import type { EnemyInstance } from '../../types';
-import { calcChainBonus } from '../../systems/chain';
+import { calcChainBonus, BREAK_GAUGE_MAX } from '../../systems/chain';
 
 const DEFAULT_BREAK_AT = 300;
 
@@ -10,7 +10,13 @@ interface ChainGaugeProps {
 export function ChainGauge({ enemy }: ChainGaugeProps) {
   const { chainGauge, isBreaking, breakTimer } = enemy;
   const breakAt = enemy.chainResistMax ?? DEFAULT_BREAK_AT;
-  const pct = Math.min(100, (chainGauge / breakAt) * 100);
+
+  // During break: show gauge relative to BREAK_GAUGE_MAX so growth is visible
+  // Normal: show relative to breakAt
+  const pct = isBreaking
+    ? (chainGauge / BREAK_GAUGE_MAX) * 100
+    : Math.min(100, (chainGauge / breakAt) * 100);
+
   const multiplier = calcChainBonus(chainGauge).toFixed(2);
 
   return (

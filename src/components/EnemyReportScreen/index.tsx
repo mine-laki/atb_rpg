@@ -7,15 +7,15 @@ interface EnemyReportScreenProps {
   onBack: () => void;
 }
 
-const ELEMENT_LABELS: Record<string, string> = {
-  fire: '炎', ice: '氷', thunder: '雷', wind: '風',
-  water: '水', earth: '土', holy: '聖', dark: '闇', none: '無',
+const ELEMENT_ICONS: Record<string, string> = {
+  fire: '🔥', ice: '🧊', thunder: '⚡️', wind: '🌪️',
+  light: '💡', holy: '💡', dark: '⚫️', water: '💧', earth: '🌍', none: '—',
 };
 
 function ElementTag({ el, type }: { el: string; type: 'weak' | 'resist' }) {
-  const label = ELEMENT_LABELS[el] ?? el;
+  const icon = ELEMENT_ICONS[el] ?? el;
   return (
-    <span className={`element-tag ${type}`}>{label}</span>
+    <span className={`element-tag ${type}`} title={el}>{icon}</span>
   );
 }
 

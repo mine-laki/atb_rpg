@@ -14,7 +14,7 @@ export const EQUIPMENT_DATA: EquipmentData[] = [
     baseStats: { str: 15, mag: 10 }, effects: [{ type: 'atb_speed', value: 0.15 }], unlockStage: 2, shopPrice: 1200 },
   { id: 'shield_heavy',  name: '重厚の盾',   emoji: '🛡',  type: 'weapon', weaponType: 'shield',
     preferredRole: 'DEF', baseStats: { def: 25, hp: 400 }, effects: [], unlockStage: 2, shopPrice: 1500 },
-  { id: 'holy_item',     name: '聖なる具',   emoji: '📿',  type: 'weapon', weaponType: 'holy',
+  { id: 'holy_item',     name: '聖なる数珠',   emoji: '📿',  type: 'weapon', weaponType: 'holy',
     preferredRole: 'HLR', baseStats: { mag: 15 }, effects: [{ type: 'heal_boost', value: 0.20 }], unlockStage: 3, shopPrice: 1500 },
   { id: 'instrument',    name: '魔法の楽器', emoji: '🎸',  type: 'weapon', weaponType: 'instrument',
     preferredRole: 'ENH', baseStats: {}, effects: [{ type: 'buff_extend', value: 0.20 }, { type: 'atb_speed', value: 0.15 }], unlockStage: 3, shopPrice: 2000 },
@@ -88,6 +88,16 @@ export const EQUIPMENT_DATA: EquipmentData[] = [
     preferredRole: 'HLR', baseStats: { mag: 40 }, effects: [{ type: 'heal_boost', value: 0.50 }, { type: 'buff_extend', value: 0.30 }, { type: 'atb_expand', value: 1 }], unlockStage: 999, shopPrice: 0 },
   { id: 'relic_omega',      name: '始原の一振り', emoji: '🔱', type: 'weapon', weaponType: 'sword',
     preferredRole: 'ATK', baseStats: { str: 100 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'chain_boost', value: 0.20 }, { type: 'damage_boost', value: 0.15 }], unlockStage: 999, shopPrice: 0 },
+
+  // ---- レアドロップ限定武器（ショップ販売なし・敵からのみ入手）----
+  { id: 'soul_blade',      name: '魂喰いの刃',   emoji: '🗡️', type: 'weapon', weaponType: 'sword',
+    preferredRole: 'ATK', baseStats: { str: 30 }, effects: [{ type: 'damage_boost', value: 0.15 }], unlockStage: 999, shopPrice: 0 },
+  { id: 'chaos_trident',   name: '混沌の三叉槍', emoji: '🔱', type: 'weapon', weaponType: 'sword',
+    preferredRole: 'ATK', baseStats: { str: 20, mag: 20 }, effects: [{ type: 'damage_boost', value: 0.10 }, { type: 'chain_boost', value: 0.10 }], unlockStage: 999, shopPrice: 0 },
+  { id: 'dark_grimoire',   name: '闇の秘典',     emoji: '📖', type: 'weapon', weaponType: 'staff',
+    preferredRole: 'HLR', baseStats: { mag: 35 }, effects: [{ type: 'heal_boost', value: 0.15 }, { type: 'chain_boost', value: 0.05 }], unlockStage: 999, shopPrice: 0 },
+  { id: 'starlight_codex', name: '星霊の聖典',   emoji: '🌟', type: 'weapon', weaponType: 'holy',
+    preferredRole: 'HLR', baseStats: { mag: 25, hp: 300 }, effects: [{ type: 'heal_boost', value: 0.20 }, { type: 'auto_regen', value: 0.003 }], unlockStage: 999, shopPrice: 0 },
 
   // ---- 追加アクセサリ（auto_buff: 戦闘開始時バフ付与）----
   { id: 'acc_haste_ring',  name: '加速の石',   emoji: '⚡', type: 'accessory',

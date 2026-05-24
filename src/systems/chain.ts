@@ -15,10 +15,12 @@ function getEquipChainBoost(char: CharacterInstance): number {
   return total;
 }
 
-const CHAIN_DECAY_RATE = 15;       // %/second
-const BREAK_DURATION = 15;         // seconds
-const DEFAULT_BREAK_AT = 300;      // default chainResistMax
-const CHAIN_BUILD_RATE = 0.2;      // global chain build multiplier
+const CHAIN_DECAY_RATE = 1;        // %/second
+const BREAK_DURATION = 25;          // seconds
+const DEFAULT_BREAK_AT = 300;       // default chainResistMax
+const CHAIN_BUILD_RATE = 0.2;       // global chain build multiplier
+const BREAK_CHAIN_MULT = 2.5;       // chain build rate multiplier during break
+export const BREAK_GAUGE_MAX = 999; // gauge can exceed breakAt during break
 
 export function calcChainBonus(gaugePercent: number): number {
   // chain multiplier: 1.0 at 0%, up to 9.99 at 999%
@@ -48,7 +50,11 @@ export function applyChainHit(
   // weakness multiplier
   if (isWeakness) chainIncrease *= 1.5;
 
-  const newGauge = Math.min(breakAt, enemy.chainGauge + chainIncrease);
+  // ブレイク中はチェーン増加が加速し、ゲージが更に上昇できる
+  const gaugeCap = enemy.isBreaking ? BREAK_GAUGE_MAX : breakAt;
+  if (enemy.isBreaking) chainIncrease *= BREAK_CHAIN_MULT;
+
+  const newGauge = Math.min(gaugeCap, enemy.chainGauge + chainIncrease);
   const wasBreaking = enemy.isBreaking;
   const nowBreaking = enemy.isBreaking || newGauge >= breakAt;
 

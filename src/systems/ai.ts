@@ -81,16 +81,24 @@ export function aiSelectAction(
   }
 
   const hpRatio = char.currentHP / char.maxHP;
-  const atbSegs = Math.floor(char.atb.current);
+  // +0.1 tolerance to handle floating-point ATB accumulation
+  // e.g. ATB=2.95 with max=3 should count as 3 segments
+  const atbSegs = Math.floor(char.atb.current + 0.1);
 
   switch (role) {
     case 'ATK': {
+      const targetEnemy = enemies[targetEnemyIdx];
+      // 複数敵がいてターゲットがブレイク中でない場合はAoEを優先
+      const useAoe = aliveEnemies.length > 1 && !targetEnemy?.isBreaking;
+
       if (hpRatio > 0.7) {
+        // AoE優先: 複数敵でブレイク中でない場合
+        if (useAoe) {
+          const areablast = abilities.find(a => a.id === 'atk_areablast' && a.cost <= atbSegs);
+          if (areablast) return { ability: areablast, targetEnemyIdx };
+        }
         const braver = abilities.find(a => a.id === 'atk_braver' && a.cost <= atbSegs);
         if (braver) return { ability: braver, targetEnemyIdx };
-        // Use AoE blast if multiple enemies are alive
-        const areablast = abilities.find(a => a.id === 'atk_areablast' && a.cost <= atbSegs);
-        if (areablast && aliveEnemies.length > 1) return { ability: areablast, targetEnemyIdx };
         const rush = abilities.find(a => a.id === 'atk_rush' && a.cost <= atbSegs);
         if (rush) return { ability: rush, targetEnemyIdx };
       }
@@ -108,6 +116,16 @@ export function aiSelectAction(
       const targetEnemy = enemies[targetEnemyIdx];
       const targetEnemyData = targetEnemy ? getEnemyById(targetEnemy.dataId) : undefined;
       const weak = targetEnemyData?.weaknesses ?? [];
+      // 複数敵がいてターゲットがブレイク中でない場合はAoEを優先
+      const useAoe = aliveEnemies.length > 1 && !targetEnemy?.isBreaking;
+
+      // AoE魔法優先（複数敵 & ブレイク中でない場合）
+      if (useAoe) {
+        const aoeSpell = abilities
+          .filter(a => a.aoe && a.element && a.cost <= atbSegs)
+          .sort((a, b) => b.cost - a.cost)[0];
+        if (aoeSpell) return { ability: aoeSpell, targetEnemyIdx };
+      }
 
       // find weakness ability
       if (weak.length > 0) {

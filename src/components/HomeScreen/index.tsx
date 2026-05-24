@@ -4,6 +4,7 @@ import { CHARACTERS } from '../../data/characters';
 import { getEquipmentById } from '../../data/equipment';
 import { getRoleEmoji, getRoleLabel } from '../../systems/paradigm';
 import { SaveLoadPanel } from '../SaveLoadPanel';
+import { STAGE_WAVES } from '../../data/enemies';
 
 interface HomeScreenProps {
   saveData: SaveData;
@@ -35,25 +36,35 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
   const partyMembers = saveData.player.party.map(id => {
     const charData = CHARACTERS.find(c => c.id === id);
     const charSave = saveData.player.roster.find(r => r.id === id);
-    // 武器情報
     const weaponInstanceId = charSave?.equipment?.weapon ?? null;
     const weaponInst = weaponInstanceId
       ? saveData.progress.inventory.equipments.find(e => e.instanceId === weaponInstanceId)
       : null;
     const weaponData = weaponInst ? getEquipmentById(weaponInst.itemId) : null;
+    const initialRole = charData?.roles[0];
+    const roleLevel = initialRole ? (charSave?.roleLevels?.[initialRole] ?? 1) : 1;
     return {
       charData,
+      charSave,
       level: charSave?.level ?? 1,
       weaponEmoji: weaponData?.emoji ?? null,
       weaponName: weaponData?.name ?? null,
+      initialRole,
+      roleLevel,
     };
   });
 
-  // パーティカード用: パラダイム0のロール
   const paradigm0 = saveData.paradigms[0];
   const stageLabel = clearedStages.length > 0
     ? `Stage ${Math.max(...clearedStages)} クリア済`
     : `Stage 1 挑戦中`;
+  const unlockedCount = saveData.progress.unlockedCharacters.length;
+  const ngCount = ngPlus ?? 0;
+
+  // 過去NG難易度を選択中なら全ステージ開放
+  const viewingNg = selectedNgPlus ?? ngCount;
+  const showAllStages = ngCount > 0 && viewingNg < ngCount;
+  const maxVisibleStage = showAllStages ? STAGE_WAVES.length : currentStage;
 
   return (
     <div className="home-screen">
@@ -84,13 +95,20 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
           <div className="party-card" onClick={e => e.stopPropagation()}>
             <div className="party-card-title">🎮 EmojiParadigm</div>
             <div className="party-card-stage">{stageLabel}</div>
+
+            {/* キャラ一覧（初期ロール・ロールレベル付き） */}
             <div className="party-card-members">
-              {partyMembers.map(({ charData, level, weaponEmoji, weaponName }) => charData ? (
+              {partyMembers.map(({ charData, level, weaponEmoji, weaponName, initialRole, roleLevel }) => charData ? (
                 <div key={charData.id} className="party-card-member">
                   <span className="pc-emoji">{charData.emoji}</span>
                   <div className="pc-info">
                     <span className="pc-name">{charData.name}</span>
                     <span className="pc-level">Lv.{level}</span>
+                    {initialRole && (
+                      <span className="pc-role">
+                        {getRoleEmoji(initialRole as any)} {getRoleLabel(initialRole as any)} Lv.{roleLevel}
+                      </span>
+                    )}
                     {weaponName && (
                       <span className="pc-weapon">{weaponEmoji} {weaponName}</span>
                     )}
@@ -98,18 +116,20 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
                 </div>
               ) : null)}
             </div>
+
+            {/* 獲得数・NG数 */}
+            <div className="party-card-meta">
+              <span className="pc-meta-item">👥 キャラ {unlockedCount}人解放</span>
+              {ngCount > 0 && <span className="pc-meta-item">🔁 NG+{ngCount}</span>}
+            </div>
+
+            {/* オプティマ名のみ下に表示 */}
             {paradigm0 && (
               <div className="party-card-paradigm">
-                <span className="pc-paradigm-label">オプティマ 0: {paradigm0.name}</span>
-                <div className="pc-paradigm-roles">
-                  {paradigm0.roles.map((role, i) => (
-                    <span key={i} className="pc-role-badge">
-                      {getRoleEmoji(role as any)} {getRoleLabel(role as any)}
-                    </span>
-                  ))}
-                </div>
+                <span className="pc-paradigm-label">オプティマ: {paradigm0.name}</span>
               </div>
             )}
+
             <div className="party-card-hint">📸 スクリーンショットで保存できます</div>
             <button className="party-card-close" onClick={() => setShowCard(false)}>✕ 閉じる</button>
           </div>
@@ -125,8 +145,8 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
       <div className="stage-selector">
         <h3>ステージ選択</h3>
         <div className="stage-list">
-          {[1, 2, 3, 4, 5].map(s => {
-            if (s > currentStage) return null;
+          {Array.from({ length: STAGE_WAVES.length }, (_, i) => i + 1).map(s => {
+            if (s > maxVisibleStage) return null;
             const isSelected = selectedStage === s || (!selectedStage && s === currentStage);
             return (
               <button
@@ -139,6 +159,9 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
             );
           })}
         </div>
+        {showAllStages && (
+          <div className="ng-all-stages-note">過去NG難易度：全ステージ挑戦可能</div>
+        )}
         {(ngPlus ?? 0) > 0 && (
           <div className="ng-selector">
             <span className="ng-selector-label">難易度 (NG+)</span>

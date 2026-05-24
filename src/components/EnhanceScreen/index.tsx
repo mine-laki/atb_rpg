@@ -601,7 +601,7 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
       {/* ── アビリティ タブ ── */}
       {tab === 'abilities' && (
         <div className="enhance-section">
-          <AbilityViewer charData={charData} charSave={charSave} />
+          <AbilityViewer charData={charData} charSave={charSave} inventoryEquipments={equipments} />
         </div>
       )}
 

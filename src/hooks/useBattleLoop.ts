@@ -109,17 +109,25 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
         // 「ゲージをためてから一気に行動」: ATBがフルになるまで行動しない
         if (party[charIdx].atb.current < party[charIdx].atb.max - 0.1) continue;
 
-        // ATBフル → 使い切るまで連続行動（最大6回/ティックで安全装置）
+        // ATBフル → 使い切るまで連続行動（最大12回/ティックで安全装置）
         let actionsThisTick = 0;
-        while (actionsThisTick < 6) {
+        while (actionsThisTick < 12) {
           const cur = party[charIdx];
           if (!cur.isAlive) break;
 
           const decision = aiSelectAction(cur, party, enemies, []);
-          if (!decision) break;
+          if (!decision) {
+            // AIが行動を選べない場合は残りATBを0に（ENH全バフ済みなど）
+            party[charIdx] = { ...cur, atb: { ...cur.atb, current: 0 } };
+            break;
+          }
 
           const { ability, targetCharIdx, targetEnemyIdx } = decision;
-          if (cur.atb.current + 0.1 < ability.cost) break;
+          if (cur.atb.current + 0.1 < ability.cost) {
+            // ATBが足りない場合も残りを0に（端数処理）
+            party[charIdx] = { ...cur, atb: { ...cur.atb, current: 0 } };
+            break;
+          }
 
           actionsThisTick++;
 
@@ -301,6 +309,11 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
           });
         }
         } // end while (consecutive actions)
+
+        // 行動後は残りATBを必ず0にリセット（whileの抜け方によらず確実にゼロ化）
+        if (party[charIdx].isAlive) {
+          party[charIdx] = { ...party[charIdx], atb: { ...party[charIdx].atb, current: 0 } };
+        }
       }
 
       // ── 4. Enemy actions ──

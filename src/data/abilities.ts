@@ -2,43 +2,43 @@ import type { CommandAbility, AutoAbility } from '../types';
 
 export const COMMAND_ABILITIES: CommandAbility[] = [
   // ---- ATK ----
-  { id: 'atk_fight',      name: 'たたかう',       role: 'ATK', cost: 1, power: 1.5,  chainBonus: 20 },
-  { id: 'atk_rush',       name: 'ラッシュ',       role: 'ATK', cost: 2, power: 2.0,  hits: 3, chainBonus: 15 },
-  { id: 'atk_braver',     name: 'ブレイバー',     role: 'ATK', cost: 3, power: 4,  chainBonus: 25 },
-  { id: 'atk_areablast',  name: 'エリアブラスト', role: 'ATK', cost: 3, power: 2.0,  aoe: true, chainBonus: 18 },
+  { id: 'atk_fight',      name: 'たたかう',       role: 'ATK', cost: 1, power: 1.5,  chainBonus: 16 },
+  { id: 'atk_rush',       name: 'ラッシュ',       role: 'ATK', cost: 2, power: 2.0,  hits: 3, chainBonus: 12 },
+  { id: 'atk_braver',     name: 'ブレイバー',     role: 'ATK', cost: 3, power: 4,  chainBonus: 20 },
+  { id: 'atk_areablast',  name: 'エリアブラスト', role: 'ATK', cost: 3, power: 2.0,  aoe: true, chainBonus: 14 },
   // ATK unique
-  { id: 'atk_blitz',      name: 'ブリッツ',       role: 'ATK', cost: 2, power: 3.5,  chainBonus: 30, isUnique: true, uniqueOwner: 'rai' },
-  { id: 'atk_omega',      name: 'オメガドライブ', role: 'ATK', cost: 4, power: 5.0,  chainBonus: 20, isUnique: true, uniqueOwner: 'ifu' },
-  { id: 'atk_whirlwind',  name: 'ウィンドブレード',role: 'ATK', cost: 3, power: 4.0,  aoe: true, element: 'wind', chainBonus: 22, isUnique: true, uniqueOwner: 'kaze' },
-  { id: 'atk_twinfang',   name: 'ツインファング', role: 'ATK', cost: 2, power: 1.5,  hits: 2, chainBonus: 25, isUnique: true, uniqueOwner: 'fa' },
-  { id: 'atk_tkick',      name: 'サンダーキック', role: 'ATK', cost: 3, power: 3.5,  element: 'thunder', chainBonus: 28, isUnique: true, uniqueOwner: 'rai' },
-  { id: 'atk_iceedge',    name: 'アイスエッジ',   role: 'ATK', cost: 2, power: 2.5,  element: 'ice', chainBonus: 25, isUnique: true, uniqueOwner: 'kuri' },
-  { id: 'atk_berserk',    name: 'バーサクブロウ', role: 'ATK', cost: 3, power: 4.0,  chainBonus: 20, isUnique: true, uniqueOwner: 'ifu' },
-  { id: 'atk_psrike',     name: '挑発打ち',       role: 'ATK', cost: 1, power: 1,  chainBonus: 15, isUnique: true, uniqueOwner: 'gar' },
+  { id: 'atk_blitz',      name: 'ブリッツ',       role: 'ATK', cost: 2, power: 3.5,  chainBonus: 24, isUnique: true, uniqueOwner: 'rai' },
+  { id: 'atk_omega',      name: 'オメガドライブ', role: 'ATK', cost: 4, power: 5.0,  chainBonus: 16, isUnique: true, uniqueOwner: 'ifu' },
+  { id: 'atk_whirlwind',  name: 'ウィンドブレード',role: 'ATK', cost: 3, power: 4.0,  aoe: true, element: 'wind', chainBonus: 18, isUnique: true, uniqueOwner: 'kaze' },
+  { id: 'atk_twinfang',   name: 'ツインファング', role: 'ATK', cost: 2, power: 1.5,  hits: 2, chainBonus: 20, isUnique: true, uniqueOwner: 'fa' },
+  { id: 'atk_tkick',      name: 'サンダーキック', role: 'ATK', cost: 3, power: 3.5,  element: 'thunder', chainBonus: 22, isUnique: true, uniqueOwner: 'rai' },
+  { id: 'atk_iceedge',    name: 'アイスエッジ',   role: 'ATK', cost: 2, power: 2.5,  element: 'ice', chainBonus: 20, isUnique: true, uniqueOwner: 'kuri' },
+  { id: 'atk_berserk',    name: 'バーサクブロウ', role: 'ATK', cost: 3, power: 4.0,  chainBonus: 16, isUnique: true, uniqueOwner: 'ifu' },
+  { id: 'atk_psrike',     name: '挑発打ち',       role: 'ATK', cost: 1, power: 1,  chainBonus: 12, isUnique: true, uniqueOwner: 'gar' },
 
   // ---- BLA ----
-  { id: 'bla_fire',       name: 'ファイア',       role: 'BLA', cost: 1, power: 1.0,  element: 'fire',    chainBonus: 45 },
-  { id: 'bla_fira',       name: 'ファイラ',       role: 'BLA', cost: 2, power: 1.8,  element: 'fire',    chainBonus: 60 },
-  { id: 'bla_firaga',     name: 'ファイガ',       role: 'BLA', cost: 4, power: 3.5,  element: 'fire',    chainBonus: 80 },
-  { id: 'bla_blizzard',   name: 'ブリザド',       role: 'BLA', cost: 1, power: 1.0,  element: 'ice',     chainBonus: 45 },
-  { id: 'bla_blizzara',   name: 'ブリザラ',       role: 'BLA', cost: 2, power: 1.8,  element: 'ice',     chainBonus: 60 },
-  { id: 'bla_blizzaga',   name: 'ブリザガ',       role: 'BLA', cost: 4, power: 3.5,  element: 'ice',     chainBonus: 80 },
-  { id: 'bla_thunder',    name: 'サンダー',       role: 'BLA', cost: 1, power: 1.0,  element: 'thunder', chainBonus: 45 },
-  { id: 'bla_thundara',   name: 'サンダラ',       role: 'BLA', cost: 2, power: 1.8,  element: 'thunder', chainBonus: 60 },
-  { id: 'bla_thundaga',   name: 'サンダガ',       role: 'BLA', cost: 4, power: 3.5,  element: 'thunder', chainBonus: 80 },
-  { id: 'bla_aero',       name: 'エアロ',         role: 'BLA', cost: 1, power: 1.0,  element: 'wind',    chainBonus: 45 },
+  { id: 'bla_fire',       name: 'ファイア',       role: 'BLA', cost: 1, power: 1.0,  element: 'fire',    chainBonus: 36 },
+  { id: 'bla_fira',       name: 'ファイラ',       role: 'BLA', cost: 2, power: 1.8,  element: 'fire',    chainBonus: 48 },
+  { id: 'bla_firaga',     name: 'ファイガ',       role: 'BLA', cost: 4, power: 3.5,  element: 'fire',    chainBonus: 64 },
+  { id: 'bla_blizzard',   name: 'ブリザド',       role: 'BLA', cost: 1, power: 1.0,  element: 'ice',     chainBonus: 36 },
+  { id: 'bla_blizzara',   name: 'ブリザラ',       role: 'BLA', cost: 2, power: 1.8,  element: 'ice',     chainBonus: 48 },
+  { id: 'bla_blizzaga',   name: 'ブリザガ',       role: 'BLA', cost: 4, power: 3.5,  element: 'ice',     chainBonus: 64 },
+  { id: 'bla_thunder',    name: 'サンダー',       role: 'BLA', cost: 1, power: 1.0,  element: 'thunder', chainBonus: 36 },
+  { id: 'bla_thundara',   name: 'サンダラ',       role: 'BLA', cost: 2, power: 1.8,  element: 'thunder', chainBonus: 48 },
+  { id: 'bla_thundaga',   name: 'サンダガ',       role: 'BLA', cost: 4, power: 3.5,  element: 'thunder', chainBonus: 64 },
+  { id: 'bla_aero',       name: 'エアロ',         role: 'BLA', cost: 1, power: 1.0,  element: 'wind',    chainBonus: 36 },
   // BLA unique
-  { id: 'bla_waterga',    name: 'ウォータガ',     role: 'BLA', cost: 4, power: 3.5,  element: 'water',   chainBonus: 80, isUnique: true, uniqueOwner: 'sac' },
-  { id: 'bla_aeroga',     name: 'エアロガ',       role: 'BLA', cost: 4, power: 3.5,  aoe: true, element: 'wind', chainBonus: 75, isUnique: true, uniqueOwner: 'kaze' },
-  { id: 'bla_holy',       name: 'ホーリー',       role: 'BLA', cost: 4, power: 4.0,  element: 'holy',    chainBonus: 85, isUnique: true, uniqueOwner: 'en' },
-  { id: 'bla_darkflare',  name: 'ダークフレア',   role: 'BLA', cost: 4, power: 3.8,  aoe: true, element: 'dark', chainBonus: 80, isUnique: true, uniqueOwner: 'daku' },
-  { id: 'bla_quake',      name: 'クエイク',       role: 'BLA', cost: 3, power: 2.5,  aoe: true, element: 'earth', chainBonus: 65, isUnique: true, uniqueOwner: 'jio' },
-  { id: 'bla_blizzaja',   name: 'ブリザジャ',     role: 'BLA', cost: 4, power: 4.5,  element: 'ice',     chainBonus: 90, isUnique: true, uniqueOwner: 'kuri' },
-  { id: 'bla_tridisaster',name: 'トライディザスター',role: 'BLA', cost: 4, power: 2.0, hits: 3, aoe: true, chainBonus: 85, isUnique: true, uniqueOwner: 'ho' },
-  { id: 'bla_magicburst', name: 'マジックバースト',role: 'BLA', cost: 3, power: 2.5, hits: 2, chainBonus: 70, isUnique: true, uniqueOwner: 'ran' },
+  { id: 'bla_waterga',    name: 'ウォータガ',     role: 'BLA', cost: 4, power: 3.5,  element: 'water',   chainBonus: 64, isUnique: true, uniqueOwner: 'sac' },
+  { id: 'bla_aeroga',     name: 'エアロガ',       role: 'BLA', cost: 4, power: 3.5,  aoe: true, element: 'wind', chainBonus: 60, isUnique: true, uniqueOwner: 'kaze' },
+  { id: 'bla_holy',       name: 'ホーリー',       role: 'BLA', cost: 4, power: 4.0,  element: 'holy',    chainBonus: 68, isUnique: true, uniqueOwner: 'en' },
+  { id: 'bla_darkflare',  name: 'ダークフレア',   role: 'BLA', cost: 4, power: 3.8,  aoe: true, element: 'dark', chainBonus: 64, isUnique: true, uniqueOwner: 'daku' },
+  { id: 'bla_quake',      name: 'クエイク',       role: 'BLA', cost: 3, power: 2.5,  aoe: true, element: 'earth', chainBonus: 52, isUnique: true, uniqueOwner: 'jio' },
+  { id: 'bla_blizzaja',   name: 'ブリザジャ',     role: 'BLA', cost: 4, power: 4.5,  element: 'ice',     chainBonus: 72, isUnique: true, uniqueOwner: 'kuri' },
+  { id: 'bla_tridisaster',name: 'トライディザスター',role: 'BLA', cost: 4, power: 2.0, hits: 3, aoe: true, chainBonus: 68, isUnique: true, uniqueOwner: 'ho' },
+  { id: 'bla_magicburst', name: 'マジックバースト',role: 'BLA', cost: 3, power: 2.5, hits: 2, chainBonus: 56, isUnique: true, uniqueOwner: 'ran' },
 
   // ---- DEF ----
-  { id: 'def_fight',      name: 'たたかう(DEF)',  role: 'DEF', cost: 1, power: 0.6,  chainBonus: 10 },
+  { id: 'def_fight',      name: 'たたかう(DEF)',  role: 'DEF', cost: 1, power: 0.6,  chainBonus: 8},
   { id: 'def_guard',      name: 'ガード',         role: 'DEF', cost: 1, power: 0,    buff: ['guard'], chainBonus: 0 },
   { id: 'def_stabilize',  name: 'スタビライズ',   role: 'DEF', cost: 2, power: 0,    chainBonus: 0 },
 
@@ -89,9 +89,9 @@ export const COMMAND_ABILITIES: CommandAbility[] = [
   { id: 'jam_stop',       name: 'ストップ',       role: 'JAM', cost: 4, debuff: ['stop'],    chainBonus: 0, isUnique: true, uniqueOwner: 'daku' },
 
   // ---- Ultimates (Item 14) ----
-  { id: 'rai_ult', name: 'ライトニングスフィア', role: 'ATK', cost: 4, power: 8.0, hits: 3, element: 'thunder', chainBonus: 100, isUnique: true, isUltimate: true, uniqueOwner: 'rai' },
+  { id: 'rai_ult', name: 'ライトニングスフィア', role: 'ATK', cost: 4, power: 8.0, hits: 3, element: 'thunder', chainBonus: 80, isUnique: true, isUltimate: true, uniqueOwner: 'rai' },
   { id: 'va_ult',  name: '聖なる癒し',           role: 'HLR', cost: 3, healPercent: 1.0, aoe: true, chainBonus: 0, isUnique: true, isUltimate: true, uniqueOwner: 'va' },
-  { id: 'fa_ult',  name: '獣王の怒り',           role: 'ATK', cost: 5, power: 12.0, chainBonus: 80, isUnique: true, isUltimate: true, uniqueOwner: 'fa' },
+  { id: 'fa_ult',  name: '獣王の怒り',           role: 'ATK', cost: 5, power: 12.0, chainBonus: 64, isUnique: true, isUltimate: true, uniqueOwner: 'fa' },
 ];
 
 export const AUTO_ABILITIES: AutoAbility[] = [

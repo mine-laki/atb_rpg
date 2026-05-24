@@ -97,15 +97,19 @@ export function createCharacterInstance(
   };
 }
 
-export function createEnemyInstance(enemyId: string, idx: number): EnemyInstance {
+export function createEnemyInstance(enemyId: string, idx: number, ngPlus: number = 0): EnemyInstance {
   const data = ENEMIES.find((e) => e.id === enemyId);
   if (!data) throw new Error(`Unknown enemy: ${enemyId}`);
+
+  const hpScale  = 1 + 0.5 * ngPlus;
+  const strScale = 1 + 0.3 * ngPlus;
+  const scaledHP = Math.floor(data.maxHP * hpScale);
 
   return {
     id: `${enemyId}_${idx}`,
     dataId: enemyId,
-    currentHP: data.maxHP,
-    maxHP: data.maxHP,
+    currentHP: scaledHP,
+    maxHP: scaledHP,
     chainGauge: 0,
     isBreaking: false,
     breakTimer: 0,
@@ -114,6 +118,7 @@ export function createEnemyInstance(enemyId: string, idx: number): EnemyInstance
     currentPhase: 0,
     actionCooldowns: {},
     lastHitTime: 0,
+    statScale: ngPlus > 0 ? strScale : undefined,
   };
 }
 
@@ -152,12 +157,12 @@ export function buildInitialSaveData(): SaveData {
     },
     progress,
     paradigms: [
-      { slot: 0, name: '電撃攻撃',  roles: ['ATK', 'HLR', 'ATK'] },
-      { slot: 1, name: '猛攻撃',    roles: ['BLA', 'BLA', 'BLA'] },
-      { slot: 2, name: '均衡',      roles: ['ATK', 'ENH', 'DEF'] },
-      { slot: 3, name: '強化特化',  roles: ['BLA', 'ENH', 'ATK'] },
-      { slot: 4, name: '回復重視',  roles: ['ATK', 'HLR', 'DEF'] },
-      { slot: 5, name: '魔法攻撃',  roles: ['BLA', 'HLR', 'ATK'] },
+      { slot: 0, name: 'ラッシュアサルト',  roles: ['BLA', 'BLA', 'ATK'] },
+      { slot: 1, name: '勇戦の凱歌',    roles: ['BLA', 'HLR', 'ATK'] },
+      { slot: 2, name: 'デルタアタック',      roles: ['ATK', 'BLA', 'DEF'] },
+      { slot: 3, name: '撃滅の戦鬼',  roles: ['BLA', 'JAM', 'ATK'] },
+      { slot: 4, name: '勝利への決意',  roles: ['ATK', 'HLR', 'DEF'] },
+      { slot: 5, name: 'フューリアス',  roles: ['ATK', 'BLA', 'ATK'] },
     ],
   };
 }

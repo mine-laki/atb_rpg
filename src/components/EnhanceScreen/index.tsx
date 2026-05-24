@@ -47,12 +47,26 @@ function getMaterialEmoji(itemId: string): string {
   return MATERIALS.find(m => m.id === itemId)?.emoji ?? '📦';
 }
 
+function effectLabel(eff: { type: string; value: number; element?: string }): string | null {
+  if (eff.type === 'atb_expand')    return 'ATB+1';
+  if (eff.type === 'atb_speed')     return `速度+${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'heal_boost')    return `回復+${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'chain_boost')   return `チェーン+${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'damage_boost')  return eff.value > 0 ? `ダメ+${Math.round(eff.value * 100)}%` : `被ダメ${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'buff_extend')   return `バフ+${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'debuff_rate')   return `デバフ率+${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'auto_regen')    return 'リジェネ';
+  if (eff.type === 'magic_cost_reduce') return `魔法コスト-${eff.value}`;
+  if (eff.type === 'element_resist') return `${eff.element}耐性+${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'auto_buff')     return `開幕バフ`;
+  return null;
+}
+
 export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps) {
   const [selectedCharId, setSelectedCharId] = useState<string>(
     saveData.player.party[0] ?? saveData.progress.unlockedCharacters[0]
   );
   const [tab, setTab] = useState<EnhanceTab>('level');
-  // For equip tab: which slot is being actively swapped
   const [activeSlot, setActiveSlot] = useState<'weapon' | 'accessory1' | 'accessory2' | 'accessory3' | 'accessory4' | null>(null);
 
   const charData = CHARACTERS.find(c => c.id === selectedCharId);
@@ -121,7 +135,6 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
 
   // ── Equip helpers ──────────────────────────────────────────
   const currentEquip = charSave.equipment;
-  // Accessory slots unlocked by level
   const accessorySlotCount = charSave.level >= 30 ? 4 : charSave.level >= 20 ? 3 : charSave.level >= 10 ? 2 : 1;
 
   const getInst = (instanceId: string | null): EquipmentInstance | null =>
@@ -132,36 +145,21 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
     return inst ? getEquipmentById(inst.itemId) : null;
   };
 
-  const equippedWeaponName    = getInstData(currentEquip.weapon)?.name ?? '未装備';
-  const equippedAcc1Name      = getInstData(currentEquip.accessory1)?.name ?? '未装備';
-  const equippedAcc2Name      = getInstData(currentEquip.accessory2)?.name ?? '未装備';
-  const equippedAcc3Name      = getInstData(currentEquip.accessory3)?.name ?? '未装備';
-  const equippedAcc4Name      = getInstData(currentEquip.accessory4)?.name ?? '未装備';
-  const equippedWeaponEmoji   = getInstData(currentEquip.weapon)?.emoji   ?? '—';
-  const equippedAcc1Emoji     = getInstData(currentEquip.accessory1)?.emoji ?? '—';
-  const equippedAcc2Emoji     = getInstData(currentEquip.accessory2)?.emoji ?? '—';
-  const equippedAcc3Emoji     = getInstData(currentEquip.accessory3)?.emoji ?? '—';
-  const equippedAcc4Emoji     = getInstData(currentEquip.accessory4)?.emoji ?? '—';
-
-  // Items already equipped on THIS character (to prevent double-equip in same char)
   const myEquippedIds = [currentEquip.weapon, currentEquip.accessory1, currentEquip.accessory2, currentEquip.accessory3, currentEquip.accessory4].filter(Boolean) as string[];
 
-  // Items equipped on OTHER characters (we'll still allow equipping — just show a warning color)
-  const otherEquippedIds = new Set<string>();
+  const instanceToEquipper = new Map<string, string>();
   for (const r of saveData.player.roster) {
     if (r.id === selectedCharId) continue;
     const eq = r.equipment;
-    [eq.weapon, eq.accessory1, eq.accessory2, eq.accessory3, eq.accessory4].forEach(id => { if (id) otherEquippedIds.add(id); });
+    [eq.weapon, eq.accessory1, eq.accessory2, eq.accessory3, eq.accessory4].forEach(id => { if (id) instanceToEquipper.set(id, r.id); });
   }
 
   const handleEquip = (slot: 'weapon' | 'accessory1' | 'accessory2' | 'accessory3' | 'accessory4', instanceId: string) => {
-    // If this item is already equipped in the same slot of this char, unequip
     if (currentEquip[slot] === instanceId) {
       onUpdate(updateRoster({ ...charSave, equipment: { ...currentEquip, [slot]: null } }));
       setActiveSlot(null);
       return;
     }
-    // Equip
     onUpdate(updateRoster({ ...charSave, equipment: { ...currentEquip, [slot]: instanceId } }));
     setActiveSlot(null);
   };
@@ -171,13 +169,11 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
     setActiveSlot(null);
   };
 
-  // Inventory to display for active slot
   const slotFilterType = activeSlot === 'weapon' ? 'weapon' : (activeSlot ? 'accessory' : null);
   const filteredInventory = slotFilterType
     ? equipments.filter(inst => {
         const d = getEquipmentById(inst.itemId);
         if (!d || d.type !== slotFilterType) return false;
-        // For weapons, filter by character's weapon affinity
         if (slotFilterType === 'weapon' && charData.weaponAffinity && charData.weaponAffinity !== 'any') {
           return d.weaponType === charData.weaponAffinity;
         }
@@ -207,84 +203,204 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
 
   const equipBonus = calcEquipBonus();
 
+  // ── Sorted character list ──────────────────────────────────
+  const sortedChars = [...saveData.progress.unlockedCharacters].sort((a, b) => {
+    const aInParty = saveData.player.party.includes(a) ? 0 : 1;
+    const bInParty = saveData.player.party.includes(b) ? 0 : 1;
+    return aInParty - bInParty;
+  });
+
+  // ── Equip slot definitions ─────────────────────────────────
+  const equipSlots = [
+    { slot: 'weapon'     as const, label: '武器',    id: currentEquip.weapon,      show: true },
+    { slot: 'accessory1' as const, label: 'アクセ1', id: currentEquip.accessory1,  show: accessorySlotCount >= 1 },
+    { slot: 'accessory2' as const, label: 'アクセ2', id: currentEquip.accessory2,  show: accessorySlotCount >= 2 },
+    { slot: 'accessory3' as const, label: 'アクセ3', id: currentEquip.accessory3,  show: accessorySlotCount >= 3 },
+    { slot: 'accessory4' as const, label: 'アクセ4', id: currentEquip.accessory4,  show: accessorySlotCount >= 4 },
+  ].filter(s => s.show);
+
   return (
     <div className="enhance-screen">
+      {/* ── ヘッダー ── */}
       <div className="enhance-header">
         <button className="btn-back" onClick={onBack}>← 戻る</button>
         <h2>強化</h2>
         <span className="gil-display">💰 {gil.toLocaleString()}</span>
       </div>
 
-      {/* Character selector — パーティキャラを先頭に */}
+      {/* ── キャラセレクター ── */}
       <div className="char-selector">
-        {[...saveData.progress.unlockedCharacters].sort((a, b) => {
-          const aInParty = saveData.player.party.includes(a) ? 0 : 1;
-          const bInParty = saveData.player.party.includes(b) ? 0 : 1;
-          return aInParty - bInParty;
-        }).map(id => {
+        {sortedChars.map(id => {
           const cd = CHARACTERS.find(c => c.id === id);
+          const cs = saveData.player.roster.find(r => r.id === id);
           if (!cd) return null;
-          const isPartyMember = saveData.player.party.includes(id);
+          const inParty = saveData.player.party.includes(id);
           return (
             <button
               key={id}
-              className={`char-selector-btn ${id === selectedCharId ? 'selected' : ''} ${isPartyMember ? 'in-party' : ''}`}
+              className={`char-selector-btn ${id === selectedCharId ? 'selected' : ''} ${inParty ? 'in-party' : ''}`}
               onClick={() => { setSelectedCharId(id); setActiveSlot(null); }}
             >
-              {cd.emoji}
+              <span className="char-sel-emoji">{cd.emoji}</span>
+              <span className="char-sel-info">
+                <span className="char-sel-name">{cd.name}</span>
+                <span className="char-sel-level">Lv.{cs?.level ?? 1}</span>
+              </span>
             </button>
           );
         })}
       </div>
 
-      {/* Character info */}
+      {/* ── キャラ情報パネル ── */}
       <div className="char-info-panel">
         <div className="char-info-header">
           <span className="char-emoji">{charData.emoji}</span>
-          <span className="char-name">{charData.name}</span>
-          <span className="char-level-badge">Lv.{level} / 50</span>
+          <div className="char-info-name-block">
+            <span className="char-name">{charData.name}</span>
+            <span className="char-level-badge">Lv.{level} / 50</span>
+          </div>
         </div>
-        <div className="char-stats">
-          <div className="stat-row"><span>HP</span><span>{stats.hp}{equipBonus.hp > 0 && <span className="stat-bonus"> +{equipBonus.hp}</span>}</span></div>
-          <div className="stat-row"><span>STR</span><span>{stats.str}{equipBonus.str > 0 && <span className="stat-bonus"> +{equipBonus.str}</span>}</span></div>
-          <div className="stat-row"><span>MAG</span><span>{stats.mag}{equipBonus.mag > 0 && <span className="stat-bonus"> +{equipBonus.mag}</span>}</span></div>
-          {equipBonus.atbExtra > 0 && <div className="stat-row"><span>ATBゲージ</span><span>{charData.atbMax} + {equipBonus.atbExtra}</span></div>}
-          {equipBonus.speedPct > 0 && <div className="stat-row"><span>ATB速度</span><span>+{equipBonus.speedPct}%</span></div>}
+
+        {/* ステータスグリッド */}
+        <div className="char-stats-grid">
+          <div className="csg-item">
+            <span className="csg-label">HP</span>
+            <span className="csg-value">{stats.hp + equipBonus.hp}</span>
+            {equipBonus.hp > 0 && <span className="csg-bonus">+{equipBonus.hp}</span>}
+          </div>
+          <div className="csg-item">
+            <span className="csg-label">STR</span>
+            <span className="csg-value">{stats.str + equipBonus.str}</span>
+            {equipBonus.str > 0 && <span className="csg-bonus">+{equipBonus.str}</span>}
+          </div>
+          <div className="csg-item">
+            <span className="csg-label">MAG</span>
+            <span className="csg-value">{stats.mag + equipBonus.mag}</span>
+            {equipBonus.mag > 0 && <span className="csg-bonus">+{equipBonus.mag}</span>}
+          </div>
+          <div className="csg-item">
+            <span className="csg-label">ATB</span>
+            <span className="csg-value">{charData.atbMax + equipBonus.atbExtra}</span>
+            {equipBonus.atbExtra > 0 && <span className="csg-bonus">+{equipBonus.atbExtra}</span>}
+          </div>
+          {equipBonus.speedPct > 0 && (
+            <div className="csg-item csg-wide">
+              <span className="csg-label">速度</span>
+              <span className="csg-value">+{equipBonus.speedPct}%</span>
+            </div>
+          )}
+        </div>
+
+        {/* ロールレベルバッジ */}
+        <div className="char-role-levels">
+          {charData.roles.map(role => {
+            const lv = charSave.roleLevels?.[role] ?? 1;
+            return (
+              <span key={role} className={`char-role-lv-badge role-color-${role.toLowerCase()}`}>
+                {getRoleEmoji(role)} Lv.{lv}
+              </span>
+            );
+          })}
+        </div>
+
+        {/* 装備サマリー */}
+        <div className="char-equip-summary">
+          {equipSlots.map(({ slot, label, id }) => {
+            const d = getInstData(id ?? null);
+            const inst = getInst(id ?? null);
+            return (
+              <div key={slot} className="char-equip-mini-row">
+                <span className="char-equip-mini-label">{label}</span>
+                {d && inst ? (
+                  <span className="char-equip-mini-name">
+                    {d.emoji} {d.name}{inst.enhanceLevel > 0 ? <strong> +{inst.enhanceLevel}</strong> : ''}
+                  </span>
+                ) : (
+                  <span className="char-equip-mini-empty">—</span>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* ── タブ ── */}
       <div className="enhance-tabs">
-        <button className={tab === 'level'     ? 'active' : ''} onClick={() => setTab('level')}>Lv</button>
-        <button className={tab === 'role'      ? 'active' : ''} onClick={() => setTab('role')}>ロール</button>
-        <button className={tab === 'equip'     ? 'active' : ''} onClick={() => { setTab('equip'); setActiveSlot(null); }}>装備</button>
-        <button className={tab === 'skill'     ? 'active' : ''} onClick={() => setTab('skill')}>スキル</button>
-        <button className={tab === 'abilities' ? 'active' : ''} onClick={() => setTab('abilities')}>アビリティ</button>
-        <button className={tab === 'unlock'    ? 'active' : ''} onClick={() => setTab('unlock')}>解放</button>
+        {(['level', 'role', 'equip', 'skill', 'abilities', 'unlock'] as EnhanceTab[]).map(t => (
+          <button
+            key={t}
+            className={tab === t ? 'active' : ''}
+            onClick={() => { setTab(t); if (t !== 'equip') setActiveSlot(null); }}
+          >
+            {{ level: 'レベル', role: 'ロール', equip: '装備', skill: 'スキル', abilities: 'アビリティ', unlock: '解放' }[t]}
+          </button>
+        ))}
       </div>
 
-      {/* ── Level up tab ── */}
+      {/* ══════════════════════════════════════
+          ── レベルアップ タブ ──
+          ══════════════════════════════════════ */}
       {tab === 'level' && (
         <div className="enhance-section">
-          <div className="levelup-card">
-            <div className="levelup-preview">
-              {level < 50 ? (
-                <>
-                  <span>Lv.{level} → Lv.{level + 1}</span>
-                  <span className="stat-diff">
-                    HP +{nextStats.hp - stats.hp} / STR +{nextStats.str - stats.str} / MAG +{nextStats.mag - stats.mag}
-                  </span>
-                </>
-              ) : <span className="max-badge">MAX LEVEL</span>}
+          {/* レベル進捗バー */}
+          <div className="level-progress-wrap">
+            <span className="lp-label">Lv.1</span>
+            <div className="level-progress-track">
+              <div className="level-progress-fill" style={{ width: `${(level / 50) * 100}%` }} />
+              <span className="level-progress-text">Lv.{level}</span>
             </div>
-            <button className="btn-levelup" onClick={handleLevelUp} disabled={!canLevelUp}>
-              {level >= 50 ? 'MAX' : `💰 ${lvCost.toLocaleString()} Gil`}
-            </button>
+            <span className="lp-label">50</span>
           </div>
+
+          {level < 50 ? (
+            <div className="levelup-card">
+              {/* Before / After 比較 */}
+              <div className="levelup-compare">
+                <div className="luc-col current">
+                  <div className="luc-col-title">Lv.{level}</div>
+                  <div className="luc-row"><span>HP</span><strong>{stats.hp}</strong></div>
+                  <div className="luc-row"><span>STR</span><strong>{stats.str}</strong></div>
+                  <div className="luc-row"><span>MAG</span><strong>{stats.mag}</strong></div>
+                </div>
+                <div className="luc-arrow">→</div>
+                <div className="luc-col next">
+                  <div className="luc-col-title">Lv.{level + 1}</div>
+                  <div className="luc-row">
+                    <span>HP</span>
+                    <strong>{nextStats.hp}</strong>
+                    <span className="luc-diff">+{nextStats.hp - stats.hp}</span>
+                  </div>
+                  <div className="luc-row">
+                    <span>STR</span>
+                    <strong>{nextStats.str}</strong>
+                    <span className="luc-diff">+{nextStats.str - stats.str}</span>
+                  </div>
+                  <div className="luc-row">
+                    <span>MAG</span>
+                    <strong>{nextStats.mag}</strong>
+                    <span className="luc-diff">+{nextStats.mag - stats.mag}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="levelup-footer">
+                <button className="btn-levelup" onClick={handleLevelUp} disabled={!canLevelUp}>
+                  💰 {lvCost.toLocaleString()} Gil でレベルアップ
+                </button>
+                {!canLevelUp && gil < lvCost && (
+                  <p className="cost-warning">Gil不足（所持: {gil.toLocaleString()} / 必要: {lvCost.toLocaleString()}）</p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="max-level-card">✨ MAX LEVEL ✨</div>
+          )}
         </div>
       )}
 
-      {/* ── Role level tab ── */}
+      {/* ══════════════════════════════════════
+          ── ロールレベル タブ ──
+          ══════════════════════════════════════ */}
       {tab === 'role' && (
         <div className="enhance-section">
           {charData.roles.map(role => {
@@ -292,140 +408,206 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
             const cost = roleLevelCost(role, roleLv);
             const crystalId = ROLE_CRYSTAL_MAP[role];
             const crystalQty = getMaterialQty(crystalId);
+            const crystalMat = MATERIALS.find(m => m.id === crystalId);
             const canUp = roleLv < 10 && gil >= cost.gil && crystalQty >= cost.crystals;
             return (
-              <div key={role} className="role-level-card">
-                <div className="role-level-info">
-                  <span>{getRoleEmoji(role)} {getRoleLabel(role)}</span>
-                  <span className="role-lv">Lv.{roleLv}/10</span>
-                </div>
-                <div className="role-bonus">{roleBonusDesc(role, roleLv)}</div>
-                {roleLv < 10 ? (
-                  <div className="role-cost">
-                    <span>💰{cost.gil.toLocaleString()}</span>
-                    <span>{getRoleEmoji(role)}×{cost.crystals} (所持:{crystalQty})</span>
-                    <button className="btn-small" onClick={() => handleRoleLevelUp(role)} disabled={!canUp}>強化</button>
+              <div key={role} className={`role-level-card ${canUp ? 'can-upgrade' : ''}`}>
+                {/* ヘッダー行 */}
+                <div className="rlc-header">
+                  <span className="rlc-icon">{getRoleEmoji(role)}</span>
+                  <div className="rlc-title">
+                    <span className="rlc-name">{getRoleLabel(role)}</span>
+                    <span className="role-lv">Lv.{roleLv} / 10</span>
                   </div>
-                ) : <span className="max-badge">MAX</span>}
+                  {roleLv >= 10
+                    ? <span className="max-badge">MAX</span>
+                    : <button className="btn-small btn-role-up" onClick={() => handleRoleLevelUp(role)} disabled={!canUp}>強化</button>
+                  }
+                </div>
+
+                {/* ピップ進捗バー */}
+                <div className="role-pip-bar">
+                  {Array.from({ length: 10 }, (_, i) => (
+                    <div key={i} className={`role-pip ${i < roleLv ? 'filled' : ''}`} />
+                  ))}
+                </div>
+
+                {/* 現在の効果 → 次の効果 */}
+                <div className="rlc-bonus-row">
+                  <span className="rlc-bonus-now">{roleBonusDesc(role, roleLv)}</span>
+                  {roleLv < 10 && (
+                    <span className="rlc-bonus-next">→ {roleBonusDesc(role, roleLv + 1)}</span>
+                  )}
+                </div>
+
+                {/* コスト */}
+                {roleLv < 10 && (
+                  <div className="rlc-cost-row">
+                    <span className={`rlc-cost-item ${gil >= cost.gil ? '' : 'shortage'}`}>
+                      💰 {cost.gil.toLocaleString()}
+                    </span>
+                    <span className={`rlc-cost-item ${crystalQty >= cost.crystals ? '' : 'shortage'}`}>
+                      {crystalMat?.emoji ?? ''} {crystalMat?.name ?? crystalId} ×{cost.crystals}
+                      <span className="rlc-owned">（所持 {crystalQty}）</span>
+                    </span>
+                  </div>
+                )}
               </div>
             );
           })}
-        </div>
-      )}
 
-      {/* ── Equip tab ── */}
-      {tab === 'equip' && (
-        <div className="enhance-section equip-tab">
-          {/* Current equipment slots */}
-          <div className="equip-slots">
-            {(
-              [
-                { slot: 'weapon'     as const, label: '武器',       emoji: equippedWeaponEmoji, name: equippedWeaponName,  id: currentEquip.weapon, show: true },
-                { slot: 'accessory1' as const, label: 'アクセ1',    emoji: equippedAcc1Emoji,   name: equippedAcc1Name,    id: currentEquip.accessory1, show: accessorySlotCount >= 1 },
-                { slot: 'accessory2' as const, label: 'アクセ2',    emoji: equippedAcc2Emoji,   name: equippedAcc2Name,    id: currentEquip.accessory2, show: accessorySlotCount >= 2 },
-                { slot: 'accessory3' as const, label: 'アクセ3',    emoji: equippedAcc3Emoji,   name: equippedAcc3Name,    id: currentEquip.accessory3, show: accessorySlotCount >= 3 },
-                { slot: 'accessory4' as const, label: 'アクセ4',    emoji: equippedAcc4Emoji,   name: equippedAcc4Name,    id: currentEquip.accessory4, show: accessorySlotCount >= 4 },
-              ]
-            ).filter(s => s.show).map(({ slot, label, emoji, name, id }) => (
-              <div
-                key={slot}
-                className={`equip-slot ${activeSlot === slot ? 'active' : ''}`}
-                onClick={() => setActiveSlot(activeSlot === slot ? null : slot)}
-              >
-                <span className="equip-slot-label">{label}</span>
-                <span className="equip-slot-item">
-                  {id ? <>{emoji} {name}</> : <span className="no-equip">未装備</span>}
-                </span>
-                {id && (
-                  <button
-                    className="btn-unequip"
-                    onClick={e => { e.stopPropagation(); handleUnequip(slot); }}
-                  >
-                    外す
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Item list for active slot */}
-          {activeSlot && (
-            <div className="equip-picker">
-              <h4>{activeSlot === 'weapon' ? '武器を選択' : 'アクセサリを選択'}</h4>
-              {filteredInventory.length === 0 && (
-                <p className="no-items">該当する装備がありません（ショップで購入してください）</p>
-              )}
-              {filteredInventory.map(inst => {
-                const d = getEquipmentById(inst.itemId);
-                if (!d) return null;
-                const isEquippedHere = myEquippedIds.includes(inst.instanceId);
-                const isEquippedElsewhere = otherEquippedIds.has(inst.instanceId);
-                const mult = ENHANCE_MULTIPLIERS[inst.enhanceLevel] ?? 1;
-                const statStr = [
-                  d.baseStats.hp  ? `HP+${Math.floor((d.baseStats.hp ) * mult)}` : null,
-                  d.baseStats.str ? `STR+${Math.floor((d.baseStats.str) * mult)}` : null,
-                  d.baseStats.mag ? `MAG+${Math.floor((d.baseStats.mag) * mult)}` : null,
-                ].filter(Boolean).join(' ');
-                const effStr = d.effects.map(eff => {
-                  if (eff.type === 'atb_expand')    return 'ATB+1';
-                  if (eff.type === 'atb_speed')      return `速度+${Math.round(eff.value * 100)}%`;
-                  if (eff.type === 'heal_boost')     return `回復+${Math.round(eff.value * 100)}%`;
-                  if (eff.type === 'chain_boost')    return `チェーン+${Math.round(eff.value * 100)}%`;
-                  if (eff.type === 'damage_boost')   return eff.value > 0 ? `ダメ+${Math.round(eff.value * 100)}%` : `被ダメ${Math.round(eff.value * 100)}%`;
-                  if (eff.type === 'buff_extend')    return `バフ時間+${Math.round(eff.value * 100)}%`;
-                  if (eff.type === 'debuff_rate')    return `デバフ率+${Math.round(eff.value * 100)}%`;
-                  if (eff.type === 'auto_regen')     return 'リジェネ';
-                  if (eff.type === 'element_resist') return `${eff.element}耐性+${Math.round(eff.value * 100)}%`;
-                  return null;
-                }).filter(Boolean).join(' / ');
-
+          {/* 所持クリスタル一覧 */}
+          <div className="role-mat-summary">
+            <div className="rms-title">所持クリスタル</div>
+            <div className="rms-list">
+              {Object.entries(ROLE_CRYSTAL_MAP).map(([role, crystalId]) => {
+                const mat = MATERIALS.find(m => m.id === crystalId);
+                const qty = getMaterialQty(crystalId);
                 return (
-                  <div
-                    key={inst.instanceId}
-                    className={`equip-pick-item ${isEquippedHere ? 'equipped-here' : ''} ${isEquippedElsewhere ? 'equipped-elsewhere' : ''}`}
-                    onClick={() => handleEquip(activeSlot, inst.instanceId)}
-                  >
-                    <div className="equip-pick-info">
-                      <span className="equip-pick-emoji">{d.emoji}</span>
-                      <div>
-                        <span className="equip-pick-name">{d.name} {inst.enhanceLevel > 0 && `+${inst.enhanceLevel}`}</span>
-                        <span className="equip-pick-stats">{[statStr, effStr].filter(Boolean).join(' / ')}</span>
-                      </div>
-                    </div>
-                    {isEquippedHere
-                      ? <span className="equip-badge equipped">装備中</span>
-                      : isEquippedElsewhere
-                        ? <span className="equip-badge elsewhere">他で装備</span>
-                        : <span className="equip-badge free">装備</span>}
+                  <div key={role} className={`rms-item ${qty === 0 ? 'zero' : ''}`}>
+                    <span>{mat?.emoji}</span>
+                    <span className="rms-qty">×{qty}</span>
                   </div>
                 );
               })}
             </div>
-          )}
+          </div>
         </div>
       )}
 
-      {/* ── Ability viewer tab ── */}
+      {/* ══════════════════════════════════════
+          ── 装備 タブ ──
+          ══════════════════════════════════════ */}
+      {tab === 'equip' && (
+        <div className="enhance-section equip-tab">
+          <div className="equip-slots">
+            {equipSlots.map(({ slot, label, id }) => {
+              const inst = getInst(id ?? null);
+              const d = inst ? getEquipmentById(inst.itemId) : null;
+              const mult = inst ? (ENHANCE_MULTIPLIERS[inst.enhanceLevel] ?? 1) : 1;
+              const statParts = d ? [
+                d.baseStats.hp  ? `HP+${Math.floor((d.baseStats.hp)  * mult)}` : null,
+                d.baseStats.str ? `STR+${Math.floor((d.baseStats.str) * mult)}` : null,
+                d.baseStats.mag ? `MAG+${Math.floor((d.baseStats.mag) * mult)}` : null,
+              ].filter(Boolean) : [];
+              const effTags = d ? d.effects.map(e => effectLabel(e)).filter(Boolean) as string[] : [];
+              const isActive = activeSlot === slot;
+
+              return (
+                <div key={slot} className={`equip-slot ${isActive ? 'active' : ''}`}>
+                  <div
+                    className="equip-slot-main"
+                    onClick={() => setActiveSlot(isActive ? null : slot)}
+                  >
+                    <span className="equip-slot-label">{label}</span>
+                    <div className="equip-slot-body">
+                      {d && inst ? (
+                        <>
+                          <div className="equip-slot-name-row">
+                            <span className="equip-slot-emoji">{d.emoji}</span>
+                            <span className="equip-slot-name">{d.name}</span>
+                            {inst.enhanceLevel > 0 && (
+                              <span className="equip-enhance-pip">+{inst.enhanceLevel}</span>
+                            )}
+                          </div>
+                          {(statParts.length > 0 || effTags.length > 0) && (
+                            <div className="equip-slot-tags">
+                              {statParts.map((s, i) => <span key={i} className="equip-tag stat">{s}</span>)}
+                              {effTags.map((e, i) => <span key={i} className="equip-tag eff">{e}</span>)}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <span className="no-equip">未装備</span>
+                      )}
+                    </div>
+                    <div className="equip-slot-ctrl" onClick={e => e.stopPropagation()}>
+                      {id && (
+                        <button className="btn-unequip" onClick={() => handleUnequip(slot)}>外す</button>
+                      )}
+                      <span className="equip-toggle-arrow">{isActive ? '▲' : '▼'}</span>
+                    </div>
+                  </div>
+
+                  {/* インラインピッカー */}
+                  {isActive && (
+                    <div className="equip-picker">
+                      <div className="equip-picker-title">
+                        {slot === 'weapon' ? '武器を選択' : 'アクセサリを選択'}
+                        {filteredInventory.length === 0 && (
+                          <span className="equip-picker-empty"> — 該当装備なし（ショップで購入）</span>
+                        )}
+                      </div>
+                      {filteredInventory.map(pInst => {
+                        const pd = getEquipmentById(pInst.itemId);
+                        if (!pd) return null;
+                        const isHere = myEquippedIds.includes(pInst.instanceId);
+                        const isElsewhere = instanceToEquipper.has(pInst.instanceId);
+                        const pmult = ENHANCE_MULTIPLIERS[pInst.enhanceLevel] ?? 1;
+                        const pStats = [
+                          pd.baseStats.hp  ? `HP+${Math.floor((pd.baseStats.hp)  * pmult)}` : null,
+                          pd.baseStats.str ? `STR+${Math.floor((pd.baseStats.str) * pmult)}` : null,
+                          pd.baseStats.mag ? `MAG+${Math.floor((pd.baseStats.mag) * pmult)}` : null,
+                        ].filter(Boolean);
+                        const pEffs = pd.effects.map(e => effectLabel(e)).filter(Boolean) as string[];
+
+                        return (
+                          <div
+                            key={pInst.instanceId}
+                            className={`equip-pick-item ${isHere ? 'equipped-here' : ''} ${isElsewhere ? 'equipped-elsewhere' : ''}`}
+                            onClick={() => handleEquip(slot, pInst.instanceId)}
+                          >
+                            <div className="equip-pick-info">
+                              <span className="equip-pick-emoji">{pd.emoji}</span>
+                              <div className="equip-pick-detail">
+                                <span className="equip-pick-name">
+                                  {pd.name}
+                                  {pInst.enhanceLevel > 0 && <span className="equip-enhance-pip">+{pInst.enhanceLevel}</span>}
+                                </span>
+                                <div className="equip-pick-tags">
+                                  {pStats.map((s, i) => <span key={i} className="equip-tag stat">{s}</span>)}
+                                  {pEffs.map((e, i) => <span key={i} className="equip-tag eff">{e}</span>)}
+                                </div>
+                              </div>
+                            </div>
+                            {isHere
+                              ? <span className="equip-badge equipped">装備中</span>
+                              : isElsewhere
+                                ? <span className="equip-badge elsewhere">
+                                    {CHARACTERS.find(c => c.id === instanceToEquipper.get(pInst.instanceId))?.emoji ?? '?'} 装備中
+                                  </span>
+                                : <span className="equip-badge free">装備</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── アビリティ タブ ── */}
       {tab === 'abilities' && (
         <div className="enhance-section">
           <AbilityViewer charData={charData} charSave={charSave} />
         </div>
       )}
 
-      {/* ── Skill board tab ── */}
+      {/* ══════════════════════════════════════
+          ── スキルボード タブ ──
+          ══════════════════════════════════════ */}
       {tab === 'skill' && (() => {
         const nodes = getSkillNodes(charData.growthType);
         const unlocked = new Set(charSave.unlockedSkillNodes ?? []);
 
         const canUnlockNode = (nodeId: string): boolean => {
           const node = nodes.find(n => n.id === nodeId);
-          if (!node) return false;
-          if (unlocked.has(nodeId)) return false;
-          // check prerequisites
+          if (!node || unlocked.has(nodeId)) return false;
           if (!node.requires.every(r => unlocked.has(r))) return false;
-          // check gil
           if (gil < node.cost.gil) return false;
-          // check materials
           for (const mat of node.cost.materials) {
             if (getMaterialQty(mat.itemId) < mat.quantity) return false;
           }
@@ -435,7 +617,6 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
         const handleUnlockNode = (nodeId: string) => {
           const node = nodes.find(n => n.id === nodeId);
           if (!node || !canUnlockNode(nodeId)) return;
-
           let newGil = gil - node.cost.gil;
           let newMats = [...materials];
           for (const mat of node.cost.materials) {
@@ -443,12 +624,10 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
               m.itemId === mat.itemId ? { ...m, quantity: m.quantity - mat.quantity } : m
             ).filter(m => m.quantity > 0);
           }
-
           const newRoster = saveData.player.roster.map(r => {
             if (r.id !== selectedCharId) return r;
             return { ...r, unlockedSkillNodes: [...(r.unlockedSkillNodes ?? []), nodeId] };
           });
-
           onUpdate({
             ...saveData,
             player: { ...saveData.player, roster: newRoster },
@@ -466,35 +645,34 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
               const prereqsMet = node.requires.every(r => unlocked.has(r));
               const affordable = canUnlockNode(node.id);
               return (
-                <div
-                  key={node.id}
-                  className={`skill-node ${isUnlocked ? 'unlocked' : prereqsMet ? 'available' : 'locked'}`}
-                >
+                <div key={node.id} className={`skill-node ${isUnlocked ? 'unlocked' : prereqsMet ? 'available' : 'locked'}`}>
                   <div className="skill-node-info">
-                    <span className="skill-node-name">{node.name}</span>
+                    <div className="skill-node-name-row">
+                      <span className="skill-node-name">{node.name}</span>
+                      {node.requires.length > 0 && !isUnlocked && (
+                        <span className="skill-prereq-chain">
+                          {node.requires.map(r => `← ${nodes.find(n => n.id === r)?.name ?? r}`).join(' ')}
+                        </span>
+                      )}
+                    </div>
                     <span className="skill-node-desc">{node.description}</span>
                     {!isUnlocked && (
-                      <span className="skill-node-cost">
-                        💰{node.cost.gil.toLocaleString()}
+                      <div className="skill-node-cost-row">
+                        <span className={`skill-cost-item ${gil >= node.cost.gil ? '' : 'shortage'}`}>
+                          💰{node.cost.gil.toLocaleString()}
+                        </span>
                         {node.cost.materials.map(m => (
-                          <span key={m.itemId}> · {getMaterialEmoji(m.itemId)}{getMaterialName(m.itemId)}×{m.quantity}(所持:{getMaterialQty(m.itemId)})</span>
+                          <span key={m.itemId} className={`skill-cost-item ${getMaterialQty(m.itemId) >= m.quantity ? '' : 'shortage'}`}>
+                            {getMaterialEmoji(m.itemId)} {getMaterialName(m.itemId)} ×{m.quantity}（所持{getMaterialQty(m.itemId)}）
+                          </span>
                         ))}
-                      </span>
-                    )}
-                    {node.requires.length > 0 && !prereqsMet && (
-                      <span className="skill-node-req">
-                        前提: {node.requires.map(r => nodes.find(n => n.id === r)?.name ?? r).join(', ')}
-                      </span>
+                      </div>
                     )}
                   </div>
                   <div className="skill-node-action">
                     {isUnlocked
                       ? <span className="skill-unlocked-badge">✓ 解放済</span>
-                      : <button
-                          className="btn-small"
-                          onClick={() => handleUnlockNode(node.id)}
-                          disabled={!affordable || !prereqsMet}
-                        >
+                      : <button className="btn-small" onClick={() => handleUnlockNode(node.id)} disabled={!affordable || !prereqsMet}>
                           解放
                         </button>
                     }
@@ -506,33 +684,26 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
         );
       })()}
 
-      {/* ── Unlock tab ── */}
+      {/* ══════════════════════════════════════
+          ── キャラ解放 タブ ──
+          ══════════════════════════════════════ */}
       {tab === 'unlock' && (() => {
         const FRAGMENT_COST = 3;
-        const lockedChars = CHARACTERS.filter(
-          c => !saveData.progress.unlockedCharacters.includes(c.id)
-        );
+        const lockedChars = CHARACTERS.filter(c => !saveData.progress.unlockedCharacters.includes(c.id));
 
         const handleUnlock = (charId: string) => {
           const fragmentId = `fragment_${charId}`;
           const owned = getMaterialQty(fragmentId);
           if (owned < FRAGMENT_COST) return;
-
-          const newMats = materials.map(m => {
-            if (m.itemId !== fragmentId) return m;
-            return { ...m, quantity: m.quantity - FRAGMENT_COST };
-          }).filter(m => m.quantity > 0);
-
+          const newMats = materials.map(m =>
+            m.itemId !== fragmentId ? m : { ...m, quantity: m.quantity - FRAGMENT_COST }
+          ).filter(m => m.quantity > 0);
           const newRosterEntry = {
-            id: charId,
-            level: 1,
-            exp: 0,
+            id: charId, level: 1, exp: 0,
             equipment: { weapon: null, accessory1: null, accessory2: null, accessory3: null, accessory4: null },
             unlockedRoles: [CHARACTERS.find(c => c.id === charId)!.roles[0]],
-            roleLevels: {},
-            unlockedSkillNodes: [],
+            roleLevels: {}, unlockedSkillNodes: [],
           };
-
           onUpdate({
             ...saveData,
             player: {
@@ -549,7 +720,7 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
 
         return (
           <div className="enhance-section unlock-tab">
-            <p className="unlock-hint">フラグメントを{FRAGMENT_COST}個集めてキャラクターを解放しよう！</p>
+            <p className="unlock-hint">フラグメントを {FRAGMENT_COST} 個集めてキャラクターを解放！</p>
             {lockedChars.length === 0 && <p className="no-items">全キャラ解放済み！</p>}
             {lockedChars.map(c => {
               const fragmentId = `fragment_${c.id}`;
@@ -565,14 +736,15 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
                     </div>
                   </div>
                   <div className="unlock-fragments">
+                    <div className="unlock-frag-pips">
+                      {Array.from({ length: FRAGMENT_COST }, (_, i) => (
+                        <span key={i} className={`unlock-pip ${i < owned ? 'filled' : ''}`}>{c.emoji}</span>
+                      ))}
+                    </div>
                     <span className={owned >= FRAGMENT_COST ? 'fragment-ready' : 'fragment-count'}>
-                      {c.emoji}×{owned}/{FRAGMENT_COST}
+                      {owned}/{FRAGMENT_COST}
                     </span>
-                    <button
-                      className="btn-small btn-unlock"
-                      onClick={() => handleUnlock(c.id)}
-                      disabled={!canUnlock}
-                    >
+                    <button className="btn-small btn-unlock" onClick={() => handleUnlock(c.id)} disabled={!canUnlock}>
                       解放
                     </button>
                   </div>
@@ -582,37 +754,6 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           </div>
         );
       })()}
-
-      {/* Materials inventory */}
-      {tab === 'level' && (
-        <div className="enhance-section">
-          <h3>所持Gil: 💰{gil.toLocaleString()}</h3>
-        </div>
-      )}
-      {tab === 'role' && (
-        <div className="enhance-section">
-          <h3>所持素材</h3>
-          <div className="materials-list">
-            {materials.length === 0 && <p className="no-items">素材なし</p>}
-            {materials.map(m => {
-              let emoji = getMaterialEmoji(m.itemId);
-              let name  = getMaterialName(m.itemId);
-              if (m.itemId.startsWith('fragment_')) {
-                const charId = m.itemId.replace('fragment_', '');
-                const char = CHARACTERS.find(c => c.id === charId);
-                emoji = char?.emoji ?? '✨';
-                name  = `${char?.name ?? charId}フラグメント`;
-              }
-              return (
-                <div key={m.itemId} className="material-row">
-                  <span>{emoji} {name}</span>
-                  <span>×{m.quantity}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -8,16 +8,18 @@ interface EnemyCardProps {
 
 export function EnemyCard({ enemy }: EnemyCardProps) {
   const data = getEnemyById(enemy.dataId);
-  if (!data || enemy.currentHP <= 0) return null;
+  if (!data) return null;
 
-  const hpRatio = enemy.currentHP / enemy.maxHP;
+  const isDead = enemy.currentHP <= 0;
+  const hpRatio = isDead ? 0 : enemy.currentHP / enemy.maxHP;
 
   return (
-    <div className="enemy-card">
+    <div className={`enemy-card ${isDead ? 'enemy-dead' : ''}`}>
       <div className="enemy-header">
         <span className="enemy-emoji">{data.emoji}</span>
         <span className="enemy-name">{data.name}</span>
-        {data.isBoss && <span className="boss-badge">BOSS</span>}
+        {data.isBoss && !isDead && <span className="boss-badge">BOSS</span>}
+        {isDead && <span className="enemy-defeated-badge">DEFEAT</span>}
       </div>
 
       <div className="enemy-hp">
@@ -30,24 +32,28 @@ export function EnemyCard({ enemy }: EnemyCardProps) {
             }}
           />
         </div>
-        <span className="hp-text">{enemy.currentHP.toLocaleString()}/{data.maxHP.toLocaleString()}</span>
+        <span className="hp-text">
+          {isDead ? '0' : enemy.currentHP.toLocaleString()}/{data.maxHP.toLocaleString()}
+        </span>
       </div>
 
-      <ChainGauge enemy={enemy} breakThreshold={data.breakThreshold} />
+      {!isDead && <ChainGauge enemy={enemy} breakThreshold={data.breakThreshold} />}
 
-      {data.weaknesses.length > 0 && (
+      {!isDead && data.weaknesses.length > 0 && (
         <div className="enemy-weaknesses">
           弱点: {data.weaknesses.map(w => getElementEmoji(w)).join(' ')}
         </div>
       )}
 
-      <div className="enemy-status">
-        {enemy.statusEffects.map(eff => (
-          <span key={eff.id} className={`status-badge ${eff.type}`}>
-            {eff.id} ({eff.duration.toFixed(1)}s)
-          </span>
-        ))}
-      </div>
+      {!isDead && (
+        <div className="enemy-status">
+          {enemy.statusEffects.map(eff => (
+            <span key={eff.id} className={`status-badge ${eff.type}`}>
+              {eff.id} ({eff.duration.toFixed(1)}s)
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

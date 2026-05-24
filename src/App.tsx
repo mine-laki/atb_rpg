@@ -12,7 +12,7 @@ import { EnemyReportScreen } from './components/EnemyReportScreen';
 import { STAGE_WAVES, getEnemyById } from './data/enemies';
 import './App.css';
 
-function buildBattleState(saveData: SaveData, stageOverride?: number): { state: BattleState; waveEnemyIds: string[][] } {
+function buildBattleState(saveData: SaveData, stageOverride?: number, ngPlusOverride?: number): { state: BattleState; waveEnemyIds: string[][] } {
   const inventory = saveData.progress.inventory;
   const party = saveData.player.party.map(id => {
     const charSave = saveData.player.roster.find(r => r.id === id);
@@ -25,7 +25,8 @@ function buildBattleState(saveData: SaveData, stageOverride?: number): { state: 
   );
   const waveConfig = STAGE_WAVES[stageIdx] ?? STAGE_WAVES[0];
   const waveEnemyIds = waveConfig.waves;
-  const enemies = waveEnemyIds[0].map((enemyId, idx) => createEnemyInstance(enemyId, idx));
+  const ngPlus = ngPlusOverride ?? saveData.newGamePlus ?? 0;
+  const enemies = waveEnemyIds[0].map((enemyId, idx) => createEnemyInstance(enemyId, idx, ngPlus));
 
   const paradigm = saveData.paradigms[0];
   const partyWithRoles = party.map((char, idx) => ({
@@ -67,18 +68,18 @@ function calcBattleRewards(state: BattleState, ngPlus: number = 0): { gil: numbe
 
     for (const drop of data.dropTable.common) {
       if (Math.random() < drop.rate * ngMult) {
-        drops.push({ type: 'material', itemId: drop.itemId, quantity: 1 });
+        drops.push({ type: drop.dropType ?? 'material', itemId: drop.itemId, quantity: 1 });
       }
     }
     for (const drop of data.dropTable.uncommon) {
       if (Math.random() < drop.rate * ngMult) {
-        drops.push({ type: 'material', itemId: drop.itemId, quantity: 1 });
+        drops.push({ type: drop.dropType ?? 'material', itemId: drop.itemId, quantity: 1 });
       }
     }
     if (enemy.breakTimer > 0 || !enemy.isBreaking) {
       for (const drop of data.dropTable.rare) {
         if (Math.random() < drop.rate * ngMult) {
-          drops.push({ type: 'material', itemId: drop.itemId, quantity: 1 });
+          drops.push({ type: drop.dropType ?? 'material', itemId: drop.itemId, quantity: 1 });
         }
       }
     }
@@ -95,9 +96,21 @@ function mergeDrops(
 ): { itemId: string; quantity: number }[] {
   const map = new Map(existing.map(m => [m.itemId, m.quantity]));
   for (const drop of drops) {
-    map.set(drop.itemId, (map.get(drop.itemId) ?? 0) + drop.quantity);
+    if (drop.type === 'material' || drop.type === 'fragment') {
+      map.set(drop.itemId, (map.get(drop.itemId) ?? 0) + drop.quantity);
+    }
   }
   return Array.from(map.entries()).map(([itemId, quantity]) => ({ itemId, quantity }));
+}
+
+function buildEquipmentDrops(drops: DropItem[]): import('./types').EquipmentInstance[] {
+  return drops
+    .filter(d => d.type === 'equipment')
+    .map(d => ({
+      instanceId: `${d.itemId}_drop_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+      itemId: d.itemId,
+      enhanceLevel: 0,
+    }));
 }
 
 export default function App() {
@@ -109,6 +122,7 @@ export default function App() {
   const [cacheChecked, setCacheChecked] = useState(false);
   const [showCachePrompt, setShowCachePrompt] = useState(false);
   const [selectedStage, setSelectedStage] = useState<number | null>(null);
+  const [selectedNgPlus, setSelectedNgPlus] = useState<number | null>(null);
 
   useEffect(() => {
     if (cacheChecked) return;
@@ -128,11 +142,12 @@ export default function App() {
 
   const handleSetupStart = useCallback((updatedSave: SaveData) => {
     setSaveData(updatedSave);
-    const { state, waveEnemyIds: waves } = buildBattleState(updatedSave, selectedStage ?? undefined);
+    const ngPlus = selectedNgPlus ?? updatedSave.newGamePlus ?? 0;
+    const { state, waveEnemyIds: waves } = buildBattleState(updatedSave, selectedStage ?? undefined, ngPlus);
     setBattleState(state);
     setWaveEnemyIds(waves);
     setScreen('battle');
-  }, [selectedStage]);
+  }, [selectedStage, selectedNgPlus]);
 
   const handleVictory = useCallback((finalState: BattleState) => {
     const ngPlus = saveData.newGamePlus ?? 0;
@@ -160,6 +175,7 @@ export default function App() {
         if (!newEncountered.includes(enemy.dataId)) newEncountered.push(enemy.dataId);
       }
 
+      const equipDrops = buildEquipmentDrops(rewards.drops);
       const updated: SaveData = {
         ...prev,
         newGamePlus: newNGPlus,
@@ -169,6 +185,7 @@ export default function App() {
             ...prev.progress.inventory,
             gil: prev.progress.inventory.gil + rewards.gil,
             materials: mergeDrops(prev.progress.inventory.materials, rewards.drops),
+            equipments: [...prev.progress.inventory.equipments, ...equipDrops],
             battleItems: finalState.battleItems,
           },
           clearedStages: isNewStageRecord ? newClearedStages : prev.progress.clearedStages,
@@ -233,6 +250,8 @@ export default function App() {
         selectedStage={selectedStage}
         onSelectStage={setSelectedStage}
         ngPlus={saveData.newGamePlus}
+        selectedNgPlus={selectedNgPlus}
+        onSelectNgPlus={setSelectedNgPlus}
       />
     );
   }
@@ -255,6 +274,7 @@ export default function App() {
         onVictory={handleVictory}
         onDefeat={handleDefeat}
         onEscape={() => setScreen('home')}
+        ngPlus={selectedNgPlus ?? saveData.newGamePlus ?? 0}
       />
     );
   }
@@ -267,7 +287,8 @@ export default function App() {
         drops={lastRewards.drops}
         onContinue={() => setScreen('home')}
         onRetry={() => {
-          const { state, waveEnemyIds: waves } = buildBattleState(saveData, selectedStage ?? undefined);
+          const ngPlus = selectedNgPlus ?? saveData.newGamePlus ?? 0;
+          const { state, waveEnemyIds: waves } = buildBattleState(saveData, selectedStage ?? undefined, ngPlus);
           setBattleState(state);
           setWaveEnemyIds(waves);
           setScreen('battle');

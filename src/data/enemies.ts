@@ -4,7 +4,7 @@ export const ENEMIES: EnemyData[] = [
   // ---- 通常戦 ----
   {
     id: 'zako_a', emoji: '👾', name: 'ザコA',
-    maxHP: 3000, str: 80, mag: 60,
+    maxHP: 4500, str: 80, mag: 60,
     breakThreshold: 200,
     weaknesses: ['fire'],
     resistances: [],
@@ -22,7 +22,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'slime', emoji: '(ﾉ◕ヮ◕)ﾉ', name: 'スライム',
-    maxHP: 2000, str: 60, mag: 50,
+    maxHP: 3000, str: 60, mag: 50,
     breakThreshold: 150,
     weaknesses: ['fire', 'thunder'],
     resistances: [],
@@ -41,7 +41,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'ice_wyvern', emoji: '❄️🐲❄️', name: 'アイスワイバーン',
-    maxHP: 10000, str: 140, mag: 130,
+    maxHP: 15000, str: 140, mag: 130,
     breakThreshold: 450,
     weaknesses: ['fire'],
     resistances: ['ice'],
@@ -59,7 +59,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'thunder_hawk', emoji: '⚡🦅⚡', name: 'サンダーホーク',
-    maxHP: 7000, str: 160, mag: 80,
+    maxHP: 10000, str: 160, mag: 80,
     breakThreshold: 350,
     weaknesses: ['ice'],
     resistances: ['thunder'],
@@ -77,7 +77,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'dark_soldier', emoji: '🌑⚔️🌑', name: 'ダークソルジャー',
-    maxHP: 9000, str: 180, mag: 60,
+    maxHP: 13000, str: 180, mag: 60,
     breakThreshold: 420,
     weaknesses: ['holy'],
     resistances: ['dark'],
@@ -95,7 +95,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'golem', emoji: '🪨⚙️🪨', name: 'ゴーレム',
-    maxHP: 15000, str: 120, mag: 40,
+    maxHP: 22000, str: 120, mag: 40,
     breakThreshold: 600,
     weaknesses: ['thunder', 'water'],
     resistances: [],
@@ -114,7 +114,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'wolf', emoji: '🐺', name: 'ウルフ',
-    maxHP: 4000, str: 100, mag: 40,
+    maxHP: 6000, str: 100, mag: 40,
     breakThreshold: 220,
     weaknesses: ['fire'],
     resistances: [],
@@ -132,7 +132,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'bat', emoji: '🦇', name: 'バット',
-    maxHP: 2500, str: 50, mag: 80,
+    maxHP: 4000, str: 50, mag: 80,
     breakThreshold: 180,
     weaknesses: ['fire', 'holy'],
     resistances: ['dark'],
@@ -150,7 +150,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'scorpion', emoji: '🦂', name: 'スコーピオン',
-    maxHP: 5500, str: 110, mag: 70,
+    maxHP: 8000, str: 110, mag: 70,
     breakThreshold: 280,
     weaknesses: ['ice', 'water'],
     resistances: [],
@@ -168,7 +168,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'snake', emoji: '🐍', name: 'スネーク',
-    maxHP: 3500, str: 90, mag: 85,
+    maxHP: 5000, str: 90, mag: 85,
     breakThreshold: 200,
     weaknesses: ['ice'],
     resistances: [],
@@ -186,7 +186,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'dragon', emoji: '🐉', name: 'ドラゴン',
-    maxHP: 12000, str: 150, mag: 120,
+    maxHP: 18000, str: 150, mag: 120,
     breakThreshold: 500,
     weaknesses: ['ice'],
     resistances: ['fire'],
@@ -204,7 +204,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'machine', emoji: '🤖', name: 'マシン',
-    maxHP: 8000, str: 130, mag: 80,
+    maxHP: 12000, str: 130, mag: 80,
     breakThreshold: 400,
     weaknesses: ['thunder'],
     resistances: [],
@@ -225,7 +225,7 @@ export const ENEMIES: EnemyData[] = [
   // ---- ボス戦 ----
   {
     id: 'deathord', emoji: '💀👑💀', name: 'デスロード',
-    maxHP: 50000, str: 200, mag: 250,
+    maxHP: 100000, str: 200, mag: 250,
     breakThreshold: 600,
     weaknesses: ['holy'],
     resistances: ['dark'],
@@ -235,7 +235,7 @@ export const ENEMIES: EnemyData[] = [
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_bla', rate: 1.0 }],
       uncommon: [{ itemId: 'acc_dark_stone', rate: 0.35 }, { itemId: 'fragment_en', rate: 0.55 }, { itemId: 'fragment_jio', rate: 0.50 }],
-      rare:     [{ itemId: 'acc_dark_stone', rate: 0.25 }, { itemId: 'fragment_doc', rate: 0.42 }, { itemId: 'fragment_roku', rate: 0.38 }],
+      rare:     [{ itemId: 'acc_dark_stone', rate: 0.25 }, { itemId: 'fragment_doc', rate: 0.42 }, { itemId: 'fragment_roku', rate: 0.38 }, { itemId: 'relic_lich', rate: 0.06, dropType: 'equipment' as const }],
     },
     actions: [
       { id: 'dl_dark',    name: 'ダーク',     power: 1.2, element: 'dark',  cooldown: 3.0 },
@@ -248,7 +248,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'chaos_knight', emoji: '👑💀⚔️💀👑', name: 'カオスナイト',
-    maxHP: 60000, str: 270, mag: 200,
+    maxHP: 120000, str: 270, mag: 200,
     breakThreshold: 650,
     weaknesses: ['holy'],
     resistances: ['dark'],
@@ -258,7 +258,7 @@ export const ENEMIES: EnemyData[] = [
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_atk', rate: 1.0 }],
       uncommon: [{ itemId: 'acc_dark_stone', rate: 0.40 }, { itemId: 'fragment_ifu', rate: 0.55 }, { itemId: 'fragment_fa', rate: 0.50 }],
-      rare:     [{ itemId: 'dragon_fang', rate: 0.35 }, { itemId: 'fragment_gar', rate: 0.40 }, { itemId: 'fragment_ryo', rate: 0.30 }],
+      rare:     [{ itemId: 'dragon_fang', rate: 0.35 }, { itemId: 'fragment_gar', rate: 0.40 }, { itemId: 'fragment_ryo', rate: 0.30 }, { itemId: 'relic_chaos', rate: 0.07, dropType: 'equipment' as const }],
     },
     actions: [
       { id: 'ck_slash',   name: 'カオスブレイド',  power: 1.5, element: 'dark', cooldown: 3.5 },
@@ -271,7 +271,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'arch_lich', emoji: '💀🔮✨🔮💀', name: 'アーチリッチ',
-    maxHP: 70000, str: 150, mag: 350,
+    maxHP: 140000, str: 150, mag: 350,
     breakThreshold: 700,
     weaknesses: ['holy', 'fire'],
     resistances: ['dark', 'ice'],
@@ -281,7 +281,7 @@ export const ENEMIES: EnemyData[] = [
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_bla', rate: 1.0 }],
       uncommon: [{ itemId: 'acc_dark_stone', rate: 0.45 }, { itemId: 'fragment_daku', rate: 0.55 }, { itemId: 'fragment_jio', rate: 0.50 }],
-      rare:     [{ itemId: 'god_proof', rate: 0.20 }, { itemId: 'fragment_ran', rate: 0.42 }, { itemId: 'fragment_bom', rate: 0.38 }],
+      rare:     [{ itemId: 'god_proof', rate: 0.20 }, { itemId: 'fragment_ran', rate: 0.42 }, { itemId: 'fragment_bom', rate: 0.38 }, { itemId: 'relic_lich', rate: 0.08, dropType: 'equipment' as const }],
     },
     actions: [
       { id: 'al_dark',    name: 'ダークフレア',    power: 1.8, element: 'dark',  cooldown: 4.0 },
@@ -295,7 +295,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'chaosgod', emoji: '🌋🔥🌋', name: 'カオスゴッド',
-    maxHP: 80000, str: 240, mag: 280,
+    maxHP: 160000, str: 240, mag: 280,
     breakThreshold: 700,
     weaknesses: [],
     resistances: ['fire', 'ice', 'thunder'],
@@ -319,7 +319,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'sky_behemoth', emoji: '🌩️🦬💥🦬🌩️', name: 'スカイベヒーモス',
-    maxHP: 90000, str: 320, mag: 200,
+    maxHP: 180000, str: 320, mag: 200,
     breakThreshold: 750,
     weaknesses: [],
     resistances: [],
@@ -330,7 +330,7 @@ export const ENEMIES: EnemyData[] = [
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_def', rate: 1.0 }],
       uncommon: [{ itemId: 'god_proof', rate: 0.25 }, { itemId: 'fragment_ryu', rate: 0.55 }, { itemId: 'fragment_ste', rate: 0.50 }],
-      rare:     [{ itemId: 'god_proof', rate: 0.35 }, { itemId: 'fragment_baru', rate: 0.45 }, { itemId: 'fragment_pose', rate: 0.40 }],
+      rare:     [{ itemId: 'god_proof', rate: 0.35 }, { itemId: 'fragment_baru', rate: 0.45 }, { itemId: 'fragment_pose', rate: 0.40 }, { itemId: 'relic_guardian', rate: 0.08, dropType: 'equipment' as const }],
     },
     actions: [
       { id: 'sb_charge',  name: 'チャージ',        power: 2.0, cooldown: 4.0 },
@@ -343,7 +343,7 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'finalboss', emoji: '✨👑🌟👑✨', name: 'ラスボス',
-    maxHP: 120000, str: 300, mag: 320,
+    maxHP: 240000, str: 300, mag: 320,
     breakThreshold: 800,
     weaknesses: [],
     resistances: [],
@@ -353,7 +353,7 @@ export const ENEMIES: EnemyData[] = [
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_all', rate: 1.0 }],
       uncommon: [{ itemId: 'god_proof', rate: 0.35 }, { itemId: 'fragment_ryu', rate: 0.60 }, { itemId: 'fragment_ste', rate: 0.60 }, { itemId: 'fragment_baru', rate: 0.55 }],
-      rare:     [{ itemId: 'god_proof', rate: 0.50 }, { itemId: 'fragment_pose', rate: 0.55 }, { itemId: 'fragment_gan', rate: 0.55 }],
+      rare:     [{ itemId: 'god_proof', rate: 0.50 }, { itemId: 'fragment_pose', rate: 0.55 }, { itemId: 'fragment_gan', rate: 0.55 }, { itemId: 'relic_seraph', rate: 0.10, dropType: 'equipment' as const }, { itemId: 'relic_omega', rate: 0.08, dropType: 'equipment' as const }],
     },
     actions: [
       { id: 'fb_fire',    name: 'ファイガ',   power: 2.0, element: 'fire',    cooldown: 4.0 },

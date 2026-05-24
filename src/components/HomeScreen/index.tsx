@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import type { SaveData, GameScreen } from '../../types';
 import { CHARACTERS } from '../../data/characters';
+import { getEquipmentById } from '../../data/equipment';
+import { getRoleEmoji, getRoleLabel } from '../../systems/paradigm';
 import { SaveLoadPanel } from '../SaveLoadPanel';
 
 interface HomeScreenProps {
@@ -11,6 +14,8 @@ interface HomeScreenProps {
   selectedStage: number | null;
   onSelectStage: (stage: number | null) => void;
   ngPlus?: number;
+  selectedNgPlus?: number | null;
+  onSelectNgPlus?: (ng: number | null) => void;
 }
 
 function formatPlayTime(seconds: number): string {
@@ -22,15 +27,33 @@ function formatPlayTime(seconds: number): string {
   return `${s}秒`;
 }
 
-export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, currentStage, selectedStage, onSelectStage, ngPlus }: HomeScreenProps) {
+export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, currentStage, selectedStage, onSelectStage, ngPlus, selectedNgPlus, onSelectNgPlus }: HomeScreenProps) {
+  const [showCard, setShowCard] = useState(false);
   const playTime = saveData.progress.playTime ?? 0;
 
   // パーティメンバー情報を取得
   const partyMembers = saveData.player.party.map(id => {
     const charData = CHARACTERS.find(c => c.id === id);
     const charSave = saveData.player.roster.find(r => r.id === id);
-    return { charData, level: charSave?.level ?? 1 };
+    // 武器情報
+    const weaponInstanceId = charSave?.equipment?.weapon ?? null;
+    const weaponInst = weaponInstanceId
+      ? saveData.progress.inventory.equipments.find(e => e.instanceId === weaponInstanceId)
+      : null;
+    const weaponData = weaponInst ? getEquipmentById(weaponInst.itemId) : null;
+    return {
+      charData,
+      level: charSave?.level ?? 1,
+      weaponEmoji: weaponData?.emoji ?? null,
+      weaponName: weaponData?.name ?? null,
+    };
   });
+
+  // パーティカード用: パラダイム0のロール
+  const paradigm0 = saveData.paradigms[0];
+  const stageLabel = clearedStages.length > 0
+    ? `Stage ${Math.max(...clearedStages)} クリア済`
+    : `Stage 1 挑戦中`;
 
   return (
     <div className="home-screen">
@@ -53,6 +76,44 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
           </div>
         ) : null)}
       </div>
+
+      {/* パーティカードモーダル */}
+      {showCard && (
+        <div className="party-card-overlay" onClick={() => setShowCard(false)}>
+          <div className="party-card" onClick={e => e.stopPropagation()}>
+            <div className="party-card-title">🎮 EmojiParadigm</div>
+            <div className="party-card-stage">{stageLabel}</div>
+            <div className="party-card-members">
+              {partyMembers.map(({ charData, level, weaponEmoji, weaponName }) => charData ? (
+                <div key={charData.id} className="party-card-member">
+                  <span className="pc-emoji">{charData.emoji}</span>
+                  <div className="pc-info">
+                    <span className="pc-name">{charData.name}</span>
+                    <span className="pc-level">Lv.{level}</span>
+                    {weaponName && (
+                      <span className="pc-weapon">{weaponEmoji} {weaponName}</span>
+                    )}
+                  </div>
+                </div>
+              ) : null)}
+            </div>
+            {paradigm0 && (
+              <div className="party-card-paradigm">
+                <span className="pc-paradigm-label">オプティマ 0: {paradigm0.name}</span>
+                <div className="pc-paradigm-roles">
+                  {paradigm0.roles.map((role, i) => (
+                    <span key={i} className="pc-role-badge">
+                      {getRoleEmoji(role as any)} {getRoleLabel(role as any)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="party-card-hint">📸 スクリーンショットで保存できます</div>
+            <button className="party-card-close" onClick={() => setShowCard(false)}>✕ 閉じる</button>
+          </div>
+        </div>
+      )}
 
       <div className="home-stage-info">
         {clearedStages.length > 0
@@ -77,7 +138,26 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
             );
           })}
         </div>
-        {ngPlus ? <div className="ng-plus-badge">NG+{ngPlus}</div> : null}
+        {(ngPlus ?? 0) > 0 && (
+          <div className="ng-selector">
+            <span className="ng-selector-label">難易度 (NG+)</span>
+            <div className="ng-selector-btns">
+              {Array.from({ length: (ngPlus ?? 0) + 1 }, (_, i) => i).map(n => {
+                const isActive = (selectedNgPlus ?? ngPlus ?? 0) === n;
+                return (
+                  <button
+                    key={n}
+                    className={`ng-btn ${isActive ? 'active' : ''}`}
+                    onClick={() => onSelectNgPlus?.(n === (ngPlus ?? 0) ? null : n)}
+                  >
+                    {n === 0 ? 'NG' : `NG+${n}`}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {ngPlus ? <div className="ng-plus-badge">NG+{selectedNgPlus ?? ngPlus}</div> : null}
       </div>
 
       <div className="home-menu">
@@ -107,6 +187,11 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
             <span>エネミーレポート</span>
           </button>
         </div>
+
+        <button className="home-btn card-btn" onClick={() => setShowCard(true)}>
+          <span>📸</span>
+          <span>パーティカード</span>
+        </button>
       </div>
     </div>
   );

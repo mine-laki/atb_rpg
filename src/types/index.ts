@@ -183,6 +183,7 @@ export interface EnemyInstance {
   currentPhase: number;
   actionCooldowns: Record<string, number>;
   lastHitTime: number;
+  statScale?: number;  // NG+ stat multiplier (str/mag scaling)
 }
 
 // ---- Equipment ----
@@ -218,9 +219,9 @@ export interface EquipmentInstance {
 // ---- Drop System ----
 
 export interface DropTable {
-  common: { itemId: string; rate: number }[];
-  uncommon: { itemId: string; rate: number }[];
-  rare: { itemId: string; rate: number }[];  // break-only
+  common: { itemId: string; rate: number; dropType?: 'material' | 'equipment' | 'fragment' }[];
+  uncommon: { itemId: string; rate: number; dropType?: 'material' | 'equipment' | 'fragment' }[];
+  rare: { itemId: string; rate: number; dropType?: 'material' | 'equipment' | 'fragment' }[];  // break-only
 }
 
 export interface DropItem {

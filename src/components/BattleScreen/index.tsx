@@ -15,9 +15,10 @@ interface BattleScreenProps {
   onVictory: (state: BattleState) => void;
   onDefeat: () => void;
   onEscape: () => void;
+  ngPlus?: number;
 }
 
-export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, onEscape }: BattleScreenProps) {
+export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, onEscape, ngPlus = 0 }: BattleScreenProps) {
   const [state, setState] = useState<BattleState>(initialState);
   const [isRunning, setIsRunning] = useState(true);
   const [waveTransition, setWaveTransition] = useState(false);
@@ -36,7 +37,7 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
         if (nextWave < waveEnemyIds.length) {
           setWaveTransition(true);
           setTimeout(() => {
-            const enemies = waveEnemyIds[nextWave].map((id, i) => createEnemyInstance(id, i));
+            const enemies = waveEnemyIds[nextWave].map((id, i) => createEnemyInstance(id, i, ngPlus));
             setState(s => ({
               ...s,
               phase: 'battle',
@@ -125,7 +126,6 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
     }
   }, []);
 
-  const aliveEnemies = state.enemies.filter(e => e.currentHP > 0);
   const totalWaves = waveEnemyIds.length;
 
   return (
@@ -158,10 +158,10 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
 
       {/* 敵エリア */}
       <div className="enemy-area">
-        {aliveEnemies.map(enemy => (
+        {state.enemies.map(enemy => (
           <EnemyCard key={enemy.id} enemy={enemy} />
         ))}
-        {aliveEnemies.length === 0 && state.phase === 'battle' && (
+        {state.enemies.length === 0 && state.phase === 'battle' && (
           <div className="loading-text">...</div>
         )}
       </div>
@@ -171,6 +171,12 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
         {state.party.map(char => (
           <CharacterCard key={char.id} char={char} />
         ))}
+      </div>
+
+      {/* バトルログ（PCサイドバー） */}
+      <div className="battle-log-sidebar">
+        <div className="battle-log-sidebar-header">📋 バトルログ</div>
+        <ActionLog entries={state.actionLog} />
       </div>
 
       {/* 作戦パネル */}

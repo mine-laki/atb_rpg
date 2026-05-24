@@ -305,8 +305,12 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
           didAct = true;
 
           const targets = action.aoe ? aliveParty : [aliveParty[Math.floor(Math.random() * aliveParty.length)]];
+          const scale = enemy.statScale ?? 1;
+          const scaledEnemyData = scale !== 1
+            ? { ...enemyData, str: Math.floor(enemyData.str * scale), mag: Math.floor(enemyData.mag * scale) }
+            : enemyData;
           for (const target of targets) {
-            const damage = calcEnemyDamage(enemyData, action.power, target);
+            const damage = calcEnemyDamage(scaledEnemyData, action.power, target);
             const newHP = Math.max(0, target.currentHP - damage);
             const pi = party.findIndex(p => p.id === target.id);
             if (pi >= 0) party[pi] = { ...party[pi], currentHP: newHP, isAlive: newHP > 0 };

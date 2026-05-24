@@ -325,10 +325,13 @@ const GROWTH_RATES: Record<string, { hp: number; str: number; mag: number }> = {
 
 export function getStatsAtLevel(charData: CharacterData, level: number) {
   const growth = GROWTH_RATES[charData.growthType];
+  const n = level - 1;
+  // 二次曲線加速成長: レベルが上がるほど1レベルごとの上昇量も増える
+  // 上昇量 at lv n→n+1 = growth * (1 + (2n+1)/100) なので Lv.50付近で約2倍、Lv.100付近で約3倍
   return {
-    hp:  charData.baseHP  + growth.hp  * (level - 1),
-    str: charData.baseSTR + growth.str * (level - 1),
-    mag: charData.baseMAG + growth.mag * (level - 1),
+    hp:  Math.floor(charData.baseHP  + growth.hp  * n * (1 + n / 100)),
+    str: Math.floor(charData.baseSTR + growth.str * n * (1 + n / 100)),
+    mag: Math.floor(charData.baseMAG + growth.mag * n * (1 + n / 100)),
   };
 }
 

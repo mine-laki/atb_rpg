@@ -30,6 +30,18 @@ export function SetupScreen({ saveData, onStart, onBack }: SetupScreenProps) {
     }
     newParty[slot] = charId;
     setParty(newParty);
+
+    // パーティ変更時: 全オプティマを各キャラの roles[0] でリセット
+    const defaultRoles = newParty.map(id => {
+      const char = CHARACTERS.find(c => c.id === id);
+      return (char?.roles[0] ?? 'ATK') as RoleId;
+    }) as [RoleId, RoleId, RoleId];
+
+    setParadigms(prev => prev.map(p => ({
+      ...p,
+      roles: defaultRoles,
+      name: getParadigmAutoName(defaultRoles),
+    })));
   };
 
   const handleRoleChange = (paradigmSlot: number, charSlot: number, role: RoleId) => {
@@ -122,7 +134,10 @@ export function SetupScreen({ saveData, onStart, onBack }: SetupScreenProps) {
               <div className="paradigm-roles-edit">
                 {([0, 1, 2] as const).map(charSlot => {
                   const char = CHARACTERS.find(c => c.id === party[charSlot]);
-                  const availableRoles = char?.roles ?? [];
+                  const charSaveData = saveData.player.roster.find(r => r.id === party[charSlot]);
+                  const innate = char?.roles ?? [];
+                  const extra = (charSaveData?.unlockedRoles ?? innate).filter(r => !innate.includes(r));
+                  const availableRoles = [...innate, ...extra] as RoleId[];
                   return (
                     <div key={charSlot} className="paradigm-char-role">
                       <span>{char?.emoji ?? '?'} {char?.name ?? `スロット${charSlot + 1}`}</span>

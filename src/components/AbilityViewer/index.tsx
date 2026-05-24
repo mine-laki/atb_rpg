@@ -75,7 +75,10 @@ function getAutoAbilities(charSave: CharacterSaveData, inventoryEquipments: Equi
 }
 
 export function AbilityViewer({ charData, charSave, inventoryEquipments }: AbilityViewerProps) {
-  const allRoles = charData.roles;
+  // 固有ロール + クリスタルで解放したロール
+  const innateRoles = charData.roles;
+  const extraRoles = (charSave.unlockedRoles ?? innateRoles).filter(r => !innateRoles.includes(r));
+  const allRoles: RoleId[] = [...innateRoles, ...extraRoles];
   const [activeRole, setActiveRole] = useState<RoleId>(allRoles[0]);
   const charLevel = charSave.level;
 

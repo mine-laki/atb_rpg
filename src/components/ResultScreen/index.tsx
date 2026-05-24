@@ -2,6 +2,7 @@ import type { BattleState, DropItem } from '../../types';
 import { getEnemyById } from '../../data/enemies';
 import { getMaterialById, getEquipmentById } from '../../data/equipment';
 import { CHARACTERS } from '../../data/characters';
+import { getValuableById } from '../../data/items';
 
 interface ResultScreenProps {
   state: BattleState;
@@ -45,7 +46,13 @@ export function ResultScreen({ state, gil, drops, onContinue, onRetry }: ResultS
               {drops.map((drop, i) => {
                 let label = drop.itemId;
                 let emoji = '';
-                if (drop.itemId.startsWith('fragment_')) {
+                let sub = '';
+                if (drop.type === 'valuable') {
+                  const v = getValuableById(drop.itemId);
+                  emoji = v?.emoji ?? '💰';
+                  label = v?.name ?? drop.itemId;
+                  sub = ` (${((v?.sellValue ?? 0) * drop.quantity).toLocaleString()} Gil)`;
+                } else if (drop.itemId.startsWith('fragment_')) {
                   const charId = drop.itemId.replace('fragment_', '');
                   const char = CHARACTERS.find(c => c.id === charId);
                   emoji = char?.emoji ?? '✨';
@@ -57,8 +64,8 @@ export function ResultScreen({ state, gil, drops, onContinue, onRetry }: ResultS
                   label = matData?.name ?? eqData?.name ?? drop.itemId;
                 }
                 return (
-                  <div key={i} className="drop-item">
-                    {emoji} {label} ×{drop.quantity}
+                  <div key={i} className={`drop-item ${drop.type === 'valuable' ? 'drop-valuable' : ''}`}>
+                    {emoji} {label} ×{drop.quantity}{sub}
                   </div>
                 );
               })}

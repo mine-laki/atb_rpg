@@ -35,6 +35,7 @@ type ShopTab = 'buy' | 'material' | 'sell' | 'enhance';
 export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
   const [tab, setTab] = useState<ShopTab>('buy');
   const [selectedEquipId, setSelectedEquipId] = useState<string | null>(null);
+  const [sellConfirm, setSellConfirm] = useState<string | null>(null); // instanceId
 
   const { gil, equipments } = saveData.progress.inventory;
 
@@ -241,7 +242,7 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
                 </div>
                 <button
                   className={`btn-sell ${isEquipped ? 'disabled' : ''}`}
-                  onClick={() => sellEquipment(inst.instanceId)}
+                  onClick={() => !isEquipped && setSellConfirm(inst.instanceId)}
                   disabled={isEquipped}
                 >
                   売却
@@ -320,6 +321,35 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
           })}
         </div>
       )}
+
+      {/* 売却確認モーダル */}
+      {sellConfirm && (() => {
+        const inst = equipments.find(e => e.instanceId === sellConfirm);
+        const data = inst ? getEquipmentById(inst.itemId) : null;
+        if (!inst || !data) return null;
+        const price = calcSellPrice(data.shopPrice, inst.enhanceLevel);
+        return (
+          <div className="sell-confirm-overlay" onClick={() => setSellConfirm(null)}>
+            <div className="sell-confirm-modal" onClick={e => e.stopPropagation()}>
+              <div className="sell-confirm-item">
+                <span className="sell-confirm-emoji">{data.emoji}</span>
+                <span className="sell-confirm-name">
+                  {data.name}{inst.enhanceLevel > 0 ? ` +${inst.enhanceLevel}` : ''}
+                </span>
+              </div>
+              <div className="sell-confirm-price">💰 {price.toLocaleString()} Gil で売却しますか？</div>
+              <div className="sell-confirm-btns">
+                <button className="btn-sell-confirm" onClick={() => { sellEquipment(sellConfirm); setSellConfirm(null); }}>
+                  確定
+                </button>
+                <button className="btn-secondary" onClick={() => setSellConfirm(null)}>
+                  キャンセル
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

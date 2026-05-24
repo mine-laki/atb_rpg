@@ -9,7 +9,9 @@ import { ResultScreen } from './components/ResultScreen';
 import { EnhanceScreen } from './components/EnhanceScreen';
 import { ShopScreen } from './components/ShopScreen';
 import { EnemyReportScreen } from './components/EnemyReportScreen';
+import { TutorialScreen } from './components/TutorialScreen';
 import { STAGE_WAVES, getEnemyById } from './data/enemies';
+import { VALUABLE_ITEMS, getValuableById } from './data/items';
 import './App.css';
 
 function buildBattleState(saveData: SaveData, stageOverride?: number, ngPlusOverride?: number): { state: BattleState; waveEnemyIds: string[][] } {
@@ -80,6 +82,23 @@ function calcBattleRewards(state: BattleState, ngPlus: number = 0): { gil: numbe
       for (const drop of data.dropTable.rare) {
         if (Math.random() < drop.rate * ngMult) {
           drops.push({ type: drop.dropType ?? 'material', itemId: drop.itemId, quantity: 1 });
+        }
+      }
+    }
+
+    // 換金アイテムドロップ
+    const valuableIds = VALUABLE_ITEMS.map(v => v.id);
+    const randomValuable = () => valuableIds[Math.floor(Math.random() * valuableIds.length)];
+
+    if (data.isBoss) {
+      // ボスは確定1個ドロップ
+      drops.push({ type: 'valuable', itemId: randomValuable(), quantity: 1 });
+    }
+    if (ngPlus >= 1) {
+      // NG+: 全敵20%でngPlus個ドロップ
+      if (Math.random() < 0.20) {
+        for (let n = 0; n < ngPlus; n++) {
+          drops.push({ type: 'valuable', itemId: randomValuable(), quantity: 1 });
         }
       }
     }
@@ -179,7 +198,17 @@ export default function App() {
       // 取得済みキャラのフラグメントを 500gil に自動換金
       const FRAGMENT_SELL_GIL = 500;
       let bonusGil = 0;
+
+      // 換金アイテムを自動換金（インベントリには残さない）
+      for (const drop of rewards.drops) {
+        if (drop.type === 'valuable') {
+          const v = getValuableById(drop.itemId);
+          bonusGil += (v?.sellValue ?? 0) * drop.quantity;
+        }
+      }
+
       const filteredDrops = rewards.drops.filter(drop => {
+        if (drop.type === 'valuable') return false; // 換金済みなのでインベントリ不要
         if (drop.type !== 'fragment' && !drop.itemId.startsWith('fragment_')) return true;
         const charId = drop.itemId.replace('fragment_', '');
         if (prev.progress.unlockedCharacters.includes(charId)) {
@@ -338,6 +367,10 @@ export default function App() {
         onBack={() => setScreen('home')}
       />
     );
+  }
+
+  if (screen === 'tutorial') {
+    return <TutorialScreen onBack={() => setScreen('home')} />;
   }
 
   return null;

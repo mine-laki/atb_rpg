@@ -128,7 +128,7 @@ export const CHARACTERS: CharacterData[] = [
     id: 'va', emoji: '🌿', name: 'ヴァ',
     roles: ['BLA', 'JAM', 'HLR'],
     baseHP: 1600, baseSTR: 80, baseMAG: 190, atbMax: 3,
-    autoAbilities: ['medic_plus', 'enhance_ex'],
+    autoAbilities: ['medic_plus', 'revive_once'],
     uniqueAbilities: ['hlr_curaall', 'hlr_regen', 'va_ult'],
     growthType: 'healer',
     weaponAffinity: 'holy',

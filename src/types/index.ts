@@ -236,7 +236,7 @@ export interface DropTable {
 }
 
 export interface DropItem {
-  type: 'equipment' | 'material' | 'fragment';
+  type: 'equipment' | 'material' | 'fragment' | 'valuable';
   itemId: string;
   quantity: number;
 }
@@ -385,4 +385,4 @@ export interface SaveData {
 
 // ---- Game Screen ----
 
-export type GameScreen = 'title' | 'home' | 'setup' | 'battle' | 'result' | 'enhance' | 'shop' | 'enemyReport';
+export type GameScreen = 'title' | 'home' | 'setup' | 'battle' | 'result' | 'enhance' | 'shop' | 'enemyReport' | 'tutorial';

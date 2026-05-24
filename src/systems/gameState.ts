@@ -133,7 +133,7 @@ export function buildInitialSaveData(): SaveData {
     level: 1,
     exp: 0,
     equipment: { weapon: null, accessory1: null, accessory2: null, accessory3: null, accessory4: null },
-    unlockedRoles: [c.roles[0]],
+    unlockedRoles: [...c.roles],
     roleLevels: {},
     unlockedSkillNodes: [],
   }));

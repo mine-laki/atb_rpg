@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { SaveData, GameScreen } from '../../types';
 import { CHARACTERS } from '../../data/characters';
 import { getEquipmentById } from '../../data/equipment';
-import { getRoleEmoji, getRoleLabel } from '../../systems/paradigm';
+import { getRoleEmoji } from '../../systems/paradigm';
 import { SaveLoadPanel } from '../SaveLoadPanel';
 import { STAGE_WAVES } from '../../data/enemies';
 
@@ -41,16 +41,19 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
       ? saveData.progress.inventory.equipments.find(e => e.instanceId === weaponInstanceId)
       : null;
     const weaponData = weaponInst ? getEquipmentById(weaponInst.itemId) : null;
-    const initialRole = charData?.roles[0];
-    const roleLevel = initialRole ? (charSave?.roleLevels?.[initialRole] ?? 1) : 1;
+    // 全ロール（固有 + クリスタル解放済み）
+    const innateRoles = charData?.roles ?? [];
+    const extraRoles = (charSave?.unlockedRoles ?? innateRoles).filter(r => !innateRoles.includes(r));
+    const allRoles = [...innateRoles, ...extraRoles];
+    const roleLevelMap = charSave?.roleLevels ?? {};
     return {
       charData,
       charSave,
       level: charSave?.level ?? 1,
       weaponEmoji: weaponData?.emoji ?? null,
       weaponName: weaponData?.name ?? null,
-      initialRole,
-      roleLevel,
+      allRoles,
+      roleLevelMap,
     };
   });
 
@@ -96,19 +99,21 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
             <div className="party-card-title">🎮 EmojiParadigm</div>
             <div className="party-card-stage">{stageLabel}</div>
 
-            {/* キャラ一覧（初期ロール・ロールレベル付き） */}
+            {/* キャラ一覧（全ロール・ロールレベル付き） */}
             <div className="party-card-members">
-              {partyMembers.map(({ charData, level, weaponEmoji, weaponName, initialRole, roleLevel }) => charData ? (
+              {partyMembers.map(({ charData, level, weaponEmoji, weaponName, allRoles, roleLevelMap }) => charData ? (
                 <div key={charData.id} className="party-card-member">
                   <span className="pc-emoji">{charData.emoji}</span>
                   <div className="pc-info">
                     <span className="pc-name">{charData.name}</span>
                     <span className="pc-level">Lv.{level}</span>
-                    {initialRole && (
-                      <span className="pc-role">
-                        {getRoleEmoji(initialRole as any)} {getRoleLabel(initialRole as any)} Lv.{roleLevel}
-                      </span>
-                    )}
+                    <div className="pc-role-list">
+                      {allRoles.map(role => (
+                        <span key={role} className={`pc-role-badge role-color-${role.toLowerCase()}`}>
+                          {getRoleEmoji(role)} Lv.{roleLevelMap[role] ?? 1}
+                        </span>
+                      ))}
+                    </div>
                     {weaponName && (
                       <span className="pc-weapon">{weaponEmoji} {weaponName}</span>
                     )}
@@ -212,10 +217,16 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
           </button>
         </div>
 
-        <button className="home-btn card-btn" onClick={() => setShowCard(true)}>
-          <span>📸</span>
-          <span>パーティカード</span>
-        </button>
+        <div className="home-menu-row">
+          <button className="home-btn card-btn" onClick={() => setShowCard(true)}>
+            <span>📸</span>
+            <span>パーティカード</span>
+          </button>
+          <button className="home-btn" onClick={() => onNavigate('tutorial')}>
+            <span>❓</span>
+            <span>ヘルプ</span>
+          </button>
+        </div>
       </div>
     </div>
   );

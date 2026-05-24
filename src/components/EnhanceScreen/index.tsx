@@ -19,11 +19,11 @@ const ROLE_CRYSTAL_MAP: Record<RoleId, string> = {
   HLR: 'crystal_hlr', ENH: 'crystal_enh', JAM: 'crystal_jam',
 };
 
-function roleLevelCost(role: RoleId, currentRoleLv: number): { gil: number; crystals: number } {
+function roleLevelCost(role: RoleId, currentRoleLv: number, isExtraRole = false): { gil: number; crystals: number } {
   const base: Record<RoleId, number> = { ATK: 200, BLA: 200, DEF: 180, HLR: 180, ENH: 220, JAM: 220 };
   return {
     gil: Math.floor(base[role] * Math.pow(1.5, currentRoleLv - 1)),
-    crystals: currentRoleLv,
+    crystals: isExtraRole ? currentRoleLv * 10 : currentRoleLv,
   };
 }
 
@@ -109,7 +109,8 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
   const handleRoleLevelUp = (role: RoleId) => {
     const currentRoleLv = charSave.roleLevels?.[role] ?? 1;
     if (currentRoleLv >= 10) return;
-    const cost = roleLevelCost(role, currentRoleLv);
+    const isExtra = !charData.roles.includes(role);
+    const cost = roleLevelCost(role, currentRoleLv, isExtra);
     const crystalId = ROLE_CRYSTAL_MAP[role];
     const crystalQty = getMaterialQty(crystalId);
     if (gil < cost.gil || crystalQty < cost.crystals) return;
@@ -408,9 +409,12 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           ══════════════════════════════════════ */}
       {tab === 'role' && (
         <div className="enhance-section">
-          {charData.roles.map(role => {
+          {([ ...charData.roles,
+              ...(charSave.unlockedRoles ?? charData.roles).filter(r => !charData.roles.includes(r))
+            ] as RoleId[]).map(role => {
             const roleLv = charSave.roleLevels?.[role] ?? 1;
-            const cost = roleLevelCost(role, roleLv);
+            const isExtra = !charData.roles.includes(role);
+            const cost = roleLevelCost(role, roleLv, isExtra);
             const crystalId = ROLE_CRYSTAL_MAP[role];
             const crystalQty = getMaterialQty(crystalId);
             const crystalMat = MATERIALS.find(m => m.id === crystalId);
@@ -423,6 +427,7 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
                   <div className="rlc-title">
                     <span className="rlc-name">{getRoleLabel(role)}</span>
                     <span className="role-lv">Lv.{roleLv} / 10</span>
+                    {isExtra && <span className="extra-role-badge">解放</span>}
                   </div>
                   {roleLv >= 10
                     ? <span className="max-badge">MAX</span>
@@ -693,6 +698,32 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           ── キャラ解放 タブ ──
           ══════════════════════════════════════ */}
       {tab === 'unlock' && (() => {
+        // ── ロール解放 ──────────────────────────────────
+        const ROLE_UNLOCK_CRYSTAL_COST = 50;
+        const currentUnlockedRoles: RoleId[] = charSave.unlockedRoles ?? [...charData.roles];
+        const allRoleIds: RoleId[] = ['ATK', 'BLA', 'DEF', 'HLR', 'ENH', 'JAM'];
+        const lockableRoles = allRoleIds.filter(r => !currentUnlockedRoles.includes(r));
+
+        const handleRoleUnlock = (role: RoleId) => {
+          const crystalId = ROLE_CRYSTAL_MAP[role];
+          const qty = getMaterialQty(crystalId);
+          if (qty < ROLE_UNLOCK_CRYSTAL_COST) return;
+          const newMats = materials.map(m =>
+            m.itemId !== crystalId ? m : { ...m, quantity: m.quantity - ROLE_UNLOCK_CRYSTAL_COST }
+          ).filter(m => m.quantity > 0);
+          const newRoster = saveData.player.roster.map(r => {
+            if (r.id !== selectedCharId) return r;
+            const newUnlocked = [...(r.unlockedRoles ?? [...charData.roles]), role];
+            return { ...r, unlockedRoles: newUnlocked };
+          });
+          onUpdate({
+            ...saveData,
+            player: { ...saveData.player, roster: newRoster },
+            progress: { ...saveData.progress, inventory: { ...saveData.progress.inventory, materials: newMats } },
+          });
+        };
+
+        // ── キャラ解放 ──────────────────────────────────
         const FRAGMENT_COST = 3;
         const lockedChars = CHARACTERS.filter(c => !saveData.progress.unlockedCharacters.includes(c.id));
 
@@ -706,7 +737,7 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           const newRosterEntry = {
             id: charId, level: 1, exp: 0,
             equipment: { weapon: null, accessory1: null, accessory2: null, accessory3: null, accessory4: null },
-            unlockedRoles: [CHARACTERS.find(c => c.id === charId)!.roles[0]],
+            unlockedRoles: [...CHARACTERS.find(c => c.id === charId)!.roles],
             roleLevels: {}, unlockedSkillNodes: [],
           };
           onUpdate({
@@ -725,6 +756,53 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
 
         return (
           <div className="enhance-section unlock-tab">
+
+            {/* ── ロール解放セクション ── */}
+            <div className="role-unlock-section">
+              <div className="role-unlock-title">🎭 ロール解放</div>
+              <p className="unlock-hint">クリスタル{ROLE_UNLOCK_CRYSTAL_COST}個で新ロールを習得（ロールLv上昇コストは通常の10倍）</p>
+              {/* 解放済みロール一覧 */}
+              <div className="role-unlock-owned">
+                {currentUnlockedRoles.map(role => {
+                  const isInnate = charData.roles.includes(role);
+                  return (
+                    <span key={role} className={`role-unlock-badge owned ${isInnate ? 'innate' : 'extra'}`}>
+                      {getRoleEmoji(role)} {getRoleLabel(role)}
+                      {!isInnate && <span className="extra-mark"> ★</span>}
+                    </span>
+                  );
+                })}
+              </div>
+              {/* 未解放ロール */}
+              {lockableRoles.length === 0
+                ? <p className="no-items">全ロール解放済み！</p>
+                : lockableRoles.map(role => {
+                    const crystalId = ROLE_CRYSTAL_MAP[role];
+                    const crystalMat = MATERIALS.find(m => m.id === crystalId);
+                    const qty = getMaterialQty(crystalId);
+                    const canUnlockRole = qty >= ROLE_UNLOCK_CRYSTAL_COST;
+                    return (
+                      <div key={role} className={`role-unlock-card ${canUnlockRole ? 'can-unlock' : ''}`}>
+                        <div className="role-unlock-info">
+                          <span className="role-unlock-icon">{getRoleEmoji(role)}</span>
+                          <span className="role-unlock-name">{getRoleLabel(role)}</span>
+                          <span className={`role-unlock-cost ${canUnlockRole ? '' : 'shortage'}`}>
+                            {crystalMat?.emoji} ×{ROLE_UNLOCK_CRYSTAL_COST}（所持{qty}）
+                          </span>
+                        </div>
+                        <button
+                          className="btn-small btn-role-unlock"
+                          onClick={() => handleRoleUnlock(role)}
+                          disabled={!canUnlockRole}
+                        >解放</button>
+                      </div>
+                    );
+                  })
+              }
+            </div>
+
+            {/* ── キャラクター解放セクション ── */}
+            <div className="role-unlock-title" style={{ marginTop: '16px' }}>👥 キャラクター解放</div>
             <p className="unlock-hint">フラグメントを {FRAGMENT_COST} 個集めてキャラクターを解放！</p>
             {lockedChars.length === 0 && <p className="no-items">全キャラ解放済み！</p>}
             {lockedChars.map(c => {

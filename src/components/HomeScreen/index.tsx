@@ -59,6 +59,7 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
     <div className="home-screen">
       <div className="home-header">
         <h1 className="game-title">🎮 EmojiParadigm</h1>
+        <p>しっかりパクリだよ</p>
         <div className="home-meta">
           <span className="home-gil">💰 {saveData.progress.inventory.gil.toLocaleString()} Gil</span>
           {playTime > 0 && <span className="home-playtime">⏱ {formatPlayTime(playTime)}</span>}

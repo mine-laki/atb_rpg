@@ -700,9 +700,15 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
       {tab === 'unlock' && (() => {
         // ── ロール解放 ──────────────────────────────────
         const ROLE_UNLOCK_CRYSTAL_COST = 50;
-        const currentUnlockedRoles: RoleId[] = charSave.unlockedRoles ?? [...charData.roles];
+        // 固有ロール（常時使用可能、解放不要）
+        const innateRoles: RoleId[] = charData.roles;
+        // クリスタルで解放済みの追加ロール（固有を除く）
+        const crystalUnlockedRoles: RoleId[] = (charSave.unlockedRoles ?? []).filter(r => !innateRoles.includes(r));
+        // 表示用（固有 + 解放済み）
+        const currentUnlockedRoles: RoleId[] = [...innateRoles, ...crystalUnlockedRoles];
         const allRoleIds: RoleId[] = ['ATK', 'BLA', 'DEF', 'HLR', 'ENH', 'JAM'];
-        const lockableRoles = allRoleIds.filter(r => !currentUnlockedRoles.includes(r));
+        // 固有でなく、かつクリスタル解放もされていないロールのみ解放可能
+        const lockableRoles = allRoleIds.filter(r => !innateRoles.includes(r) && !crystalUnlockedRoles.includes(r));
 
         const handleRoleUnlock = (role: RoleId) => {
           const crystalId = ROLE_CRYSTAL_MAP[role];
@@ -713,7 +719,8 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           ).filter(m => m.quantity > 0);
           const newRoster = saveData.player.roster.map(r => {
             if (r.id !== selectedCharId) return r;
-            const newUnlocked = [...(r.unlockedRoles ?? [...charData.roles]), role];
+            // 固有ロール + 既解放済み + 新規 で重複なく設定
+            const newUnlocked = [...innateRoles, ...crystalUnlockedRoles.filter(x => x !== role), role];
             return { ...r, unlockedRoles: newUnlocked };
           });
           onUpdate({

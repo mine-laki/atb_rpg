@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import type { EnemyInstance } from '../../types';
 import { getEnemyById } from '../../data/enemies';
 import { ChainGauge } from '../ChainGauge';
@@ -7,32 +7,86 @@ interface EnemyCardProps {
   enemy: EnemyInstance;
 }
 
+const DEBUFF_INFO: Record<string, { label: string; emoji: string }> = {
+  deprot:  { label: 'デプロテ',   emoji: '💔' },
+  deshell: { label: 'デシェル',   emoji: '💢' },
+  slow:    { label: 'スロウ',     emoji: '🐌' },
+  pain:    { label: 'ペイン',     emoji: '😣' },
+  imperil: { label: 'インペリル', emoji: '🔥' },
+  curse:   { label: 'カース',     emoji: '💀' },
+  stop:    { label: 'ストップ',   emoji: '⏹' },
+  poison:  { label: 'ポイズン',   emoji: '☠️' },
+};
+
+interface FloatEntry {
+  id: number;
+  text: string;
+  type: 'damage' | 'debuff' | 'break';
+  offsetX: number;
+}
+
+let floatIdCounter = 0;
+
 export function EnemyCard({ enemy }: EnemyCardProps) {
   const data = getEnemyById(enemy.dataId);
   const [flashClass, setFlashClass] = useState('');
+  const [floats, setFloats] = useState<FloatEntry[]>([]);
   const prevHP = useRef(enemy.currentHP);
-  const prevDebuffCount = useRef(enemy.statusEffects.filter(e => e.type === 'debuff').length);
+  const prevDebuffIds = useRef<string[]>(
+    enemy.statusEffects.filter(e => e.type === 'debuff').map(e => e.id)
+  );
+  const prevBreaking = useRef(enemy.isBreaking);
 
+  const addFloat = useCallback((text: string, type: FloatEntry['type']) => {
+    const id = ++floatIdCounter;
+    const offsetX = (Math.random() * 40) - 20;
+    setFloats(prev => [...prev, { id, text, type, offsetX }]);
+    setTimeout(() => {
+      setFloats(prev => prev.filter(f => f.id !== id));
+    }, 1400);
+  }, []);
+
+  // HPダメージ検知
   useEffect(() => {
     const prev = prevHP.current;
     prevHP.current = enemy.currentHP;
     if (enemy.currentHP < prev && enemy.currentHP > 0) {
+      const diff = Math.round(prev - enemy.currentHP);
       setFlashClass('damage-flash');
+      addFloat(`-${diff.toLocaleString()}`, 'damage');
       const t = setTimeout(() => setFlashClass(''), 500);
       return () => clearTimeout(t);
     }
-  }, [enemy.currentHP]);
+  }, [enemy.currentHP, addFloat]);
 
+  // デバフ付与検知
   useEffect(() => {
-    const count = enemy.statusEffects.filter(e => e.type === 'debuff').length;
-    if (count > prevDebuffCount.current) {
+    const currentDebuffs = enemy.statusEffects.filter(e => e.type === 'debuff');
+    const currentIds = currentDebuffs.map(e => e.id);
+    const prevIds = prevDebuffIds.current;
+    const newDebuffs = currentDebuffs.filter(e => !prevIds.includes(e.id));
+    prevDebuffIds.current = currentIds;
+
+    if (newDebuffs.length > 0) {
       setFlashClass('debuff-flash');
       const t = setTimeout(() => setFlashClass(''), 600);
-      prevDebuffCount.current = count;
+      for (const eff of newDebuffs) {
+        const info = DEBUFF_INFO[eff.id as string];
+        const emoji = info?.emoji ?? '';
+        const label = info?.label ?? eff.id;
+        addFloat(`${emoji}${label}`, 'debuff');
+      }
       return () => clearTimeout(t);
     }
-    prevDebuffCount.current = count;
-  }, [enemy.statusEffects]);
+  }, [enemy.statusEffects, addFloat]);
+
+  // ブレイク突入検知
+  useEffect(() => {
+    if (enemy.isBreaking && !prevBreaking.current) {
+      addFloat('BREAK!', 'break');
+    }
+    prevBreaking.current = enemy.isBreaking;
+  }, [enemy.isBreaking, addFloat]);
 
   if (!data) return null;
 
@@ -41,6 +95,19 @@ export function EnemyCard({ enemy }: EnemyCardProps) {
 
   return (
     <div className={`enemy-card ${isDead ? 'enemy-dead' : ''} ${flashClass}`}>
+      {/* フロートテキスト */}
+      <div className="float-container">
+        {floats.map(f => (
+          <span
+            key={f.id}
+            className={`float-text float-${f.type}`}
+            style={{ '--float-x': `${f.offsetX}px` } as React.CSSProperties}
+          >
+            {f.text}
+          </span>
+        ))}
+      </div>
+
       <div className="enemy-header">
         <span className="enemy-emoji">{data.emoji}</span>
         <span className="enemy-name">{data.name}</span>

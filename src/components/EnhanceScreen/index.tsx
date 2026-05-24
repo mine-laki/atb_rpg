@@ -79,7 +79,7 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
   const stats = getStatsAtLevel(charData, level);
   const nextStats = getStatsAtLevel(charData, level + 1);
   const lvCost = levelUpCost(level);
-  const canLevelUp = level < 50 && gil >= lvCost;
+  const canLevelUp = gil >= lvCost;
 
   function getMaterialQty(itemId: string): number {
     return materials.find(m => m.itemId === itemId)?.quantity ?? 0;
@@ -265,7 +265,7 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           <span className="char-emoji">{charData.emoji}</span>
           <div className="char-info-name-block">
             <span className="char-name">{charData.name}</span>
-            <span className="char-level-badge">Lv.{level} / 50</span>
+            <span className="char-level-badge">Lv.{level}</span>
           </div>
         </div>
 
@@ -351,18 +351,17 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           ══════════════════════════════════════ */}
       {tab === 'level' && (
         <div className="enhance-section">
-          {/* レベル進捗バー */}
+          {/* レベル進捗バー（50ごとのサイクル表示） */}
           <div className="level-progress-wrap">
-            <span className="lp-label">Lv.1</span>
+            <span className="lp-label">Lv.{Math.floor((level - 1) / 50) * 50 + 1}</span>
             <div className="level-progress-track">
-              <div className="level-progress-fill" style={{ width: `${(level / 50) * 100}%` }} />
+              <div className="level-progress-fill" style={{ width: `${((level - 1) % 50 / 50) * 100}%` }} />
               <span className="level-progress-text">Lv.{level}</span>
             </div>
-            <span className="lp-label">50</span>
+            <span className="lp-label">{(Math.floor((level - 1) / 50) + 1) * 50}</span>
           </div>
 
-          {level < 50 ? (
-            <div className="levelup-card">
+          <div className="levelup-card">
               {/* Before / After 比較 */}
               <div className="levelup-compare">
                 <div className="luc-col current">
@@ -396,14 +395,11 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
                 <button className="btn-levelup" onClick={handleLevelUp} disabled={!canLevelUp}>
                   💰 {lvCost.toLocaleString()} Gil でレベルアップ
                 </button>
-                {!canLevelUp && gil < lvCost && (
+                {!canLevelUp && (
                   <p className="cost-warning">Gil不足（所持: {gil.toLocaleString()} / 必要: {lvCost.toLocaleString()}）</p>
                 )}
               </div>
             </div>
-          ) : (
-            <div className="max-level-card">✨ MAX LEVEL ✨</div>
-          )}
         </div>
       )}
 

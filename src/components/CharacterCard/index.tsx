@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import type { CharacterInstance, StatusEffect } from '../../types';
 import { CHARACTERS } from '../../data/characters';
 import { ATBGauge } from '../ATBGauge';
@@ -32,26 +32,67 @@ const BUFF_INFO: Record<string, { label: string; desc: string; emoji: string }> 
   poison:  { label: 'ポイズン',   desc: '毎秒ダメージ',            emoji: '☠️' },
 };
 
+interface FloatEntry {
+  id: number;
+  text: string;
+  type: 'damage' | 'heal' | 'buff' | 'debuff';
+  offsetX: number;
+}
+
+let floatIdCounter = 0;
+
 export function CharacterCard({ char }: CharacterCardProps) {
   const data = CHARACTERS.find(c => c.id === char.dataId);
   const [buffModal, setBuffModal] = useState<StatusEffect | null>(null);
   const [flashClass, setFlashClass] = useState('');
+  const [floats, setFloats] = useState<FloatEntry[]>([]);
   const prevHP = useRef(char.currentHP);
+  const prevEffectIds = useRef<string[]>(char.statusEffects.map(e => e.id));
 
+  const addFloat = useCallback((text: string, type: FloatEntry['type']) => {
+    const id = ++floatIdCounter;
+    const offsetX = (Math.random() * 40) - 20; // -20 ~ +20px
+    setFloats(prev => [...prev, { id, text, type, offsetX }]);
+    setTimeout(() => {
+      setFloats(prev => prev.filter(f => f.id !== id));
+    }, 1400);
+  }, []);
+
+  // HP変化検知（ダメージ・回復）
   useEffect(() => {
     const prev = prevHP.current;
     prevHP.current = char.currentHP;
     if (char.currentHP < prev && char.isAlive) {
+      const diff = Math.round(prev - char.currentHP);
       setFlashClass('damage-flash');
+      addFloat(`-${diff.toLocaleString()}`, 'damage');
       const t = setTimeout(() => setFlashClass(''), 500);
       return () => clearTimeout(t);
     }
     if (char.currentHP > prev) {
+      const diff = Math.round(char.currentHP - prev);
       setFlashClass('heal-flash');
+      addFloat(`+${diff.toLocaleString()}`, 'heal');
       const t = setTimeout(() => setFlashClass(''), 500);
       return () => clearTimeout(t);
     }
-  }, [char.currentHP, char.isAlive]);
+  }, [char.currentHP, char.isAlive, addFloat]);
+
+  // ステータス効果変化検知（バフ・デバフ付与）
+  useEffect(() => {
+    const currentIds = char.statusEffects.map(e => e.id);
+    const prevIds = prevEffectIds.current;
+    const newEffects = char.statusEffects.filter(e => !prevIds.includes(e.id));
+    prevEffectIds.current = currentIds;
+
+    for (const eff of newEffects) {
+      const info = BUFF_INFO[eff.id as string];
+      const emoji = info?.emoji ?? '';
+      const label = info?.label ?? eff.id;
+      const text = `${emoji}${label}`;
+      addFloat(text, eff.type === 'buff' ? 'buff' : 'debuff');
+    }
+  }, [char.statusEffects, addFloat]);
 
   if (!data) return null;
 
@@ -60,6 +101,19 @@ export function CharacterCard({ char }: CharacterCardProps) {
 
   return (
     <div className={`character-card ${!char.isAlive ? 'dead' : ''} ${flashClass}`}>
+      {/* フロートテキスト */}
+      <div className="float-container">
+        {floats.map(f => (
+          <span
+            key={f.id}
+            className={`float-text float-${f.type}`}
+            style={{ '--float-x': `${f.offsetX}px` } as React.CSSProperties}
+          >
+            {f.text}
+          </span>
+        ))}
+      </div>
+
       <div className="char-header">
         <span className="char-emoji">{data.emoji}</span>
         <span className="char-name">{data.name}</span>

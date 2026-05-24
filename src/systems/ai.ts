@@ -167,7 +167,7 @@ export function aiSelectAction(
     }
 
     case 'ENH': {
-      const buffsToApply = ['prot', 'haste', 'faith', 'shell'] as const;
+      const buffsToApply = ['haste', 'prot', 'shell', 'faith',] as const;
 
       // バフ種別ごとに「誰か1人でも未付与なら付与」を優先
       // AoEアビリティが使えれば全体に付与、なければ未付与の最初のメンバーに付与
@@ -201,7 +201,21 @@ export function aiSelectAction(
 
     case 'JAM': {
       const targetEnemy = enemies[targetEnemyIdx];
-      if (targetEnemy) {
+      const targetEnemyData = targetEnemy ? getEnemyById(targetEnemy.dataId) : undefined;
+      const debuffRate = targetEnemyData?.debuffSuccessRate ?? 100;
+
+      // 非デバフアビリティ（汎用攻撃系）
+      const nonDebuffAbilities = abilities.filter(a => !a.debuff?.length);
+
+      // 0%完全耐性: デバフ一切使わない
+      if (debuffRate === 0) {
+        const best = highestCostAbility(nonDebuffAbilities.length ? nonDebuffAbilities : abilities, atbSegs);
+        if (best) return { ability: best, targetEnemyIdx };
+        return null;
+      }
+
+      // 20%超: 通常優先でデバフ付与を狙う
+      if (targetEnemy && debuffRate > 20) {
         const debuffsToApply = ['deprot', 'deshell', 'slow', 'pain'] as const;
         for (const debuffId of debuffsToApply) {
           if (!hasDebuff(targetEnemy, debuffId)) {
@@ -212,10 +226,16 @@ export function aiSelectAction(
           }
         }
       }
-      const slow = abilities.find(a => a.id === 'jam_slow' && a.cost <= atbSegs);
-      if (slow) return { ability: slow, targetEnemyIdx };
-      const best = highestCostAbility(abilities, atbSegs);
-      if (best) return { ability: best, targetEnemyIdx };
+
+      // 20%以下: まず非デバフ、なければ低優先でデバフ試行
+      const bestNonDebuff = highestCostAbility(nonDebuffAbilities, atbSegs);
+      if (bestNonDebuff) return { ability: bestNonDebuff, targetEnemyIdx };
+
+      if (targetEnemy && debuffRate > 0) {
+        const fallback = highestCostAbility(abilities, atbSegs);
+        if (fallback) return { ability: fallback, targetEnemyIdx };
+      }
+
       return null;
     }
 

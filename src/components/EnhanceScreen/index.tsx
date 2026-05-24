@@ -211,8 +211,13 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
   });
 
   // ── Equip slot definitions ─────────────────────────────────
+  const WEAPON_TYPE_LABEL: Record<string, string> = {
+    sword: '剣', staff: '杖', bow: '弓', shield: '盾',
+    holy: '聖具', instrument: '楽器', cursed: '呪具', any: '全種',
+  };
+  const weaponTypeNote = charData.weaponAffinity ? `(${WEAPON_TYPE_LABEL[charData.weaponAffinity] ?? charData.weaponAffinity})` : '';
   const equipSlots = [
-    { slot: 'weapon'     as const, label: '武器',    id: currentEquip.weapon,      show: true },
+    { slot: 'weapon'     as const, label: `武器 ${weaponTypeNote}`, id: currentEquip.weapon,      show: true },
     { slot: 'accessory1' as const, label: 'アクセ1', id: currentEquip.accessory1,  show: accessorySlotCount >= 1 },
     { slot: 'accessory2' as const, label: 'アクセ2', id: currentEquip.accessory2,  show: accessorySlotCount >= 2 },
     { slot: 'accessory3' as const, label: 'アクセ3', id: currentEquip.accessory3,  show: accessorySlotCount >= 3 },
@@ -227,6 +232,9 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
         <h2>強化</h2>
         <span className="gil-display">💰 {gil.toLocaleString()}</span>
       </div>
+
+      {/* ── 左サイドバー（キャラ選択 + キャラ情報） ── */}
+      <div className="char-sidebar">
 
       {/* ── キャラセレクター ── */}
       <div className="char-selector">
@@ -323,6 +331,7 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           })}
         </div>
       </div>
+      </div>{/* /char-sidebar */}
 
       {/* ── タブ ── */}
       <div className="enhance-tabs">

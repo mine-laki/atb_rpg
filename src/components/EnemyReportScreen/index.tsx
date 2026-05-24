@@ -1,4 +1,5 @@
 import { ENEMIES } from '../../data/enemies';
+import { MATERIALS, getEquipmentById } from '../../data/equipment';
 import type { EnemyData } from '../../types';
 
 interface EnemyReportScreenProps {
@@ -18,7 +19,64 @@ function ElementTag({ el, type }: { el: string; type: 'weak' | 'resist' }) {
   );
 }
 
+function getItemLabel(itemId: string, dropType?: string): { name: string; emoji: string } {
+  if (dropType === 'equipment' || (!dropType && itemId.startsWith('relic_') || itemId.startsWith('sword_') || itemId.startsWith('staff_') || itemId.startsWith('bow_') || itemId.startsWith('shield_') || itemId.startsWith('acc_'))) {
+    const eq = getEquipmentById(itemId);
+    if (eq) return { name: eq.name, emoji: eq.emoji };
+  }
+  if (dropType === 'fragment' || itemId.startsWith('fragment_')) {
+    return { name: `${itemId.replace('fragment_', '')}のかけら`, emoji: '💎' };
+  }
+  const mat = MATERIALS.find(m => m.id === itemId);
+  if (mat) return { name: mat.name, emoji: mat.emoji };
+  return { name: itemId.replace(/_/g, ' '), emoji: '📦' };
+}
+
+function DropList({ enemy }: { enemy: EnemyData }) {
+  const { common, uncommon, rare } = enemy.dropTable;
+  // 固有ドロップのみ表示（enhance_stone_normalは省く）
+  const uniqueCommon   = common.filter(d => d.itemId !== 'enhance_stone_normal');
+  const allUncommon    = uncommon;
+  const allRare        = rare;
+
+  if (!uniqueCommon.length && !allUncommon.length && !allRare.length) return null;
+
+  return (
+    <div className="er-drop-section">
+      <span className="er-drop-title">ドロップ</span>
+      <div className="er-drop-list">
+        {uniqueCommon.map(d => {
+          const { name, emoji } = getItemLabel(d.itemId, d.dropType);
+          return (
+            <span key={d.itemId} className="er-drop-item common">
+              {emoji} {name} <span className="er-drop-rate">{Math.round(d.rate * 100)}%</span>
+            </span>
+          );
+        })}
+        {allUncommon.map(d => {
+          const { name, emoji } = getItemLabel(d.itemId, d.dropType);
+          return (
+            <span key={d.itemId} className="er-drop-item uncommon">
+              {emoji} {name} <span className="er-drop-rate">{Math.round(d.rate * 100)}%</span>
+            </span>
+          );
+        })}
+        {allRare.map(d => {
+          const { name, emoji } = getItemLabel(d.itemId, d.dropType);
+          return (
+            <span key={d.itemId} className={`er-drop-item rare ${d.dropType === 'equipment' ? 'equip-drop' : ''}`}>
+              {emoji} {name} <span className="er-drop-rate">{Math.round(d.rate * 100)}%</span>
+              {d.dropType === 'equipment' && <span className="er-drop-equip-badge">装備</span>}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function EnemyCard({ enemy }: { enemy: EnemyData }) {
+  const debuffRate = enemy.debuffSuccessRate;
   return (
     <div className={`enemy-report-card ${enemy.isBoss ? 'boss' : ''}`}>
       <div className="enemy-report-header">
@@ -39,6 +97,13 @@ function EnemyCard({ enemy }: { enemy: EnemyData }) {
         {enemy.physResist && (
           <div className="enemy-report-stat">物理耐性: {Math.round(enemy.physResist * 100)}%</div>
         )}
+        {debuffRate !== undefined && (
+          <div className="enemy-report-stat">
+            デバフ耐性: <span style={{ color: debuffRate <= 20 ? '#ff6666' : debuffRate <= 50 ? '#ffaa44' : '#88ccaa' }}>
+              {debuffRate === 0 ? '完全耐性' : `${debuffRate}%`}
+            </span>
+          </div>
+        )}
       </div>
       {enemy.weaknesses.length > 0 && (
         <div className="enemy-report-elements">
@@ -52,6 +117,7 @@ function EnemyCard({ enemy }: { enemy: EnemyData }) {
           {enemy.resistances.map(r => <ElementTag key={r} el={r} type="resist" />)}
         </div>
       )}
+      <DropList enemy={enemy} />
     </div>
   );
 }

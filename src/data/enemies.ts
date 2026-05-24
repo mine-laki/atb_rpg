@@ -4,12 +4,12 @@ export const ENEMIES: EnemyData[] = [
   // ---- 通常戦 ----
   {
     id: 'zako_a', emoji: '👾', name: 'ザコA',
-    maxHP: 4500, str: 80, mag: 60,
+    maxHP: 45000, str: 80, mag: 60,
     breakThreshold: 200,
     weaknesses: ['fire'],
     resistances: [],
     physDef: 0, magDef: 0,
-    gilReward: 100,
+    gilReward: 100, debuffSuccessRate: 85,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
       uncommon: [{ itemId: 'crystal_atk', rate: 0.45 }, { itemId: 'fragment_kuri', rate: 0.40 }, { itemId: 'fragment_kaze', rate: 0.35 }],
@@ -22,13 +22,13 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'slime', emoji: '(ﾉ◕ヮ◕)ﾉ', name: 'スライム',
-    maxHP: 3000, str: 60, mag: 50,
+    maxHP: 30000, str: 60, mag: 50,
     breakThreshold: 150,
     weaknesses: ['fire', 'thunder'],
     resistances: [],
     physResist: 0.3,
     physDef: 0, magDef: 0,
-    gilReward: 80,
+    gilReward: 80, debuffSuccessRate: 90,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
       uncommon: [{ itemId: 'crystal_bla', rate: 0.40 }, { itemId: 'fragment_ho', rate: 0.35 }],
@@ -41,12 +41,12 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'ice_wyvern', emoji: '❄️🐲❄️', name: 'アイスワイバーン',
-    maxHP: 15000, str: 140, mag: 130,
+    maxHP: 150000, str: 140, mag: 130,
     breakThreshold: 450,
     weaknesses: ['fire'],
     resistances: ['ice'],
     physDef: 10, magDef: 20,
-    gilReward: 250,
+    gilReward: 250, debuffSuccessRate: 65,
     dropTable: {
       common:   [{ itemId: 'dragon_scale', rate: 0.95 }],
       uncommon: [{ itemId: 'acc_ice_amulet', rate: 0.45 }, { itemId: 'fragment_kuri', rate: 0.40 }],
@@ -59,12 +59,12 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'thunder_hawk', emoji: '⚡🦅⚡', name: 'サンダーホーク',
-    maxHP: 10000, str: 160, mag: 80,
+    maxHP: 100000, str: 160, mag: 80,
     breakThreshold: 350,
     weaknesses: ['ice'],
     resistances: ['thunder'],
     physDef: 0, magDef: 15,
-    gilReward: 220,
+    gilReward: 220, debuffSuccessRate: 70,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
       uncommon: [{ itemId: 'acc_thunder_amulet', rate: 0.45 }, { itemId: 'fragment_taka', rate: 0.40 }, { itemId: 'fragment_kaze', rate: 0.35 }],
@@ -77,12 +77,12 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'dark_soldier', emoji: '🌑⚔️🌑', name: 'ダークソルジャー',
-    maxHP: 13000, str: 180, mag: 60,
+    maxHP: 130000, str: 180, mag: 60,
     breakThreshold: 420,
     weaknesses: ['holy'],
     resistances: ['dark'],
     physDef: 30, magDef: 5,
-    gilReward: 240,
+    gilReward: 240, debuffSuccessRate: 60,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 0.95 }],
       uncommon: [{ itemId: 'crystal_atk', rate: 0.45 }, { itemId: 'fragment_ifu', rate: 0.38 }, { itemId: 'fragment_fa', rate: 0.35 }],
@@ -95,13 +95,13 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'golem', emoji: '🪨⚙️🪨', name: 'ゴーレム',
-    maxHP: 22000, str: 120, mag: 40,
+    maxHP: 220000, str: 120, mag: 40,
     breakThreshold: 600,
     weaknesses: ['thunder', 'water'],
     resistances: [],
     physResist: 0.4,
     physDef: 60, magDef: 5,
-    gilReward: 280,
+    gilReward: 280, debuffSuccessRate: 30,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
       uncommon: [{ itemId: 'crystal_def', rate: 0.50 }, { itemId: 'fragment_gar', rate: 0.42 }, { itemId: 'fragment_roku', rate: 0.38 }],
@@ -114,12 +114,12 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'wolf', emoji: '🐺', name: 'ウルフ',
-    maxHP: 6000, str: 100, mag: 40,
+    maxHP: 60000, str: 100, mag: 40,
     breakThreshold: 220,
     weaknesses: ['fire'],
     resistances: [],
     physDef: 0, magDef: 0,
-    gilReward: 120,
+    gilReward: 120, debuffSuccessRate: 80,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
       uncommon: [{ itemId: 'crystal_atk', rate: 0.40 }, { itemId: 'fragment_fa', rate: 0.35 }],
@@ -132,12 +132,12 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'bat', emoji: '🦇', name: 'バット',
-    maxHP: 4000, str: 50, mag: 80,
+    maxHP: 40000, str: 50, mag: 80,
     breakThreshold: 180,
     weaknesses: ['fire', 'holy'],
     resistances: ['dark'],
     physDef: 0, magDef: 10,
-    gilReward: 90,
+    gilReward: 90, debuffSuccessRate: 85,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
       uncommon: [{ itemId: 'crystal_bla', rate: 0.38 }, { itemId: 'fragment_daku', rate: 0.32 }],
@@ -150,12 +150,12 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'scorpion', emoji: '🦂', name: 'スコーピオン',
-    maxHP: 8000, str: 110, mag: 70,
+    maxHP: 80000, str: 110, mag: 70,
     breakThreshold: 280,
     weaknesses: ['ice', 'water'],
     resistances: [],
     physDef: 10, magDef: 0,
-    gilReward: 150,
+    gilReward: 150, debuffSuccessRate: 70,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
       uncommon: [{ itemId: 'crystal_jam', rate: 0.42 }, { itemId: 'fragment_kaze', rate: 0.35 }],
@@ -168,12 +168,12 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'snake', emoji: '🐍', name: 'スネーク',
-    maxHP: 5000, str: 90, mag: 85,
+    maxHP: 50000, str: 90, mag: 85,
     breakThreshold: 200,
     weaknesses: ['ice'],
     resistances: [],
     physDef: 0, magDef: 5,
-    gilReward: 110,
+    gilReward: 110, debuffSuccessRate: 75,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
       uncommon: [{ itemId: 'crystal_jam', rate: 0.38 }, { itemId: 'fragment_kuri', rate: 0.32 }],
@@ -186,12 +186,12 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'dragon', emoji: '🐉', name: 'ドラゴン',
-    maxHP: 18000, str: 150, mag: 120,
+    maxHP: 180000, str: 150, mag: 120,
     breakThreshold: 500,
     weaknesses: ['ice'],
     resistances: ['fire'],
     physDef: 20, magDef: 0,
-    gilReward: 300,
+    gilReward: 300, debuffSuccessRate: 55,
     dropTable: {
       common:   [{ itemId: 'dragon_scale', rate: 0.95 }],
       uncommon: [{ itemId: 'acc_ice_amulet', rate: 0.45 }, { itemId: 'fragment_tora', rate: 0.40 }, { itemId: 'fragment_voru', rate: 0.35 }],
@@ -204,13 +204,13 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'machine', emoji: '🤖', name: 'マシン',
-    maxHP: 12000, str: 130, mag: 80,
+    maxHP: 120000, str: 130, mag: 80,
     breakThreshold: 400,
     weaknesses: ['thunder'],
     resistances: [],
     physResist: 0.5,
     physDef: 50, magDef: 10,
-    gilReward: 200,
+    gilReward: 200, debuffSuccessRate: 20,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
       uncommon: [{ itemId: 'crystal_bla', rate: 0.48 }, { itemId: 'fragment_bom', rate: 0.40 }, { itemId: 'fragment_sac', rate: 0.35 }],
@@ -225,12 +225,12 @@ export const ENEMIES: EnemyData[] = [
   // ---- ボス戦 ----
   {
     id: 'deathord', emoji: '💀👑💀', name: 'デスロード',
-    maxHP: 100000, str: 200, mag: 250,
+    maxHP: 1000000, str: 200, mag: 250,
     breakThreshold: 600,
     weaknesses: ['holy'],
     resistances: ['dark'],
     physDef: 30, magDef: 30,
-    gilReward: 2000,
+    gilReward: 2000, debuffSuccessRate: 45,
     isBoss: true,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_bla', rate: 1.0 }],
@@ -248,12 +248,12 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'chaos_knight', emoji: '👑💀⚔️💀👑', name: 'カオスナイト',
-    maxHP: 120000, str: 270, mag: 200,
+    maxHP: 1200000, str: 270, mag: 200,
     breakThreshold: 650,
     weaknesses: ['holy'],
     resistances: ['dark'],
     physDef: 40, magDef: 20,
-    gilReward: 3000,
+    gilReward: 3000, debuffSuccessRate: 35,
     isBoss: true,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_atk', rate: 1.0 }],
@@ -271,12 +271,12 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'arch_lich', emoji: '💀🔮✨🔮💀', name: 'アーチリッチ',
-    maxHP: 140000, str: 150, mag: 350,
+    maxHP: 1400000, str: 150, mag: 350,
     breakThreshold: 700,
     weaknesses: ['holy', 'fire'],
     resistances: ['dark', 'ice'],
     physDef: 10, magDef: 50,
-    gilReward: 3500,
+    gilReward: 3500, debuffSuccessRate: 30,
     isBoss: true,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_bla', rate: 1.0 }],
@@ -295,12 +295,12 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'chaosgod', emoji: '🌋🔥🌋', name: 'カオスゴッド',
-    maxHP: 160000, str: 240, mag: 280,
+    maxHP: 1600000, str: 240, mag: 280,
     breakThreshold: 700,
     weaknesses: [],
     resistances: ['fire', 'ice', 'thunder'],
     physDef: 30, magDef: 30,
-    gilReward: 4000,
+    gilReward: 4000, debuffSuccessRate: 15,
     isBoss: true,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }],
@@ -319,13 +319,13 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'sky_behemoth', emoji: '🌩️🦬💥🦬🌩️', name: 'スカイベヒーモス',
-    maxHP: 180000, str: 320, mag: 200,
+    maxHP: 1800000, str: 320, mag: 200,
     breakThreshold: 750,
     weaknesses: [],
     resistances: [],
     physResist: 0.3,
     physDef: 50, magDef: 20,
-    gilReward: 5000,
+    gilReward: 5000, debuffSuccessRate: 40,
     isBoss: true,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_def', rate: 1.0 }],
@@ -343,12 +343,12 @@ export const ENEMIES: EnemyData[] = [
   },
   {
     id: 'finalboss', emoji: '✨👑🌟👑✨', name: 'ラスボス',
-    maxHP: 240000, str: 300, mag: 320,
+    maxHP: 2400000, str: 300, mag: 320,
     breakThreshold: 800,
     weaknesses: [],
     resistances: [],
     physDef: 30, magDef: 30,
-    gilReward: 8000,
+    gilReward: 8000, debuffSuccessRate: 10,
     isBoss: true,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_rare', rate: 1.0 }, { itemId: 'crystal_all', rate: 1.0 }],

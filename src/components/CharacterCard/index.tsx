@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { CharacterInstance, StatusEffect } from '../../types';
 import { CHARACTERS } from '../../data/characters';
 import { ATBGauge } from '../ATBGauge';
@@ -30,6 +30,23 @@ const BUFF_INFO: Record<string, { label: string; desc: string; emoji: string }> 
 export function CharacterCard({ char }: CharacterCardProps) {
   const data = CHARACTERS.find(c => c.id === char.dataId);
   const [buffModal, setBuffModal] = useState<StatusEffect | null>(null);
+  const [flashClass, setFlashClass] = useState('');
+  const prevHP = useRef(char.currentHP);
+
+  useEffect(() => {
+    const prev = prevHP.current;
+    prevHP.current = char.currentHP;
+    if (char.currentHP < prev && char.isAlive) {
+      setFlashClass('damage-flash');
+      const t = setTimeout(() => setFlashClass(''), 500);
+      return () => clearTimeout(t);
+    }
+    if (char.currentHP > prev) {
+      setFlashClass('heal-flash');
+      const t = setTimeout(() => setFlashClass(''), 500);
+      return () => clearTimeout(t);
+    }
+  }, [char.currentHP, char.isAlive]);
 
   if (!data) return null;
 
@@ -37,7 +54,7 @@ export function CharacterCard({ char }: CharacterCardProps) {
   const hpColor = hpRatio > 0.5 ? '#44cc44' : hpRatio > 0.25 ? '#ffcc00' : '#ff4444';
 
   return (
-    <div className={`character-card ${!char.isAlive ? 'dead' : ''}`}>
+    <div className={`character-card ${!char.isAlive ? 'dead' : ''} ${flashClass}`}>
       <div className="char-header">
         <span className="char-emoji">{data.emoji}</span>
         <span className="char-name">{data.name}</span>

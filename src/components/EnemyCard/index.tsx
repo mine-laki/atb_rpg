@@ -1,3 +1,4 @@
+import { useRef, useEffect, useState } from 'react';
 import type { EnemyInstance } from '../../types';
 import { getEnemyById } from '../../data/enemies';
 import { ChainGauge } from '../ChainGauge';
@@ -8,13 +9,38 @@ interface EnemyCardProps {
 
 export function EnemyCard({ enemy }: EnemyCardProps) {
   const data = getEnemyById(enemy.dataId);
+  const [flashClass, setFlashClass] = useState('');
+  const prevHP = useRef(enemy.currentHP);
+  const prevDebuffCount = useRef(enemy.statusEffects.filter(e => e.type === 'debuff').length);
+
+  useEffect(() => {
+    const prev = prevHP.current;
+    prevHP.current = enemy.currentHP;
+    if (enemy.currentHP < prev && enemy.currentHP > 0) {
+      setFlashClass('damage-flash');
+      const t = setTimeout(() => setFlashClass(''), 500);
+      return () => clearTimeout(t);
+    }
+  }, [enemy.currentHP]);
+
+  useEffect(() => {
+    const count = enemy.statusEffects.filter(e => e.type === 'debuff').length;
+    if (count > prevDebuffCount.current) {
+      setFlashClass('debuff-flash');
+      const t = setTimeout(() => setFlashClass(''), 600);
+      prevDebuffCount.current = count;
+      return () => clearTimeout(t);
+    }
+    prevDebuffCount.current = count;
+  }, [enemy.statusEffects]);
+
   if (!data) return null;
 
   const isDead = enemy.currentHP <= 0;
   const hpRatio = isDead ? 0 : enemy.currentHP / enemy.maxHP;
 
   return (
-    <div className={`enemy-card ${isDead ? 'enemy-dead' : ''}`}>
+    <div className={`enemy-card ${isDead ? 'enemy-dead' : ''} ${flashClass}`}>
       <div className="enemy-header">
         <span className="enemy-emoji">{data.emoji}</span>
         <span className="enemy-name">{data.name}</span>

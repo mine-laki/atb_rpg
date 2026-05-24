@@ -128,20 +128,20 @@ export interface MaterialShopEntry {
 
 export const MATERIAL_SHOP: MaterialShopEntry[] = [
   // 通常素材 - 常時購入可
-  { itemId: 'enhance_stone_normal', price: 150,   minCleared: 0, isRare: false },
-  { itemId: 'dragon_scale',         price: 400,   minCleared: 1, isRare: false },
+  { itemId: 'enhance_stone_normal', price: 300,   minCleared: 0, isRare: false },
+  { itemId: 'dragon_scale',         price: 800,   minCleared: 1, isRare: false },
   // クリスタル系 - 高価格
-  { itemId: 'crystal_atk',  price: 800,  minCleared: 1, isRare: false },
-  { itemId: 'crystal_bla',  price: 800,  minCleared: 1, isRare: false },
-  { itemId: 'crystal_def',  price: 800,  minCleared: 1, isRare: false },
-  { itemId: 'crystal_hlr',  price: 800,  minCleared: 1, isRare: false },
-  { itemId: 'crystal_enh',  price: 800,  minCleared: 1, isRare: false },
-  { itemId: 'crystal_jam',  price: 800,  minCleared: 1, isRare: false },
-  { itemId: 'crystal_all',  price: 2500, minCleared: 3, isRare: false },
+  { itemId: 'crystal_atk',  price: 1600, minCleared: 1, isRare: false },
+  { itemId: 'crystal_bla',  price: 1600, minCleared: 1, isRare: false },
+  { itemId: 'crystal_def',  price: 1600, minCleared: 1, isRare: false },
+  { itemId: 'crystal_hlr',  price: 1600, minCleared: 1, isRare: false },
+  { itemId: 'crystal_enh',  price: 1600, minCleared: 1, isRare: false },
+  { itemId: 'crystal_jam',  price: 1600, minCleared: 1, isRare: false },
+  { itemId: 'crystal_all',  price: 5000, minCleared: 3, isRare: false },
   // レア素材 - クリア後のみ高価で購入可
-  { itemId: 'enhance_stone_rare', price: 3000,  minCleared: 2, isRare: true },
-  { itemId: 'dragon_fang',        price: 5000,  minCleared: 3, isRare: true },
-  { itemId: 'god_proof',          price: 15000, minCleared: 5, isRare: true },
+  { itemId: 'enhance_stone_rare', price: 15000, minCleared: 2, isRare: true },
+  { itemId: 'dragon_fang',        price: 25000, minCleared: 3, isRare: true },
+  { itemId: 'god_proof',          price: 75000, minCleared: 5, isRare: true },
 ];
 
 export const ENHANCE_MULTIPLIERS: Record<number, number> = {

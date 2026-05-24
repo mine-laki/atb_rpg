@@ -144,6 +144,7 @@ export interface EnemyData {
   physDef?: number;         // physical defense reduction %, 0-100
   magDef?: number;          // magic defense reduction %, 0-100
   gilReward: number;
+  debuffSuccessRate?: number;  // 0-100 (%) デバフが通る確率。未指定=100%。0=完全耐性(AIが使用しない)
   dropTable: DropTable;
   actions: EnemyAction[];
   isBoss?: boolean;

@@ -195,29 +195,42 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
           // Debuff enemy
           const eIdx = targetEnemyIdx ?? enemies.findIndex(e => e.currentHP > 0);
           if (eIdx >= 0 && enemies[eIdx]) {
-            // JAM role level bonus: +8% debuff duration per level
-            const jamRoleLv = party[charIdx].currentRole === 'JAM'
-              ? (party[charIdx].roleLevels?.['JAM'] ?? 1) : 0;
-            const debuffDurationMult = 1 + jamRoleLv * 0.08;
-
-            const newEffects = [...enemies[eIdx].statusEffects];
-            for (const debuffId of ability.debuff!) {
-              const baseDuration = debuffId === 'stop' ? 5 : debuffId === 'slow' ? 20 : 25;
-              const duration = Math.round(baseDuration * debuffDurationMult);
-              const existing = newEffects.findIndex(e => e.id === debuffId);
-              const effect = { id: debuffId as any, type: 'debuff' as const, duration, value: 0.3 };
-              if (existing >= 0) newEffects[existing] = effect;
-              else newEffects.push(effect);
-            }
-            enemies[eIdx] = { ...enemies[eIdx], statusEffects: newEffects };
             const eData = getEnemyById(enemies[eIdx].dataId);
-            newLogs.push({
-              id: logId(), timestamp: now,
-              actorEmoji, actorName,
-              targetName: eData?.name ?? enemies[eIdx].dataId,
-              abilityName: ability.name,
-              value: 0, type: 'debuff',
-            });
+            const successRate = eData?.debuffSuccessRate ?? 100;
+
+            if (Math.random() * 100 < successRate) {
+              // JAM role level bonus: +8% debuff duration per level
+              const jamRoleLv = party[charIdx].currentRole === 'JAM'
+                ? (party[charIdx].roleLevels?.['JAM'] ?? 1) : 0;
+              const debuffDurationMult = 1 + jamRoleLv * 0.08;
+
+              const newEffects = [...enemies[eIdx].statusEffects];
+              for (const debuffId of ability.debuff!) {
+                const baseDuration = debuffId === 'stop' ? 5 : debuffId === 'slow' ? 20 : 25;
+                const duration = Math.round(baseDuration * debuffDurationMult);
+                const existing = newEffects.findIndex(e => e.id === debuffId);
+                const effect = { id: debuffId as any, type: 'debuff' as const, duration, value: 0.3 };
+                if (existing >= 0) newEffects[existing] = effect;
+                else newEffects.push(effect);
+              }
+              enemies[eIdx] = { ...enemies[eIdx], statusEffects: newEffects };
+              newLogs.push({
+                id: logId(), timestamp: now,
+                actorEmoji, actorName,
+                targetName: eData?.name ?? enemies[eIdx].dataId,
+                abilityName: ability.name,
+                value: 0, type: 'debuff',
+              });
+            } else {
+              // 耐性で無効
+              newLogs.push({
+                id: logId(), timestamp: now,
+                actorEmoji, actorName,
+                targetName: eData?.name ?? enemies[eIdx].dataId,
+                abilityName: `${ability.name} (耐性)`,
+                value: 0, type: 'status' as const,
+              });
+            }
           }
 
         } else if (ability.power !== undefined) {

@@ -5,7 +5,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'rai', emoji: '⚡', name: 'ライ',
     roles: ['ATK', 'BLA', 'HLR'],
-    baseHP: 1800, baseSTR: 180, baseMAG: 160, atbMax: 4,
+    baseHP: 1800, baseSTR: 180, baseMAG: 160, atbMax: 3,
     autoAbilities: ['speed_up', 'brave_heart'],
     uniqueAbilities: ['atk_blitz', 'atk_tkick', 'rai_ult'],
     growthType: 'attacker',
@@ -15,7 +15,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'ifu', emoji: '🔥', name: 'イフ',
     roles: ['ATK', 'BLA', 'ENH'],
-    baseHP: 2600, baseSTR: 220, baseMAG: 80, atbMax: 5,
+    baseHP: 2600, baseSTR: 220, baseMAG: 80, atbMax: 3,
     autoAbilities: ['battle_cry', 'last_stand'],
     uniqueAbilities: ['atk_omega', 'atk_berserk'],
     growthType: 'attacker',
@@ -25,7 +25,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'fa', emoji: '🐺', name: 'ファ',
     roles: ['ATK', 'DEF', 'JAM'],
-    baseHP: 2500, baseSTR: 210, baseMAG: 90, atbMax: 5,
+    baseHP: 2500, baseSTR: 210, baseMAG: 90, atbMax: 3,
     autoAbilities: ['chain_master', 'counter'],
     uniqueAbilities: ['atk_twinfang', 'fa_ult'],
     growthType: 'attacker',
@@ -35,7 +35,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'kuri', emoji: '🧊', name: 'クリ',
     roles: ['ATK', 'BLA', 'ENH'],
-    baseHP: 1600, baseSTR: 150, baseMAG: 180, atbMax: 4,
+    baseHP: 1600, baseSTR: 150, baseMAG: 180, atbMax: 3,
     autoAbilities: ['elemental_amp', 'arcane_mind'],
     uniqueAbilities: ['atk_iceedge', 'bla_blizzaja'],
     growthType: 'magic',
@@ -45,7 +45,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'kaze', emoji: '🌀', name: 'カゼ',
     roles: ['ATK', 'BLA', 'JAM'],
-    baseHP: 1700, baseSTR: 170, baseMAG: 150, atbMax: 4,
+    baseHP: 1700, baseSTR: 170, baseMAG: 150, atbMax: 3,
     autoAbilities: ['combo_boost', 'speed_up'],
     uniqueAbilities: ['atk_whirlwind', 'bla_aeroga', 'jam_dispel'],
     growthType: 'allround',
@@ -55,7 +55,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'tora', emoji: '🐯', name: 'トラ',
     roles: ['ATK', 'DEF', 'HLR'],
-    baseHP: 2400, baseSTR: 205, baseMAG: 70, atbMax: 5,
+    baseHP: 2400, baseSTR: 205, baseMAG: 70, atbMax: 3,
     autoAbilities: ['battle_cry', 'provoke_plus'],
     uniqueAbilities: [],
     growthType: 'tank',
@@ -65,7 +65,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'taka', emoji: '🦅', name: 'タカ',
     roles: ['ATK', 'BLA', 'DEF'],
-    baseHP: 1500, baseSTR: 190, baseMAG: 140, atbMax: 5,
+    baseHP: 1500, baseSTR: 190, baseMAG: 140, atbMax: 3,
     autoAbilities: ['speed_up', 'combo_boost'],
     uniqueAbilities: ['atk_whirlwind'],
     growthType: 'attacker',
@@ -75,7 +75,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'voru', emoji: '🌋', name: 'ヴォル',
     roles: ['ATK', 'DEF', 'JAM'],
-    baseHP: 2000, baseSTR: 195, baseMAG: 120, atbMax: 4,
+    baseHP: 2000, baseSTR: 195, baseMAG: 120, atbMax: 3,
     autoAbilities: ['last_stand', 'sacrifice'],
     uniqueAbilities: ['atk_berserk'],
     growthType: 'attacker',
@@ -85,7 +85,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'reo', emoji: '🦁', name: 'レオ',
     roles: ['ATK', 'BLA', 'DEF'],
-    baseHP: 2300, baseSTR: 200, baseMAG: 100, atbMax: 4,
+    baseHP: 2300, baseSTR: 200, baseMAG: 100, atbMax: 3,
     autoAbilities: ['guardian', 'break_hunter'],
     uniqueAbilities: ['atk_omega'],
     growthType: 'attacker',
@@ -95,7 +95,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'bom', emoji: '💥', name: 'ボム',
     roles: ['ATK', 'BLA', 'ENH'],
-    baseHP: 1400, baseSTR: 130, baseMAG: 200, atbMax: 4,
+    baseHP: 1400, baseSTR: 130, baseMAG: 200, atbMax: 3,
     autoAbilities: ['break_hunter', 'elemental_amp'],
     uniqueAbilities: ['bla_magicburst'],
     growthType: 'magic',
@@ -107,7 +107,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'ho', emoji: '🌙', name: 'ホー',
     roles: ['BLA', 'HLR', 'ENH'],
-    baseHP: 1400, baseSTR: 70, baseMAG: 210, atbMax: 5,
+    baseHP: 1400, baseSTR: 70, baseMAG: 210, atbMax: 3,
     autoAbilities: ['arcane_mind', 'magic_save'],
     uniqueAbilities: ['bla_tridisaster'],
     growthType: 'magic',
@@ -117,7 +117,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'sac', emoji: '🌊', name: 'サッ',
     roles: ['ENH', 'BLA', 'HLR'],
-    baseHP: 1500, baseSTR: 100, baseMAG: 170, atbMax: 4,
+    baseHP: 1500, baseSTR: 100, baseMAG: 170, atbMax: 3,
     autoAbilities: ['speed_up', 'enhance_ex'],
     uniqueAbilities: ['bla_waterga', 'enh_faithall'],
     growthType: 'magic',
@@ -127,7 +127,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'va', emoji: '🌿', name: 'ヴァ',
     roles: ['BLA', 'JAM', 'HLR'],
-    baseHP: 1600, baseSTR: 80, baseMAG: 190, atbMax: 4,
+    baseHP: 1600, baseSTR: 80, baseMAG: 190, atbMax: 3,
     autoAbilities: ['medic_plus', 'enhance_ex'],
     uniqueAbilities: ['hlr_curaall', 'hlr_regen', 'va_ult'],
     growthType: 'healer',
@@ -137,7 +137,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'daku', emoji: '🌑', name: 'ダク',
     roles: ['BLA', 'JAM', 'ENH'],
-    baseHP: 1500, baseSTR: 90, baseMAG: 200, atbMax: 4,
+    baseHP: 1500, baseSTR: 90, baseMAG: 200, atbMax: 3,
     autoAbilities: ['arcane_mind', 'jam_boost'],
     uniqueAbilities: ['bla_darkflare', 'jam_imperil', 'jam_curse', 'jam_stop'],
     growthType: 'magic',
@@ -147,7 +147,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'en', emoji: '✨', name: 'エン',
     roles: ['ENH', 'BLA', 'HLR'],
-    baseHP: 1600, baseSTR: 85, baseMAG: 185, atbMax: 4,
+    baseHP: 1600, baseSTR: 85, baseMAG: 185, atbMax: 3,
     autoAbilities: ['enhance_ex', 'medic_plus'],
     uniqueAbilities: ['bla_holy', 'enh_bravery', 'hlr_arise'],
     growthType: 'healer',
@@ -157,7 +157,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'jio', emoji: '🌍', name: 'ジオ',
     roles: ['BLA', 'JAM', 'ENH'],
-    baseHP: 1700, baseSTR: 120, baseMAG: 175, atbMax: 4,
+    baseHP: 1700, baseSTR: 120, baseMAG: 175, atbMax: 3,
     autoAbilities: ['elemental_amp', 'jam_boost'],
     uniqueAbilities: ['bla_quake', 'jam_gravity'],
     growthType: 'magic',
@@ -167,7 +167,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'doc', emoji: '💊', name: 'ドク',
     roles: ['HLR', 'ENH', 'BLA'],
-    baseHP: 1500, baseSTR: 75, baseMAG: 195, atbMax: 4,
+    baseHP: 1500, baseSTR: 75, baseMAG: 195, atbMax: 3,
     autoAbilities: ['medic_plus', 'enhance_ex'],
     uniqueAbilities: ['hlr_curaja', 'hlr_esuna', 'enh_veil'],
     growthType: 'healer',
@@ -177,7 +177,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'ran', emoji: '🎲', name: 'ラン',
     roles: ['BLA', 'ENH', 'JAM'],
-    baseHP: 1450, baseSTR: 90, baseMAG: 180, atbMax: 4,
+    baseHP: 1450, baseSTR: 90, baseMAG: 180, atbMax: 3,
     autoAbilities: ['elemental_amp', 'combo_boost'],
     uniqueAbilities: ['bla_magicburst', 'enh_chainboost', 'jam_gravity'],
     growthType: 'magic',
@@ -187,7 +187,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'hana', emoji: '🌸', name: 'ハナ',
     roles: ['HLR', 'ENH', 'BLA'],
-    baseHP: 1550, baseSTR: 80, baseMAG: 175, atbMax: 4,
+    baseHP: 1550, baseSTR: 80, baseMAG: 175, atbMax: 3,
     autoAbilities: ['medic_plus', 'auto_regen'],
     uniqueAbilities: ['hlr_curaall'],
     growthType: 'healer',
@@ -197,7 +197,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'kou', emoji: '🌈', name: 'コウ',
     roles: ['BLA', 'ENH', 'HLR'],
-    baseHP: 1480, baseSTR: 95, baseMAG: 185, atbMax: 4,
+    baseHP: 1480, baseSTR: 95, baseMAG: 185, atbMax: 3,
     autoAbilities: ['arcane_mind', 'enhance_ex'],
     uniqueAbilities: ['bla_tridisaster'],
     growthType: 'magic',
@@ -209,7 +209,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'gar', emoji: '🛡️', name: 'ガー',
     roles: ['ATK', 'BLA', 'DEF'],
-    baseHP: 2800, baseSTR: 130, baseMAG: 130, atbMax: 4,
+    baseHP: 2800, baseSTR: 130, baseMAG: 130, atbMax: 3,
     autoAbilities: ['guardian', 'provoke_plus'],
     uniqueAbilities: ['atk_psrike'],
     growthType: 'tank',
@@ -219,7 +219,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'roku', emoji: '🏔️', name: 'ロク',
     roles: ['DEF', 'ATK', 'ENH'],
-    baseHP: 2600, baseSTR: 190, baseMAG: 80, atbMax: 4,
+    baseHP: 2600, baseSTR: 190, baseMAG: 80, atbMax: 3,
     autoAbilities: ['iron_will', 'guardian'],
     uniqueAbilities: [],
     growthType: 'tank',
@@ -229,7 +229,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'roza', emoji: '🌺', name: 'ロザ',
     roles: ['ATK', 'BLA', 'HLR'],
-    baseHP: 1800, baseSTR: 155, baseMAG: 155, atbMax: 4,
+    baseHP: 1800, baseSTR: 155, baseMAG: 155, atbMax: 3,
     autoAbilities: ['brave_heart', 'medic_plus'],
     uniqueAbilities: [],
     growthType: 'allround',
@@ -239,7 +239,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'cho', emoji: '🦋', name: 'チョ',
     roles: ['ATK', 'BLA', 'ENH', 'JAM'],
-    baseHP: 1600, baseSTR: 140, baseMAG: 160, atbMax: 4,
+    baseHP: 1600, baseSTR: 140, baseMAG: 160, atbMax: 3,
     autoAbilities: ['speed_up', 'chain_master'],
     uniqueAbilities: ['enh_chainboost'],
     growthType: 'allround',
@@ -249,7 +249,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'ryu', emoji: '🐲', name: 'リュ',
     roles: ['ATK', 'DEF', 'HLR'],
-    baseHP: 2200, baseSTR: 185, baseMAG: 110, atbMax: 4,
+    baseHP: 2200, baseSTR: 185, baseMAG: 110, atbMax: 3,
     autoAbilities: ['iron_will', 'counter'],
     uniqueAbilities: [],
     growthType: 'tank',
@@ -259,7 +259,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'kika', emoji: '⚙️', name: 'キカ',
     roles: ['ENH', 'JAM', 'BLA'],
-    baseHP: 1700, baseSTR: 110, baseMAG: 160, atbMax: 4,
+    baseHP: 1700, baseSTR: 110, baseMAG: 160, atbMax: 3,
     autoAbilities: ['enhance_ex', 'jam_boost'],
     uniqueAbilities: ['enh_veil', 'jam_imperil'],
     growthType: 'healer',
@@ -269,7 +269,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'ste', emoji: '🌟', name: 'ステ',
     roles: ['ATK', 'BLA', 'HLR'],
-    baseHP: 1750, baseSTR: 160, baseMAG: 165, atbMax: 4,
+    baseHP: 1750, baseSTR: 160, baseMAG: 165, atbMax: 3,
     autoAbilities: ['break_hunter', 'solidarity'],
     uniqueAbilities: [],
     growthType: 'allround',
@@ -279,7 +279,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'baru', emoji: '🎵', name: 'バル',
     roles: ['ENH', 'HLR', 'BLA'],
-    baseHP: 1500, baseSTR: 80, baseMAG: 170, atbMax: 4,
+    baseHP: 1500, baseSTR: 80, baseMAG: 170, atbMax: 3,
     autoAbilities: ['enhance_ex', 'medic_plus'],
     uniqueAbilities: ['enh_chainboost', 'hlr_arise'],
     growthType: 'healer',
@@ -289,7 +289,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'pose', emoji: '🔱', name: 'ポセ',
     roles: ['ATK', 'BLA', 'JAM'],
-    baseHP: 1900, baseSTR: 170, baseMAG: 155, atbMax: 4,
+    baseHP: 1900, baseSTR: 170, baseMAG: 155, atbMax: 3,
     autoAbilities: ['elemental_amp', 'chain_master'],
     uniqueAbilities: ['bla_waterga', 'jam_gravity'],
     growthType: 'allround',
@@ -299,7 +299,7 @@ export const CHARACTERS: CharacterData[] = [
   {
     id: 'gan', emoji: '👁️', name: 'ガン',
     roles: ['ATK', 'BLA', 'ENH', 'JAM'],
-    baseHP: 1650, baseSTR: 155, baseMAG: 170, atbMax: 5,
+    baseHP: 1650, baseSTR: 155, baseMAG: 170, atbMax: 3,
     autoAbilities: ['battle_cry', 'last_stand'],
     uniqueAbilities: ['bla_magicburst', 'jam_imperil'],
     growthType: 'allround',

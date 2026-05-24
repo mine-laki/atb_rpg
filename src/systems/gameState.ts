@@ -59,7 +59,8 @@ export function createCharacterInstance(
   const totalHP  = stats.hp  + bonusHP  + skillBonuses.hp;
   const totalSTR = stats.str + bonusSTR + skillBonuses.str;
   const totalMAG = stats.mag + bonusMAG + skillBonuses.mag;
-  const totalATB = data.atbMax + bonusATB + skillBonuses.atbExtra;
+  const levelATBBonus = (level >= 15 ? 1 : 0) + (level >= 30 ? 1 : 0);
+  const totalATB = data.atbMax + bonusATB + skillBonuses.atbExtra + levelATBBonus;
 
   return {
     id: `${charId}_${Date.now()}_${Math.random()}`,

@@ -152,7 +152,7 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
             party[tIdx] = newTarget;
           }
 
-        } else if (ability.healValue || ability.healPercent) {
+        } else if (ability.healValue || ability.healPercent || ability.healMissingPercent) {
           // Heal
           const healAll = ability.aoe;
           const tIdx = targetCharIdx ?? charIdx;
@@ -354,7 +354,7 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
           const aliveParty = party.filter(p => p.isAlive);
           if (!aliveParty.length) break;
 
-          newCooldowns[action.id] = action.cooldown * 2;
+          newCooldowns[action.id] = action.cooldown * 3;
           didAct = true;
 
           // Self-buff action: apply buff to the enemy itself

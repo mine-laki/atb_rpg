@@ -14,7 +14,7 @@ export const EQUIPMENT_DATA: EquipmentData[] = [
     baseStats: { str: 15, mag: 10 }, effects: [{ type: 'atb_speed', value: 0.15 }], unlockStage: 2, shopPrice: 1200 },
   { id: 'shield_heavy',  name: '重厚の盾',   emoji: '🛡',  type: 'weapon', weaponType: 'shield',
     preferredRole: 'DEF', baseStats: { def: 25, hp: 400 }, effects: [], unlockStage: 2, shopPrice: 1500 },
-  { id: 'holy_item',     name: '聖なる具',   emoji: '📿',  type: 'weapon', weaponType: 'holy',
+  { id: 'holy_item',     name: '聖なる数珠',   emoji: '📿',  type: 'weapon', weaponType: 'holy',
     preferredRole: 'HLR', baseStats: { mag: 15 }, effects: [{ type: 'heal_boost', value: 0.20 }], unlockStage: 3, shopPrice: 1500 },
   { id: 'instrument',    name: '魔法の楽器', emoji: '🎸',  type: 'weapon', weaponType: 'instrument',
     preferredRole: 'ENH', baseStats: {}, effects: [{ type: 'buff_extend', value: 0.20 }, { type: 'atb_speed', value: 0.15 }], unlockStage: 3, shopPrice: 2000 },

@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/simple_atb_rpg/',
+  base: '/atb_rpg/',
   build: { outDir: 'dist' },
 })

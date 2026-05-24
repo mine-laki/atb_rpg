@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import type { BattleState, CharacterInstance, ActionLogEntry, BattlePhase } from '../types';
-import { updateATB, updateStatusEffects, consumeATB, hasEnoughATB } from '../systems/atb';
+import { updateATB, updateStatusEffects, consumeATB } from '../systems/atb';
 import type { BuffId } from '../types';
 import { updateChain } from '../systems/chain';
 import { aiSelectAction } from '../systems/ai';
@@ -119,7 +119,7 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
           if (!decision) break;
 
           const { ability, targetCharIdx, targetEnemyIdx } = decision;
-          if (!hasEnoughATB(cur, ability.cost)) break;
+          if (cur.atb.current + 0.1 < ability.cost) break;
 
           actionsThisTick++;
 

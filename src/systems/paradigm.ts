@@ -22,7 +22,7 @@ export function getDefaultParadigms(roles: RoleId[][]): ParadigmData[] {
 
 export function getRoleEmoji(role: RoleId): string {
   const map: Record<RoleId, string> = {
-    ATK: '⚔️', BLA: '🔮', DEF: '🛡️', HLR: '💚', ENH: '✨', JAM: '💜',
+    ATK: '⚔️', BLA: '💎', DEF: '🛡️', HLR: '💚', ENH: '🔮', JAM: '💿',
   };
   return map[role] ?? '?';
 }

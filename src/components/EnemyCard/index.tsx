@@ -59,11 +59,11 @@ export function EnemyCard({ enemy }: EnemyCardProps) {
           />
         </div>
         <span className="hp-text">
-          {isDead ? '0' : enemy.currentHP.toLocaleString()}/{data.maxHP.toLocaleString()}
+          {isDead ? '0' : enemy.currentHP.toLocaleString()}/{enemy.maxHP.toLocaleString()}
         </span>
       </div>
 
-      {!isDead && <ChainGauge enemy={enemy} breakThreshold={data.breakThreshold} />}
+      {!isDead && <ChainGauge enemy={enemy} />}
 
       {!isDead && data.weaknesses.length > 0 && (
         <div className="enemy-weaknesses">

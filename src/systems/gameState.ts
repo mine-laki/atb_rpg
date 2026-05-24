@@ -102,8 +102,8 @@ export function createEnemyInstance(enemyId: string, idx: number, ngPlus: number
   const data = ENEMIES.find((e) => e.id === enemyId);
   if (!data) throw new Error(`Unknown enemy: ${enemyId}`);
 
-  const hpScale  = 1 + 0.5 * ngPlus;
-  const strScale = 1 + 0.3 * ngPlus;
+  const hpScale  = 1 + 1.0 * ngPlus;
+  const strScale = 1 + 0.6 * ngPlus;
   const scaledHP = Math.floor(data.maxHP * hpScale);
 
   return {
@@ -120,6 +120,8 @@ export function createEnemyInstance(enemyId: string, idx: number, ngPlus: number
     actionCooldowns: {},
     lastHitTime: 0,
     statScale: ngPlus > 0 ? strScale : undefined,
+    chainBuildRate: data.chainBuildRate,
+    chainResistMax: data.chainResistMax,
   };
 }
 

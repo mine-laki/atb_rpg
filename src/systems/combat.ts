@@ -76,10 +76,14 @@ function calcDamageBoosts(char: CharacterInstance, ability: CommandAbility, enem
   }
 
   for (const eff of enemy.statusEffects) {
+    // Debuffs on enemy increase player damage
     if (eff.id === 'deprot'  && !ability.element) mult += 0.30;
     if (eff.id === 'deshell' && ability.element)  mult += 0.30;
     if (eff.id === 'imperil')                     mult += 0.30;
     if (eff.id === 'pain')                        mult += 0.20;
+    // Buffs on enemy reduce player damage
+    if (eff.id === 'prot'    && !ability.element) mult *= 0.7;
+    if (eff.id === 'shell'   && ability.element)  mult *= 0.7;
   }
 
   if (enemy.isBreaking) {
@@ -112,7 +116,10 @@ export function executeAttack(
     const magDefMult  =  ability.element ? (1 - (enemyData?.magDef  ?? 0) / 100) : 1;
     const weakMult = weakness ? 1.5 : 1.0;
 
-    const baseStat = ability.element ? char.mag : char.str;
+    // isAdaptive: use max(str, mag); usesStr: force STR even with element; else: element→mag, phys→str
+    const baseStat = ability.isAdaptive
+      ? Math.max(char.str, char.mag)
+      : (ability.usesStr ? char.str : (ability.element ? char.mag : char.str));
     const rawDamage = baseStat * (ability.power ?? 1.0) * physResistMult * physDefMult * magDefMult * weakMult;
     const boostMult = calcDamageBoosts(char, ability, newTarget, party);
     const damage = Math.floor(rawDamage * boostMult * (0.9 + Math.random() * 0.2));
@@ -165,6 +172,9 @@ export function executeHeal(
     let healAmount = 0;
     if (ability.healValue) {
       healAmount = Math.floor(ability.healValue * healMult);
+    } else if (ability.healMissingPercent) {
+      // ケアルア: heal proportional to missing HP
+      healAmount = Math.floor((t.maxHP - t.currentHP) * ability.healMissingPercent * healMult);
     } else if (ability.healPercent) {
       healAmount = Math.floor(t.maxHP * ability.healPercent * healMult);
     }
@@ -213,6 +223,7 @@ export function calcEnemyDamage(
   enemyData: { str: number; mag: number },
   power: number,
   target: CharacterInstance,
+  element?: import('../types').Element,
 ): number {
   const raw = enemyData.str * power;
   let mult = 1.0;
@@ -223,10 +234,16 @@ export function calcEnemyDamage(
   }
 
   for (const eff of target.statusEffects) {
-    if (eff.id === 'prot')  mult *= 0.7;
-    if (eff.id === 'shell') mult *= 0.7;
-    if (eff.id === 'guard') mult *= 0.5;
+    if (eff.id === 'prot')   mult *= 0.7;
+    if (eff.id === 'shell')  mult *= 0.7;
+    if (eff.id === 'guard')  mult *= 0.5;
+    if (eff.id === 'hguard') mult *= 0.1;   // ヘビーガード: 90% damage reduction
+    // Bar elemental resistance: 50% reduction for matching element
+    if (element === 'fire'    && eff.id === 'barfire')    mult *= 0.5;
+    if (element === 'ice'     && eff.id === 'barice')     mult *= 0.5;
+    if (element === 'thunder' && eff.id === 'barthunder') mult *= 0.5;
+    if (element === 'wind'    && eff.id === 'barwind')    mult *= 0.5;
   }
 
-  return Math.floor(raw * Math.max(0.1, mult) * (0.9 + Math.random() * 0.2));
+  return Math.floor(raw * Math.max(0.05, mult) * (0.9 + Math.random() * 0.2));
 }

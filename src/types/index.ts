@@ -3,7 +3,7 @@
 export type RoleId = 'ATK' | 'BLA' | 'DEF' | 'HLR' | 'ENH' | 'JAM';
 export type Element = 'fire' | 'ice' | 'thunder' | 'wind' | 'water' | 'earth' | 'holy' | 'dark' | 'none';
 export type StatId = 'hp' | 'str' | 'mag' | 'def' | 'mdef' | 'spd';
-export type BuffId = 'prot' | 'shell' | 'haste' | 'faith' | 'bravery' | 'guard' | 'regen' | 'veil';
+export type BuffId = 'prot' | 'shell' | 'haste' | 'faith' | 'bravery' | 'guard' | 'regen' | 'veil' | 'hguard' | 'barfire' | 'barice' | 'barthunder' | 'barwind';
 export type DebuffId = 'deprot' | 'deshell' | 'slow' | 'pain' | 'imperil' | 'curse' | 'stop' | 'poison';
 
 // ---- ATB ----
@@ -69,6 +69,7 @@ export interface CommandAbility {
   element?: Element;
   healValue?: number;
   healPercent?: number;
+  healMissingPercent?: number;  // heal (% of missing HP)
   aoe?: boolean;
   buff?: BuffId[];
   debuff?: DebuffId[];
@@ -76,6 +77,10 @@ export interface CommandAbility {
   isUnique?: boolean;
   uniqueOwner?: string;
   isUltimate?: boolean;
+  allowedFor?: string[];       // char IDs allowed to use this ability
+  isAdaptive?: boolean;        // uses max(str, mag) for damage
+  usesStr?: boolean;           // uses STR even when element is set (blow spells)
+  dispelDebuff?: boolean;      // removes debuffs from target
 }
 
 // ---- Character ----
@@ -136,7 +141,6 @@ export interface EnemyData {
   maxHP: number;
   str: number;
   mag: number;
-  breakThreshold: number;   // chain% to trigger break
   weaknesses: Element[];
   resistances: Element[];
   physResist?: number;      // e.g. 0.5 = 50% physical resist
@@ -145,6 +149,8 @@ export interface EnemyData {
   magDef?: number;          // magic defense reduction %, 0-100
   gilReward: number;
   debuffSuccessRate?: number;  // 0-100 (%) デバフが通る確率。未指定=100%。0=完全耐性(AIが使用しない)
+  chainBuildRate?: number;     // chain build speed multiplier (default 1.0)
+  chainResistMax?: number;     // chain gauge cap = break trigger (default 300)
   dropTable: DropTable;
   actions: EnemyAction[];
   isBoss?: boolean;
@@ -157,9 +163,11 @@ export interface EnemyAction {
   power: number;
   element?: Element;
   aoe?: boolean;
-  debuff?: DebuffId;
-  cooldown: number;    // seconds
-  condition?: string;  // e.g. 'phase2'
+  debuff?: DebuffId;        // applies debuff to target party member(s)
+  selfBuff?: BuffId[];      // applies buff to self (the enemy)
+  powerPercent?: number;    // deal this % of target's max HP as damage (ignores power)
+  cooldown: number;         // seconds
+  condition?: string;       // e.g. 'phase2'
 }
 
 export interface BossPhase {
@@ -184,7 +192,9 @@ export interface EnemyInstance {
   currentPhase: number;
   actionCooldowns: Record<string, number>;
   lastHitTime: number;
-  statScale?: number;  // NG+ stat multiplier (str/mag scaling)
+  statScale?: number;        // NG+ stat multiplier (str/mag scaling)
+  chainBuildRate?: number;   // per-enemy chain build multiplier
+  chainResistMax?: number;   // per-enemy chain gauge cap
 }
 
 // ---- Equipment ----

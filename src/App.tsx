@@ -152,6 +152,7 @@ export default function App() {
   const handleVictory = useCallback((finalState: BattleState) => {
     const ngPlus = saveData.newGamePlus ?? 0;
     const rewards = calcBattleRewards(finalState, ngPlus);
+    // リザルト画面表示用（換金分はsetSaveData内で計算するためここでは仮セット）
     setLastRewards(rewards);
     setSaveData(prev => {
       const isNewStageRecord = !selectedStage || selectedStage >= prev.progress.currentStage;
@@ -175,7 +176,20 @@ export default function App() {
         if (!newEncountered.includes(enemy.dataId)) newEncountered.push(enemy.dataId);
       }
 
-      const equipDrops = buildEquipmentDrops(rewards.drops);
+      // 取得済みキャラのフラグメントを 500gil に自動換金
+      const FRAGMENT_SELL_GIL = 500;
+      let bonusGil = 0;
+      const filteredDrops = rewards.drops.filter(drop => {
+        if (drop.type !== 'fragment' && !drop.itemId.startsWith('fragment_')) return true;
+        const charId = drop.itemId.replace('fragment_', '');
+        if (prev.progress.unlockedCharacters.includes(charId)) {
+          bonusGil += FRAGMENT_SELL_GIL * drop.quantity;
+          return false; // インベントリには追加しない
+        }
+        return true;
+      });
+
+      const equipDrops = buildEquipmentDrops(filteredDrops);
       const updated: SaveData = {
         ...prev,
         newGamePlus: newNGPlus,
@@ -183,8 +197,8 @@ export default function App() {
           ...prev.progress,
           inventory: {
             ...prev.progress.inventory,
-            gil: prev.progress.inventory.gil + rewards.gil,
-            materials: mergeDrops(prev.progress.inventory.materials, rewards.drops),
+            gil: prev.progress.inventory.gil + rewards.gil + bonusGil,
+            materials: mergeDrops(prev.progress.inventory.materials, filteredDrops),
             equipments: [...prev.progress.inventory.equipments, ...equipDrops],
             battleItems: finalState.battleItems,
           },

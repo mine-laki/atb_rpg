@@ -15,9 +15,10 @@ function getEquipChainBoost(char: CharacterInstance): number {
   return total;
 }
 
-const CHAIN_DECAY_RATE = 15;    // %/second
-const BREAK_DURATION = 15;      // seconds
-const MAX_CHAIN = 999;
+const CHAIN_DECAY_RATE = 15;       // %/second
+const BREAK_DURATION = 15;         // seconds
+const DEFAULT_BREAK_AT = 300;      // default chainResistMax
+const CHAIN_BUILD_RATE = 0.2;      // global chain build multiplier
 
 export function calcChainBonus(gaugePercent: number): number {
   // chain multiplier: 1.0 at 0%, up to 9.99 at 999%
@@ -31,7 +32,9 @@ export function applyChainHit(
   char: CharacterInstance,
   timestamp: number,
 ): EnemyInstance {
-  let chainIncrease = ability.chainBonus;
+  const breakAt = enemy.chainResistMax ?? DEFAULT_BREAK_AT;
+  const enemyChainRate = enemy.chainBuildRate ?? 1.0;
+  let chainIncrease = ability.chainBonus * CHAIN_BUILD_RATE * enemyChainRate;
 
   // BLA role level bonus: +3% chain per level
   if (char.currentRole === 'BLA') {
@@ -45,11 +48,9 @@ export function applyChainHit(
   // weakness multiplier
   if (isWeakness) chainIncrease *= 1.5;
 
-  const newGauge = Math.min(MAX_CHAIN, enemy.chainGauge + chainIncrease);
+  const newGauge = Math.min(breakAt, enemy.chainGauge + chainIncrease);
   const wasBreaking = enemy.isBreaking;
-  const nowBreaking = newGauge >= enemy.chainGauge
-    ? (enemy.isBreaking || newGauge >= 300)
-    : enemy.isBreaking;
+  const nowBreaking = enemy.isBreaking || newGauge >= breakAt;
 
   return {
     ...enemy,
@@ -62,6 +63,7 @@ export function applyChainHit(
 }
 
 export function updateChain(enemy: EnemyInstance, delta: number, currentTime: number): EnemyInstance {
+  const breakAt = enemy.chainResistMax ?? DEFAULT_BREAK_AT;
   let { chainGauge, isBreaking, breakTimer, lastHitTime, chainDecayTimer } = enemy;
 
   if (isBreaking) {
@@ -83,7 +85,7 @@ export function updateChain(enemy: EnemyInstance, delta: number, currentTime: nu
   }
 
   // check break trigger
-  if (chainGauge >= 300 && !isBreaking) {
+  if (chainGauge >= breakAt && !isBreaking) {
     isBreaking = true;
     breakTimer = BREAK_DURATION;
   }

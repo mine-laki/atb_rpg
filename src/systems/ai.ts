@@ -88,9 +88,15 @@ export function aiSelectAction(
       if (hpRatio > 0.7) {
         const braver = abilities.find(a => a.id === 'atk_braver' && a.cost <= atbSegs);
         if (braver) return { ability: braver, targetEnemyIdx };
+        // Use AoE blast if multiple enemies are alive
+        const areablast = abilities.find(a => a.id === 'atk_areablast' && a.cost <= atbSegs);
+        if (areablast && aliveEnemies.length > 1) return { ability: areablast, targetEnemyIdx };
         const rush = abilities.find(a => a.id === 'atk_rush' && a.cost <= atbSegs);
         if (rush) return { ability: rush, targetEnemyIdx };
       }
+      // ルイン uses max(str, mag) — always at least as good as fight
+      const ruin = abilities.find(a => a.id === 'atk_ruin' && a.cost <= atbSegs);
+      if (ruin) return { ability: ruin, targetEnemyIdx };
       const fight = abilities.find(a => a.id === 'atk_fight' && a.cost <= atbSegs);
       if (fight) return { ability: fight, targetEnemyIdx };
       const best = highestCostAbility(abilities, atbSegs);
@@ -121,10 +127,18 @@ export function aiSelectAction(
     }
 
     case 'DEF': {
-      const fight = abilities.find(a => a.id === 'def_fight' && a.cost <= atbSegs);
-      if (fight) return { ability: fight, targetEnemyIdx };
+      // At low HP, prefer heavy guard for maximum protection
+      if (hpRatio < 0.4) {
+        const hguard = abilities.find(a => a.id === 'def_heavyguard' && a.cost <= atbSegs);
+        if (hguard) return { ability: hguard };
+      }
+      // Prefer regen guard for sustained protection + healing
+      const regenGuard = abilities.find(a => a.id === 'def_regenguard' && a.cost <= atbSegs);
+      if (regenGuard) return { ability: regenGuard };
+      const guard = abilities.find(a => a.id === 'def_guard' && a.cost <= atbSegs);
+      if (guard) return { ability: guard };
       const best = highestCostAbility(abilities, atbSegs);
-      if (best) return { ability: best, targetEnemyIdx };
+      if (best) return { ability: best };
       return null;
     }
 
@@ -136,17 +150,30 @@ export function aiSelectAction(
         if (raise) return { ability: raise, targetCharIdx: party.indexOf(dead) };
       }
 
-      // 2. HP最低のメンバーを回復（全体回復も考慮）
+      // 2. デバフ解除（エスナ）
+      const charWithDebuff = party.find(p => p.isAlive && p.statusEffects.some(e => e.type === 'debuff'));
+      if (charWithDebuff) {
+        const esuna = abilities.find(a => a.dispelDebuff && a.cost <= atbSegs);
+        if (esuna) return { ability: esuna, targetCharIdx: party.indexOf(charWithDebuff) };
+      }
+
+      // 3. HP最低のメンバーを回復（全体回復も考慮）
       const lowest = lowestHPChar(party);
       if (lowest) {
         const lowestRatio = lowest.currentHP / lowest.maxHP;
 
         // 全体的に低いなら全体回復
-        const avgHPRatio = party.filter(p => p.isAlive)
-          .reduce((sum, p) => sum + p.currentHP / p.maxHP, 0) / party.filter(p => p.isAlive).length;
+        const aliveMembers = party.filter(p => p.isAlive);
+        const avgHPRatio = aliveMembers.reduce((sum, p) => sum + p.currentHP / p.maxHP, 0) / aliveMembers.length;
         if (avgHPRatio < 0.6) {
           const aoeHeal = abilities.find(a => a.aoe && (a.healValue || a.healPercent) && a.cost <= atbSegs);
           if (aoeHeal) return { ability: aoeHeal };
+        }
+
+        // ケアルア（欠損HP回復）：HP大幅低下時に優先
+        if (lowestRatio < 0.4) {
+          const curaa = abilities.find(a => a.healMissingPercent && a.cost <= atbSegs);
+          if (curaa) return { ability: curaa, targetCharIdx: party.indexOf(lowest) };
         }
 
         if (lowestRatio < 0.5) {
@@ -158,7 +185,7 @@ export function aiSelectAction(
           if (cura) return { ability: cura, targetCharIdx: party.indexOf(lowest) };
         }
       }
-      // 3. ケアルは最低HPのメンバーへ（0番ではなく）
+      // 4. ケアルは最低HPのメンバーへ
       const cure = abilities.find(a => a.id === 'hlr_cure' && a.cost <= atbSegs);
       if (cure) return { ability: cure, targetCharIdx: party.indexOf(lowestHPChar(party) ?? party[0]) };
       const best = highestCostAbility(abilities, atbSegs);
@@ -167,25 +194,47 @@ export function aiSelectAction(
     }
 
     case 'ENH': {
-      const buffsToApply = ['haste', 'prot', 'shell', 'faith',] as const;
+      const buffsToApply = ['haste', 'prot', 'shell', 'faith'] as const;
 
       // バフ種別ごとに「誰か1人でも未付与なら付与」を優先
-      // AoEアビリティが使えれば全体に付与、なければ未付与の最初のメンバーに付与
       for (const buffId of buffsToApply) {
         const needsBuffList = party.filter(p => p.isAlive && !hasBuff(p, buffId));
         if (!needsBuffList.length) continue;
 
-        // AoEバフを優先（全体を一括で）
         const aoeAb = abilities.find(a =>
           a.buff?.includes(buffId as any) && a.aoe && a.cost <= atbSegs
         );
-        if (aoeAb) return { ability: aoeAb };  // AoEはtargetCharIdxなし
+        if (aoeAb) return { ability: aoeAb };
 
-        // シングルターゲット版で未付与の最初のメンバーへ
         const singleAb = abilities.find(a =>
           a.buff?.includes(buffId as any) && !a.aoe && a.cost <= atbSegs
         );
         if (singleAb) return { ability: singleAb, targetCharIdx: party.indexOf(needsBuffList[0]) };
+      }
+
+      // ヴェイル：デバフ耐性（全員未付与なら付与）
+      const needsVeil = party.find(p => p.isAlive && !hasBuff(p, 'veil'));
+      if (needsVeil) {
+        const veilAb = abilities.find(a => a.buff?.includes('veil' as any) && a.cost <= atbSegs);
+        if (veilAb) return { ability: veilAb, targetCharIdx: party.indexOf(needsVeil) };
+      }
+
+      // 属性バフ（敵の使う属性に応じて）
+      const enemyElements = new Set(
+        aliveEnemies.flatMap(e => {
+          const eData = getEnemyById(e.dataId);
+          return (eData?.actions ?? []).map(a => a.element).filter(Boolean) as string[];
+        })
+      );
+      const barBuffMap: [string, string][] = [
+        ['fire', 'barfire'], ['ice', 'barice'], ['thunder', 'barthunder'], ['wind', 'barwind'],
+      ];
+      for (const [element, barBuff] of barBuffMap) {
+        if (!enemyElements.has(element)) continue;
+        const needsBar = party.find(p => p.isAlive && !hasBuff(p, barBuff));
+        if (!needsBar) continue;
+        const barAb = abilities.find(a => a.buff?.includes(barBuff as any) && a.cost <= atbSegs);
+        if (barAb) return { ability: barAb, targetCharIdx: party.indexOf(needsBar) };
       }
 
       // 全バフ適用済み → HP最低メンバーを回復
@@ -216,6 +265,19 @@ export function aiSelectAction(
 
       // 20%超: 通常優先でデバフ付与を狙う
       if (targetEnemy && debuffRate > 20) {
+        // 複数の敵がいる場合はAoEデバフを優先
+        if (aliveEnemies.length > 1) {
+          const aoeDebuffAb = abilities.find(a =>
+            a.aoe && a.debuff?.length && a.cost <= atbSegs
+          );
+          if (aoeDebuffAb) {
+            // 全敵にまだかかっていないデバフがあれば使う
+            const debuffId = aoeDebuffAb.debuff![0];
+            const anyNeedsDebuff = aliveEnemies.some(e => !hasDebuff(e, debuffId));
+            if (anyNeedsDebuff) return { ability: aoeDebuffAb, targetEnemyIdx };
+          }
+        }
+
         const debuffsToApply = ['deprot', 'deshell', 'slow', 'pain'] as const;
         for (const debuffId of debuffsToApply) {
           if (!hasDebuff(targetEnemy, debuffId)) {

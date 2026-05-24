@@ -1,14 +1,16 @@
 import type { EnemyInstance } from '../../types';
 import { calcChainBonus } from '../../systems/chain';
 
+const DEFAULT_BREAK_AT = 300;
+
 interface ChainGaugeProps {
   enemy: EnemyInstance;
-  breakThreshold: number;
 }
 
-export function ChainGauge({ enemy, breakThreshold }: ChainGaugeProps) {
+export function ChainGauge({ enemy }: ChainGaugeProps) {
   const { chainGauge, isBreaking, breakTimer } = enemy;
-  const pct = Math.min(100, (chainGauge / breakThreshold) * 100);
+  const breakAt = enemy.chainResistMax ?? DEFAULT_BREAK_AT;
+  const pct = Math.min(100, (chainGauge / breakAt) * 100);
   const multiplier = calcChainBonus(chainGauge).toFixed(2);
 
   return (
@@ -25,7 +27,7 @@ export function ChainGauge({ enemy, breakThreshold }: ChainGaugeProps) {
           className="chain-fill"
           style={{
             width: `${Math.min(100, pct)}%`,
-            backgroundColor: isBreaking ? '#ff6600' : chainGauge >= breakThreshold * 0.8 ? '#ffcc00' : '#4488ff',
+            backgroundColor: isBreaking ? '#ff6600' : chainGauge >= breakAt * 0.8 ? '#ffcc00' : '#4488ff',
           }}
         />
         <div className="chain-threshold-marker" style={{ left: '100%' }} />

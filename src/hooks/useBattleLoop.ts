@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import type { BattleState, CharacterInstance, ActionLogEntry, BattlePhase } from '../types';
 import { updateATB, updateStatusEffects, consumeATB, hasEnoughATB } from '../systems/atb';
+import type { BuffId } from '../types';
 import { updateChain } from '../systems/chain';
 import { aiSelectAction } from '../systems/ai';
 import { executeAttack, executeHeal, executeRevive, calcEnemyDamage } from '../systems/combat';
@@ -56,6 +57,13 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
           updated.currentHP = Math.min(updated.maxHP, updated.currentHP + heal);
         }
 
+        // Poison DoT: 1% max HP per second (can be fatal)
+        if (updated.isAlive && updated.statusEffects.some(e => e.id === 'poison')) {
+          const poisonDmg = Math.floor(updated.maxHP * 0.01 * delta);
+          updated.currentHP = Math.max(0, updated.currentHP - poisonDmg);
+          if (updated.currentHP <= 0) updated.isAlive = false;
+        }
+
         // Equipment auto_regen effect (passive, always-on)
         if (updated.isAlive) {
           let autoRegenRate = 0;
@@ -76,7 +84,17 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
         return updated;
       });
 
-      let enemies = prev.enemies.map(e => updateChain(e, delta, now));
+      // Update chain + status effects + poison DoT for enemies
+      let enemies = prev.enemies.map(e => {
+        const chainUpdated = updateChain(e, delta, now);
+        const updatedEffects = updateStatusEffects(e.statusEffects, delta);
+        let currentHP = chainUpdated.currentHP;
+        // Poison DoT on enemies: 0.5% max HP per second
+        if (currentHP > 0 && updatedEffects.some(eff => eff.id === 'poison')) {
+          currentHP = Math.max(0, currentHP - Math.floor(e.maxHP * 0.005 * delta));
+        }
+        return { ...chainUpdated, statusEffects: updatedEffects, currentHP };
+      });
 
       const newLogs: ActionLogEntry[] = [];
 
@@ -187,6 +205,28 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
             id: logId(), timestamp: now,
             actorEmoji, actorName,
             targetName: buffAll ? 'パーティ' : (CHARACTERS.find(c => c.id === targets[0]?.dataId)?.name ?? ''),
+            abilityName: ability.name,
+            value: 0, type: 'buff',
+          });
+
+        } else if (ability.dispelDebuff) {
+          // エスナ: remove all debuffs from target
+          const dispelAll = ability.aoe;
+          const tIdx = targetCharIdx ?? charIdx;
+          const dispelTargets = dispelAll
+            ? party.filter(p => p.isAlive)
+            : [party[tIdx]].filter(Boolean) as CharacterInstance[];
+          let cleansedName = '';
+          for (const bt of dispelTargets) {
+            const pi = party.findIndex(p => p.id === bt.id);
+            if (pi < 0) continue;
+            party[pi] = { ...party[pi], statusEffects: party[pi].statusEffects.filter(e => e.type !== 'debuff') };
+            cleansedName = CHARACTERS.find(c => c.id === bt.dataId)?.name ?? bt.dataId;
+          }
+          newLogs.push({
+            id: logId(), timestamp: now,
+            actorEmoji, actorName,
+            targetName: dispelAll ? 'パーティ' : cleansedName,
             abilityName: ability.name,
             value: 0, type: 'buff',
           });
@@ -317,30 +357,114 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
           newCooldowns[action.id] = action.cooldown * 2;
           didAct = true;
 
-          const targets = action.aoe ? aliveParty : [aliveParty[Math.floor(Math.random() * aliveParty.length)]];
-          const scale = enemy.statScale ?? 1;
-          const scaledEnemyData = scale !== 1
-            ? { ...enemyData, str: Math.floor(enemyData.str * scale), mag: Math.floor(enemyData.mag * scale) }
-            : enemyData;
-          for (const target of targets) {
-            const damage = calcEnemyDamage(scaledEnemyData, action.power, target);
-            const newHP = Math.max(0, target.currentHP - damage);
-            const pi = party.findIndex(p => p.id === target.id);
-            if (pi >= 0) party[pi] = { ...party[pi], currentHP: newHP, isAlive: newHP > 0 };
-
+          // Self-buff action: apply buff to the enemy itself
+          if (action.selfBuff && action.selfBuff.length > 0) {
+            const newEffects = [...enemies[eIdx].statusEffects];
+            for (const buffId of action.selfBuff) {
+              const baseDuration = buffId === 'haste' ? 20 : 30;
+              const existing = newEffects.findIndex(e => e.id === buffId);
+              const effect = { id: buffId as any, type: 'buff' as const, duration: baseDuration, value: 1 };
+              if (existing >= 0) newEffects[existing] = effect;
+              else newEffects.push(effect);
+            }
+            enemies[eIdx] = { ...enemies[eIdx], statusEffects: newEffects };
             newLogs.push({
               id: logId(), timestamp: now,
               actorEmoji: enemyData.emoji,
               actorName:  enemyData.name,
-              targetName: CHARACTERS.find(c => c.id === target.dataId)?.name ?? target.dataId,
+              targetName: enemyData.name,
               abilityName: action.name,
-              value: damage,
-              type: 'damage',
+              value: 0, type: 'buff',
             });
+          } else {
+            const targets = action.aoe ? aliveParty : [aliveParty[Math.floor(Math.random() * aliveParty.length)]];
+            const scale = enemy.statScale ?? 1;
+            const scaledEnemyData = scale !== 1
+              ? { ...enemyData, str: Math.floor(enemyData.str * scale), mag: Math.floor(enemyData.mag * scale) }
+              : enemyData;
+
+            for (const target of targets) {
+              const pi = party.findIndex(p => p.id === target.id);
+
+              // Damage
+              let damage = 0;
+              if (action.power > 0 || !action.debuff) {
+                if (action.powerPercent) {
+                  // 割合ダメージ（ラスボスの宣告など）
+                  damage = Math.floor(target.maxHP * action.powerPercent);
+                } else if (action.power > 0) {
+                  damage = calcEnemyDamage(scaledEnemyData, action.power, target, action.element);
+                }
+                if (damage > 0) {
+                  const newHP = Math.max(0, target.currentHP - damage);
+                  if (pi >= 0) party[pi] = { ...party[pi], currentHP: newHP, isAlive: newHP > 0 };
+                  newLogs.push({
+                    id: logId(), timestamp: now,
+                    actorEmoji: enemyData.emoji,
+                    actorName:  enemyData.name,
+                    targetName: CHARACTERS.find(c => c.id === target.dataId)?.name ?? target.dataId,
+                    abilityName: action.name,
+                    value: damage,
+                    type: 'damage',
+                  });
+                }
+              }
+
+              // Debuff on party member (with veil resistance)
+              if (action.debuff && pi >= 0) {
+                const debuffTarget = party[pi];
+                const baseRate = 70; // 70% base success rate for enemy debuffs
+                const hasVeil = debuffTarget.statusEffects.some(e => e.id === 'veil');
+                const actualRate = hasVeil ? baseRate * 0.4 : baseRate;
+                if (Math.random() * 100 < actualRate) {
+                  const debuffId = action.debuff;
+                  const baseDuration = debuffId === 'stop' ? 5 : debuffId === 'slow' ? 12 : 20;
+                  const newEffects = [...party[pi].statusEffects];
+                  const existing = newEffects.findIndex(e => e.id === debuffId);
+                  const effect = { id: debuffId as any, type: 'debuff' as const, duration: baseDuration, value: 0.3 };
+                  if (existing >= 0) newEffects[existing] = effect;
+                  else newEffects.push(effect);
+                  party[pi] = { ...party[pi], statusEffects: newEffects };
+                  if (damage === 0) {
+                    // Only log debuff if no damage was dealt (avoid double log)
+                    newLogs.push({
+                      id: logId(), timestamp: now,
+                      actorEmoji: enemyData.emoji,
+                      actorName:  enemyData.name,
+                      targetName: CHARACTERS.find(c => c.id === target.dataId)?.name ?? target.dataId,
+                      abilityName: action.name,
+                      value: 0, type: 'debuff',
+                    });
+                  }
+                }
+              }
+            }
           }
         }
 
-        enemies[eIdx] = { ...enemy, actionCooldowns: newCooldowns, currentPhase };
+        // Phase transitions: apply buffSelf when phase changes
+        let newPhaseBuffs: BuffId[] = [];
+        if (enemyData.phases) {
+          for (let ph = enemyData.phases.length - 1; ph >= 0; ph--) {
+            const phase = enemyData.phases[ph];
+            if (hpRatio <= phase.triggerHPPercent && enemy.currentPhase <= ph && phase.buffSelf) {
+              newPhaseBuffs = [...newPhaseBuffs, ...(phase.buffSelf as BuffId[])];
+            }
+          }
+        }
+        let updatedEnemy = { ...enemies[eIdx], actionCooldowns: newCooldowns, currentPhase };
+        if (newPhaseBuffs.length > 0) {
+          const newEffects = [...updatedEnemy.statusEffects];
+          for (const buffId of newPhaseBuffs) {
+            const baseDuration = buffId === 'haste' ? 25 : 35;
+            const existing = newEffects.findIndex(e => e.id === buffId);
+            const effect = { id: buffId as any, type: 'buff' as const, duration: baseDuration, value: 1 };
+            if (existing >= 0) newEffects[existing] = effect;
+            else newEffects.push(effect);
+          }
+          updatedEnemy = { ...updatedEnemy, statusEffects: newEffects };
+        }
+        enemies[eIdx] = updatedEnemy;
       }
 
       // ── 5. Battle end check ──

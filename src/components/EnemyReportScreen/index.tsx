@@ -104,6 +104,19 @@ function EnemyCard({ enemy }: { enemy: EnemyData }) {
             </span>
           </div>
         )}
+        {enemy.isBoss && (() => {
+          const rate = enemy.chainBuildRate ?? 1.0;
+          const max  = enemy.chainResistMax ?? 999;
+          const label = rate >= 1.5 ? '速' : rate <= 0.5 ? '遅' : '普通';
+          const rateColor = rate >= 1.5 ? '#88ccff' : rate <= 0.5 ? '#ffaa66' : '#aaaacc';
+          const maxColor  = max <= 300 ? '#ff8866' : max <= 600 ? '#ffcc66' : '#aaaacc';
+          return (
+            <div className="enemy-report-stat">
+              チェーン蓄積: <span style={{ color: rateColor }}>×{rate.toFixed(1)} ({label})</span>
+              　上限: <span style={{ color: maxColor }}>{max}%</span>
+            </div>
+          );
+        })()}
       </div>
       {enemy.weaknesses.length > 0 && (
         <div className="enemy-report-elements">

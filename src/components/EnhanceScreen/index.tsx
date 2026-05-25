@@ -170,6 +170,36 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
     setActiveSlot(null);
   };
 
+  // ── 装備プリセット ──────────────────────────────────
+  const presets: (import('../../types').EquipmentSlots | null)[] = charSave.equipPresets ?? [null, null, null];
+
+  const handleSavePreset = (idx: number) => {
+    const newPresets = [...presets] as (import('../../types').EquipmentSlots | null)[];
+    newPresets[idx] = { ...currentEquip };
+    onUpdate(updateRoster({ ...charSave, equipPresets: newPresets }));
+  };
+
+  const handleLoadPreset = (idx: number) => {
+    const preset = presets[idx];
+    if (!preset) return;
+    onUpdate(updateRoster({ ...charSave, equipment: { ...preset } }));
+    setActiveSlot(null);
+  };
+
+  const handleClearPreset = (idx: number) => {
+    const newPresets = [...presets] as (import('../../types').EquipmentSlots | null)[];
+    newPresets[idx] = null;
+    onUpdate(updateRoster({ ...charSave, equipPresets: newPresets }));
+  };
+
+  function presetLabel(idx: number): string {
+    const p = presets[idx];
+    if (!p) return '空';
+    const wInst = getInst(p.weapon);
+    const wData = wInst ? getEquipmentById(wInst.itemId) : null;
+    return wData ? `${wData.emoji}${wData.name}` : '装備あり';
+  }
+
   const slotFilterType = activeSlot === 'weapon' ? 'weapon' : (activeSlot ? 'accessory' : null);
   const filteredInventory = slotFilterType
     ? equipments.filter(inst => {
@@ -490,6 +520,41 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           ══════════════════════════════════════ */}
       {tab === 'equip' && (
         <div className="enhance-section equip-tab">
+
+          {/* ── 装備プリセット ── */}
+          <div className="equip-preset-section">
+            <div className="equip-preset-title">📦 装備セット</div>
+            <div className="equip-preset-row">
+              {([0, 1, 2] as const).map(idx => (
+                <div key={idx} className={`equip-preset-card ${presets[idx] ? 'filled' : 'empty'}`}>
+                  <div className="equip-preset-name">セット {idx + 1}</div>
+                  <div className="equip-preset-summary">{presetLabel(idx)}</div>
+                  <div className="equip-preset-btns">
+                    <button
+                      className="btn-small btn-preset-save"
+                      onClick={() => handleSavePreset(idx)}
+                      title="現在の装備を保存"
+                    >保存</button>
+                    {presets[idx] && (
+                      <>
+                        <button
+                          className="btn-small btn-preset-load"
+                          onClick={() => handleLoadPreset(idx)}
+                          title="このセットを装備"
+                        >適用</button>
+                        <button
+                          className="btn-small btn-preset-clear"
+                          onClick={() => handleClearPreset(idx)}
+                          title="セットを削除"
+                        >✕</button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="equip-slots">
             {equipSlots.map(({ slot, label, id }) => {
               const inst = getInst(id ?? null);

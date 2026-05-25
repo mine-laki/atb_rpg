@@ -342,20 +342,23 @@ export interface BattleReward {
 
 // ---- Save Data ----
 
+export type EquipmentSlots = {
+  weapon: string | null;
+  accessory1: string | null;
+  accessory2: string | null;
+  accessory3: string | null;
+  accessory4: string | null;
+};
+
 export interface CharacterSaveData {
   id: string;
   level: number;
   exp: number;
-  equipment: {
-    weapon: string | null;
-    accessory1: string | null;
-    accessory2: string | null;
-    accessory3: string | null;
-    accessory4: string | null;
-  };
+  equipment: EquipmentSlots;
   unlockedRoles: RoleId[];
   roleLevels: Partial<Record<RoleId, number>>;
   unlockedSkillNodes: string[];
+  equipPresets?: (EquipmentSlots | null)[];  // 3スロット装備プリセット
 }
 
 export interface ProgressData {

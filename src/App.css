@@ -535,6 +535,29 @@ button {
 .chain-gauge.breaking .chain-bar {
   box-shadow: 0 0 8px #ff6600;
 }
+/* チェーン段階マーカー */
+.chain-tier-marker {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  opacity: 0.7;
+  border-left: 2px solid;
+  pointer-events: none;
+}
+/* 段階バッジ */
+.chain-tier-badge {
+  font-size: 0.85em;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+/* 段階ごとのアニメーション色 */
+.chain-tier-2.breaking .chain-bar { box-shadow: 0 0 10px #ff4400; }
+.chain-tier-3.breaking .chain-bar { box-shadow: 0 0 14px #cc44ff, 0 0 28px #8800cc; animation: tier3-pulse 0.4s infinite alternate; }
+@keyframes tier3-pulse {
+  from { box-shadow: 0 0 10px #cc44ff, 0 0 20px #8800cc; }
+  to   { box-shadow: 0 0 20px #dd88ff, 0 0 40px #cc44ff; }
+}
 
 .enemy-weaknesses { font-size: 0.8em; color: #ffcc44; margin-top: 4px; }
 .enemy-status { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }

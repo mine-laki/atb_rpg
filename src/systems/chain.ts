@@ -22,9 +22,23 @@ const CHAIN_BUILD_RATE = 0.2;       // global chain build multiplier
 const BREAK_CHAIN_MULT = 2.5;       // chain build rate multiplier during break
 export const BREAK_GAUGE_MAX = 999; // gauge can exceed breakAt during break
 
+// チェーン段階定義: ゲージ値 → 段階 (0〜3)
+export const CHAIN_TIERS = [
+  { threshold: 999, tier: 3, bonus: 3.0, color: '#cc44ff', label: 'MAX' },
+  { threshold: 500, tier: 2, bonus: 1.5, color: '#ff4400', label: 'HIGH' },
+  { threshold: 200, tier: 1, bonus: 0.5, color: '#ffaa00', label: 'UP'  },
+  { threshold: 0,   tier: 0, bonus: 0.0, color: '#4488ff', label: ''    },
+] as const;
+
+export function getChainTier(gaugePercent: number) {
+  return CHAIN_TIERS.find(t => gaugePercent >= t.threshold) ?? CHAIN_TIERS[CHAIN_TIERS.length - 1];
+}
+
 export function calcChainBonus(gaugePercent: number): number {
-  // chain multiplier: 1.0 at 0%, up to 9.99 at 999%
-  return Math.min(9.99, 1.0 + (gaugePercent / 100) * (8.99 / 9.99));
+  // base: 1.0 at 0% → ~9.0 at 999%
+  const base = 1.0 + (gaugePercent / 100) * (8.0 / 9.99);
+  const tier = getChainTier(gaugePercent);
+  return Math.min(14.0, base + tier.bonus);
 }
 
 export function applyChainHit(

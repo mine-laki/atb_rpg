@@ -1,50 +1,49 @@
-# React + TypeScript + Vite
+# 🎮 EmojiParadigm
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+FF13 風のオプティマシステムを持つブラウザ RPG です。  
+React + TypeScript + Vite で実装し、GitHub Pages で公開しています。
 
-Currently, two official plugins are available:
+**▶ プレイはこちら → https://mine-laki.github.io/atb_rpg/**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## ゲーム概要
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **ATB（アクティブタイムバトル）** システムによるリアルタイムバトル
+- **オプティマ（作戦）** をバトル中に切り替えてロール（役割）を変更
+- **ロール** ：ATK（アタッカー）/ BLA（ブラスター）/ DEF（ディフェンダー）/ HLR（ヒーラー）/ ENH（エンハンサー）/ JAM（ジャマー）
+- **チェーンゲージ** を溜めてブレイク状態に持ち込み、大ダメージを与える
+- キャラ育成：レベルアップ・ロールレベル・装備強化・クリスタルによるロール解放
+- **NG+ システム**：クリア後も難易度を上げて周回プレイ可能
 
-- Configure the top-level `parserOptions` property like this:
+---
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## コマンド
+
+環境に Node.js v20 が存在しない場合は、先頭に `PATH="/tmp/node-v20.18.0-darwin-arm64/bin:$PATH"` を付けて実行してください。
+
+| コマンド | 内容 |
+|---|---|
+| `npm run dev` | 開発サーバー起動（ホットリロード付き） |
+| `npm run build` | TypeScript チェック → `dist/` へ本番ビルド |
+| `npm run preview` | ビルド済み `dist/` をローカルでプレビュー |
+| `npm run lint` | ESLint による静的解析 |
+| `npm run deploy` | ビルド → GitHub Pages (`gh-pages` ブランチ) へデプロイ |
+
+### デプロイ手順（手動）
+
+```bash
+PATH="/tmp/node-v20.18.0-darwin-arm64/bin:$PATH" npm run build
+PATH="/tmp/node-v20.18.0-darwin-arm64/bin:$PATH" npx gh-pages -d dist --no-history
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+> `--no-history` を付けることで `gh-pages` ブランチの履歴をリセットし、容量を抑えます。
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+---
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## 技術スタック
+
+- **React 18** + **TypeScript**
+- **Vite 5**（バンドル・開発サーバー）
+- **gh-pages**（GitHub Pages デプロイ）
+- セーブデータは `localStorage` に保存（ブラウザ完結）

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type { BattleState } from '../../types';
 import { CharacterCard } from '../CharacterCard';
 import { EnemyCard } from '../EnemyCard';
@@ -94,6 +94,21 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
       setTimeout(() => setIsRunning(true), 50);
     }
   }, [isRunning]);
+
+  // キーボードショートカット: 1〜6 で作戦切替（PCのみ有効）
+  useEffect(() => {
+    if (state.phase !== 'battle' || waveTransition) return;
+    const handleKey = (e: KeyboardEvent) => {
+      // テキスト入力中は無視
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
+      const n = parseInt(e.key);
+      if (n >= 1 && n <= 6) {
+        handleParadigmSwitch(n - 1);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [state.phase, waveTransition, handleParadigmSwitch]);
 
   const handleUseItem = useCallback((itemId: string) => {
     setState(prev => {

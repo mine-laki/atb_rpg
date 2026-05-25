@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { SaveData, RoleId, ParadigmData } from '../../types';
+import type { SaveData, RoleId, ParadigmData, SetupPreset } from '../../types';
 import { CHARACTERS } from '../../data/characters';
 import { getRoleEmoji, getRoleLabel, getParadigmAutoName } from '../../systems/paradigm';
 
@@ -7,12 +7,20 @@ interface SetupScreenProps {
   saveData: SaveData;
   onStart: (updatedSave: SaveData) => void;
   onBack: () => void;
+  setupPresets: (SetupPreset | null)[];
+  onSavePreset: (slot: number, preset: SetupPreset) => void;
 }
 
-export function SetupScreen({ saveData, onStart, onBack }: SetupScreenProps) {
+function makePresetName(partyIds: [string, string, string], paradigms: ParadigmData[]): string {
+  const emojis = partyIds.map(id => CHARACTERS.find(c => c.id === id)?.emoji ?? '？').join('');
+  return `${emojis} ${paradigms[0]?.name ?? ''}`;
+}
+
+export function SetupScreen({ saveData, onStart, onBack, setupPresets, onSavePreset }: SetupScreenProps) {
   const [party, setParty] = useState<[string, string, string]>(saveData.player.party);
   const [paradigms, setParadigms] = useState<ParadigmData[]>(saveData.paradigms);
   const [tab, setTab] = useState<'party' | 'paradigm'>('party');
+  const [savedSlot, setSavedSlot] = useState<number | null>(null);
 
   const unlockedChars = CHARACTERS
     .filter(c => saveData.progress.unlockedCharacters.includes(c.id))
@@ -31,7 +39,6 @@ export function SetupScreen({ saveData, onStart, onBack }: SetupScreenProps) {
     newParty[slot] = charId;
     setParty(newParty);
 
-    // パーティ変更時: 全オプティマを各キャラの roles[0] でリセット
     const defaultRoles = newParty.map(id => {
       const char = CHARACTERS.find(c => c.id === id);
       return (char?.roles[0] ?? 'ATK') as RoleId;
@@ -53,6 +60,28 @@ export function SetupScreen({ saveData, onStart, onBack }: SetupScreenProps) {
     }));
   };
 
+  const handleLoadPreset = (preset: SetupPreset) => {
+    // 解放済みのキャラのみ読み込み
+    const unlocked = saveData.progress.unlockedCharacters;
+    const safeParty = preset.party.map(id =>
+      unlocked.includes(id) ? id : unlocked[0]
+    ) as [string, string, string];
+    setParty(safeParty);
+    setParadigms(preset.paradigms);
+    setTab('party');
+  };
+
+  const handleSavePreset = (slot: number) => {
+    const preset: SetupPreset = {
+      name: makePresetName(party, paradigms),
+      party,
+      paradigms,
+    };
+    onSavePreset(slot, preset);
+    setSavedSlot(slot);
+    setTimeout(() => setSavedSlot(null), 1500);
+  };
+
   const handleStart = () => {
     onStart({ ...saveData, player: { ...saveData.player, party }, paradigms });
   };
@@ -65,6 +94,51 @@ export function SetupScreen({ saveData, onStart, onBack }: SetupScreenProps) {
         <div className="setup-tabs">
           <button className={tab === 'party' ? 'active' : ''} onClick={() => setTab('party')}>パーティ</button>
           <button className={tab === 'paradigm' ? 'active' : ''} onClick={() => setTab('paradigm')}>作戦</button>
+        </div>
+      </div>
+
+      {/* プリセットパネル */}
+      <div className="setup-presets">
+        <div className="setup-presets-title">📁 プリセット保存／読込</div>
+        <div className="setup-preset-list">
+          {([0, 1, 2] as const).map(slot => {
+            const preset = setupPresets[slot] ?? null;
+            const isSaved = savedSlot === slot;
+            return (
+              <div key={slot} className={`setup-preset-slot ${preset ? 'filled' : ''}`}>
+                <div className="setup-preset-num">スロット {slot + 1}</div>
+                {preset ? (
+                  <>
+                    <div className="setup-preset-party">
+                      {preset.party.map(id => CHARACTERS.find(c => c.id === id)?.emoji ?? '？').join('')}
+                    </div>
+                    <div className="setup-preset-paradigm">{preset.paradigms[0]?.name ?? ''}</div>
+                    <div className="setup-preset-actions">
+                      <button className="btn-preset-load" onClick={() => handleLoadPreset(preset)}>読込</button>
+                      <button
+                        className={`btn-preset-save ${isSaved ? 'saved' : ''}`}
+                        onClick={() => handleSavePreset(slot)}
+                      >
+                        {isSaved ? '✓' : '上書'}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="setup-preset-empty">空き</div>
+                    <div className="setup-preset-actions">
+                      <button
+                        className={`btn-preset-save ${isSaved ? 'saved' : ''}`}
+                        onClick={() => handleSavePreset(slot)}
+                      >
+                        {isSaved ? '✓ 保存済' : '保存'}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 

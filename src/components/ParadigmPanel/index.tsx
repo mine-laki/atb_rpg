@@ -11,7 +11,10 @@ interface ParadigmPanelProps {
 export function ParadigmPanel({ paradigms, activeSlot, onSwitch, disabled }: ParadigmPanelProps) {
   return (
     <div className="paradigm-panel">
-      <div className="paradigm-label">作戦切替</div>
+      <div className="paradigm-label">
+        作戦切替
+        <span className="paradigm-key-hint">1〜6キー</span>
+      </div>
       <div className="paradigm-slots">
         {paradigms.map(p => (
           <button

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import type { SaveData, BattleState, GameScreen, DropItem } from './types';
+import type { SaveData, BattleState, GameScreen, DropItem, SetupPreset } from './types';
 import { buildInitialSaveData, createCharacterInstance, createEnemyInstance } from './systems/gameState';
 import { loadFromCache, syncToCache } from './systems/save';
 import { HomeScreen } from './components/HomeScreen';
@@ -310,6 +310,16 @@ export default function App() {
         saveData={saveData}
         onStart={handleSetupStart}
         onBack={() => setScreen('home')}
+        setupPresets={saveData.setupPresets ?? [null, null, null]}
+        onSavePreset={(slot: number, preset: SetupPreset) => {
+          setSaveData(prev => {
+            const presets = [...(prev.setupPresets ?? [null, null, null])];
+            presets[slot] = preset;
+            const updated = { ...prev, setupPresets: presets };
+            syncToCache(updated);
+            return updated;
+          });
+        }}
       />
     );
   }

@@ -344,6 +344,14 @@ export interface BattleReward {
   drops: DropItem[];
 }
 
+// ---- Setup Preset ----
+
+export interface SetupPreset {
+  name: string;
+  party: [string, string, string];
+  paradigms: ParadigmData[];
+}
+
 // ---- Save Data ----
 
 export type EquipmentSlots = {
@@ -389,6 +397,7 @@ export interface SaveData {
   progress: ProgressData;
   paradigms: ParadigmData[];
   newGamePlus?: number;
+  setupPresets?: (SetupPreset | null)[];
 }
 
 // ---- Game Screen ----

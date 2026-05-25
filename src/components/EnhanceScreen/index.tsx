@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { SaveData, RoleId, CharacterSaveData, EquipmentInstance } from '../../types';
 import { CHARACTERS, getStatsAtLevel, levelUpCost } from '../../data/characters';
 import { MATERIALS, getEquipmentById, ENHANCE_MULTIPLIERS } from '../../data/equipment';
-import { getSkillNodes } from '../../data/skillBoard';
+import { getSkillNodes, calcSkillBonuses } from '../../data/skillBoard';
 import { getRoleEmoji, getRoleLabel } from '../../systems/paradigm';
 import { AbilityViewer } from '../AbilityViewer';
 
@@ -37,10 +37,6 @@ function roleBonusDesc(role: RoleId, lv: number): string {
     JAM: `デバフ効果時間 +${lv * 8}%`,
   };
   return descriptions[role];
-}
-
-function getMaterialName(itemId: string): string {
-  return MATERIALS.find(m => m.id === itemId)?.name ?? itemId.replace(/_/g, ' ');
 }
 
 function getMaterialEmoji(itemId: string): string {
@@ -676,7 +672,25 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           ══════════════════════════════════════ */}
       {tab === 'skill' && (() => {
         const nodes = getSkillNodes(charData.growthType);
-        const unlocked = new Set(charSave.unlockedSkillNodes ?? []);
+        const unlockedArr = charSave.unlockedSkillNodes ?? [];
+        const unlocked = new Set(unlockedArr);
+        const bonuses = calcSkillBonuses(charData.growthType, unlockedArr);
+
+        // 各ノードの深さを計算（依存グラフを BFS）
+        const depthMap = new Map<string, number>();
+        const computeDepth = (nodeId: string): number => {
+          if (depthMap.has(nodeId)) return depthMap.get(nodeId)!;
+          const node = nodes.find(n => n.id === nodeId);
+          if (!node || node.requires.length === 0) { depthMap.set(nodeId, 0); return 0; }
+          const d = Math.max(...node.requires.map(r => computeDepth(r))) + 1;
+          depthMap.set(nodeId, d);
+          return d;
+        };
+        nodes.forEach(n => computeDepth(n.id));
+        const maxDepth = Math.max(0, ...Array.from(depthMap.values()));
+        const tiers = Array.from({ length: maxDepth + 1 }, (_, i) =>
+          nodes.filter(n => depthMap.get(n.id) === i)
+        );
 
         const canUnlockNode = (nodeId: string): boolean => {
           const node = nodes.find(n => n.id === nodeId);
@@ -715,46 +729,71 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
 
         return (
           <div className="enhance-section skill-tab">
-            {nodes.map(node => {
-              const isUnlocked = unlocked.has(node.id);
-              const prereqsMet = node.requires.every(r => unlocked.has(r));
-              const affordable = canUnlockNode(node.id);
-              return (
-                <div key={node.id} className={`skill-node ${isUnlocked ? 'unlocked' : prereqsMet ? 'available' : 'locked'}`}>
-                  <div className="skill-node-info">
-                    <div className="skill-node-name-row">
-                      <span className="skill-node-name">{node.name}</span>
-                      {node.requires.length > 0 && !isUnlocked && (
-                        <span className="skill-prereq-chain">
-                          {node.requires.map(r => `← ${nodes.find(n => n.id === r)?.name ?? r}`).join(' ')}
-                        </span>
-                      )}
-                    </div>
-                    <span className="skill-node-desc">{node.description}</span>
-                    {!isUnlocked && (
-                      <div className="skill-node-cost-row">
-                        <span className={`skill-cost-item ${gil >= node.cost.gil ? '' : 'shortage'}`}>
-                          💰{node.cost.gil.toLocaleString()}
-                        </span>
-                        {node.cost.materials.map(m => (
-                          <span key={m.itemId} className={`skill-cost-item ${getMaterialQty(m.itemId) >= m.quantity ? '' : 'shortage'}`}>
-                            {getMaterialEmoji(m.itemId)} {getMaterialName(m.itemId)} ×{m.quantity}（所持{getMaterialQty(m.itemId)}）
-                          </span>
-                        ))}
+            {/* 累積ボーナスサマリー */}
+            <div className="skill-bonus-summary">
+              <span className="skill-bonus-title">📊 解放済みボーナス合計</span>
+              <div className="skill-bonus-values">
+                {bonuses.hp   > 0 && <span className="skill-bonus-val">HP <b>+{bonuses.hp}</b></span>}
+                {bonuses.str  > 0 && <span className="skill-bonus-val">STR <b>+{bonuses.str}</b></span>}
+                {bonuses.mag  > 0 && <span className="skill-bonus-val">MAG <b>+{bonuses.mag}</b></span>}
+                {bonuses.atbExtra > 0 && <span className="skill-bonus-val">ATB <b>+{bonuses.atbExtra}</b></span>}
+                {unlocked.size === 0 && <span className="skill-bonus-empty">未解放</span>}
+              </div>
+            </div>
+
+            {/* Tier 別ツリー表示 */}
+            {tiers.map((tierNodes, depth) => (
+              <div key={depth} className="skill-tier">
+                {depth > 0 && <div className="skill-tier-arrow">▼</div>}
+                <div className="skill-tier-nodes">
+                  {tierNodes.map(node => {
+                    const isUnlocked = unlocked.has(node.id);
+                    const prereqsMet = node.requires.every(r => unlocked.has(r));
+                    const affordable = canUnlockNode(node.id);
+                    const status = isUnlocked ? 'unlocked' : prereqsMet ? 'available' : 'locked';
+                    return (
+                      <div key={node.id} className={`skill-node ${status}`}>
+                        <div className="skill-node-info">
+                          <div className="skill-node-name-row">
+                            <span className="skill-node-name">
+                              {isUnlocked ? '✓ ' : ''}{node.name}
+                            </span>
+                          </div>
+                          <span className="skill-node-desc">{node.description}</span>
+                          {!isUnlocked && (
+                            <div className="skill-node-cost-row">
+                              <span className={`skill-cost-item ${gil >= node.cost.gil ? '' : 'shortage'}`}>
+                                💰{node.cost.gil.toLocaleString()}
+                              </span>
+                              {node.cost.materials.map(m => (
+                                <span key={m.itemId} className={`skill-cost-item ${getMaterialQty(m.itemId) >= m.quantity ? '' : 'shortage'}`}>
+                                  {getMaterialEmoji(m.itemId)}×{m.quantity}（{getMaterialQty(m.itemId)}）
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {!prereqsMet && !isUnlocked && (
+                            <span className="skill-prereq-chain">
+                              🔒 {node.requires.map(r => nodes.find(n => n.id === r)?.name ?? r).join('・')} が必要
+                            </span>
+                          )}
+                        </div>
+                        <div className="skill-node-action">
+                          {isUnlocked
+                            ? <span className="skill-unlocked-badge">解放済</span>
+                            : <button
+                                className={`btn-small ${affordable ? 'btn-skill-unlock' : ''}`}
+                                onClick={() => handleUnlockNode(node.id)}
+                                disabled={!affordable || !prereqsMet}
+                              >解放</button>
+                          }
+                        </div>
                       </div>
-                    )}
-                  </div>
-                  <div className="skill-node-action">
-                    {isUnlocked
-                      ? <span className="skill-unlocked-badge">✓ 解放済</span>
-                      : <button className="btn-small" onClick={() => handleUnlockNode(node.id)} disabled={!affordable || !prereqsMet}>
-                          解放
-                        </button>
-                    }
-                  </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         );
       })()}

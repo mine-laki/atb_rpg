@@ -87,7 +87,7 @@ export const EQUIPMENT_DATA: EquipmentData[] = [
   { id: 'relic_seraph',     name: '熾天使の聖具', emoji: '🌟', type: 'weapon', weaponType: 'holy',
     preferredRole: 'HLR', baseStats: { mag: 80 }, effects: [{ type: 'heal_boost', value: 0.50 }, { type: 'buff_extend', value: 0.30 }, { type: 'atb_expand', value: 1 }], unlockStage: 999, shopPrice: 0 },
   { id: 'relic_omega',      name: '始原の一振り', emoji: '🔱', type: 'weapon', weaponType: 'sword',
-    preferredRole: 'ATK', baseStats: { str: 200 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'chain_boost', value: 0.20 }, { type: 'damage_boost', value: 0.15 }], unlockStage: 999, shopPrice: 0 },
+    preferredRole: 'ATK', baseStats: { str: 400 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'chain_boost', value: 0.20 }, { type: 'damage_boost', value: 0.15 }], unlockStage: 999, shopPrice: 0 },
 
   // ---- レアドロップ限定武器（ショップ販売なし・敵からのみ入手）----
   { id: 'soul_blade',      name: '魂喰いの刃',   emoji: '🗡️', type: 'weapon', weaponType: 'sword',
@@ -154,21 +154,43 @@ export const MATERIAL_SHOP: MaterialShopEntry[] = [
   { itemId: 'god_proof',          price: 75000, minCleared: 5, isRare: true },
 ];
 
+export const MAX_ENHANCE_LEVEL = 10;
+
 export const ENHANCE_MULTIPLIERS: Record<number, number> = {
-  0: 1.00,
-  1: 1.15,
-  2: 1.32,
-  3: 1.52,
-  4: 1.75,
-  5: 2.00,
+  0:  1.00,
+  1:  1.15,
+  2:  1.32,
+  3:  1.52,
+  4:  1.75,
+  5:  2.00,
+  6:  2.30,
+  7:  2.65,
+  8:  3.05,
+  9:  3.50,
+  10: 4.00,
 };
 
 export const ENHANCE_COSTS = [
-  { gil: 300,  material: { itemId: 'enhance_stone_normal', quantity: 2 } },
-  { gil: 600,  material: { itemId: 'enhance_stone_normal', quantity: 4 } },
+  // +0 → +1
+  { gil:  300, material: { itemId: 'enhance_stone_normal', quantity: 2 } },
+  // +1 → +2
+  { gil:  600, material: { itemId: 'enhance_stone_normal', quantity: 4 } },
+  // +2 → +3
   { gil: 1200, material: { itemId: 'enhance_stone_normal', quantity: 6 } },
+  // +3 → +4
   { gil: 2500, material: { itemId: 'enhance_stone_rare',   quantity: 2 } },
+  // +4 → +5
   { gil: 5000, material: { itemId: 'enhance_stone_rare',   quantity: 5 } },
+  // +5 → +6
+  { gil: 8000, material: { itemId: 'enhance_stone_rare',   quantity: 8 } },
+  // +6 → +7
+  { gil: 12000, material: { itemId: 'god_proof',           quantity: 1 } },
+  // +7 → +8
+  { gil: 18000, material: { itemId: 'god_proof',           quantity: 2 } },
+  // +8 → +9
+  { gil: 25000, material: { itemId: 'god_proof',           quantity: 3 } },
+  // +9 → +10
+  { gil: 40000, material: { itemId: 'god_proof',           quantity: 5 } },
 ];
 
 export function getEquipmentById(id: string): EquipmentData | undefined {

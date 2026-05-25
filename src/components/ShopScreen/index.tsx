@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { SaveData, EquipmentInstance } from '../../types';
-import { EQUIPMENT_DATA, getEquipmentById, ENHANCE_COSTS, ENHANCE_MULTIPLIERS, MATERIAL_SHOP, MATERIALS } from '../../data/equipment';
+import { EQUIPMENT_DATA, getEquipmentById, ENHANCE_COSTS, ENHANCE_MULTIPLIERS, MAX_ENHANCE_LEVEL, MATERIAL_SHOP, MATERIALS } from '../../data/equipment';
 import { getCraftRecipes } from '../../data/crafting';
 import { CHARACTERS } from '../../data/characters';
 import { seBuy } from '../../systems/sound';
@@ -271,7 +271,7 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
             if (!data) return null;
             const isSelected = inst.instanceId === selectedEquipId;
             const lv = inst.enhanceLevel;
-            const cost = lv < 5 ? ENHANCE_COSTS[lv] : null;
+            const cost = lv < MAX_ENHANCE_LEVEL ? ENHANCE_COSTS[lv] : null;
             const matQty = cost
               ? (saveData.progress.inventory.materials.find(m => m.itemId === cost.material.itemId)?.quantity ?? 0)
               : 0;
@@ -287,7 +287,7 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
                   <span className="item-emoji">{data.emoji}</span>
                   <div className="item-details">
                     <span className="item-name">{data.name}</span>
-                    <span className="enhance-level-badge">+{lv}{lv >= 5 && ' MAX'}</span>
+                    <span className="enhance-level-badge">+{lv}{lv >= MAX_ENHANCE_LEVEL && ' MAX'}</span>
                   </div>
                   {(() => {
                     const equipper = instanceToEquipper.get(inst.instanceId);
@@ -299,7 +299,7 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
                 </div>
                 {isSelected && (
                   <div className="enhance-inline-panel" onClick={e => e.stopPropagation()}>
-                    {lv < 5 && cost && nextMult ? (
+                    {lv < MAX_ENHANCE_LEVEL && cost && nextMult ? (
                       <>
                         <span className="enhance-inline-preview">→ ×{nextMult.toFixed(2)}</span>
                         <span className="enhance-inline-cost">

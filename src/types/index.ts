@@ -228,7 +228,7 @@ export interface EquipmentEffect {
 export interface EquipmentInstance {
   instanceId: string;
   itemId: string;
-  enhanceLevel: number;   // 0-5
+  enhanceLevel: number;   // 0-10
 }
 
 // ---- Drop System ----

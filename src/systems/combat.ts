@@ -4,6 +4,7 @@ import type {
 import { calcChainBonus, isWeakness, applyChainHit } from './chain';
 import { getEnemyById } from '../data/enemies';
 import { getEquipmentById, ENHANCE_MULTIPLIERS } from '../data/equipment';
+import { getAutoById } from '../data/abilities';
 
 /** Sum a specific effect type across all equipped items. */
 function sumEquipEffect(char: CharacterInstance, effectType: string): number {
@@ -70,6 +71,38 @@ function calcDamageBoosts(char: CharacterInstance, ability: CommandAbility, enem
   // Equipment damage_boost effect
   mult += sumEquipEffect(char, 'damage_boost');
 
+  // Auto ability damage_boost effects (trigger-based)
+  for (const autoId of (char.autoAbilityIds ?? [])) {
+    const auto = getAutoById(autoId);
+    if (!auto || auto.effect.type !== 'damage_boost') continue;
+
+    let triggerMet = false;
+    const trig = auto.trigger;
+    switch (trig.type) {
+      case 'always':       triggerMet = true; break;
+      case 'on_hit':       triggerMet = true; break;
+      case 'break_active': triggerMet = enemy.isBreaking; break;
+      case 'hp_below':     triggerMet = char.currentHP / char.maxHP < trig.threshold; break;
+      case 'hp_above':     triggerMet = char.currentHP / char.maxHP > trig.threshold; break;
+      case 'role_active':  triggerMet = char.currentRole === trig.role; break;
+      case 'ally_dead':    triggerMet = !!(party?.some(p => p.id !== char.id && !p.isAlive)); break;
+    }
+    if (!triggerMet) continue;
+
+    // combo_boost: only applies to multi-hit abilities
+    if (autoId === 'combo_boost' && !(ability.hits && ability.hits > 1)) continue;
+
+    // solidarity: scales with number of alive allies below 50% HP
+    if (autoId === 'solidarity') {
+      const lowHPCount = party
+        ? party.filter(p => p.id !== char.id && p.isAlive && p.currentHP / p.maxHP < 0.5).length
+        : 0;
+      mult += auto.effect.value * lowHPCount;
+    } else {
+      mult += auto.effect.value;
+    }
+  }
+
   for (const eff of char.statusEffects) {
     if (eff.id === 'bravery' && ability.power && !ability.healValue) mult += 0.30;
     if (eff.id === 'faith'   && ability.element)                     mult += 0.30;
@@ -122,7 +155,7 @@ export function executeAttack(
       : (ability.usesStr ? char.str : (ability.element ? char.mag : char.str));
     const rawDamage = baseStat * (ability.power ?? 1.0) * physResistMult * physDefMult * magDefMult * weakMult;
     const boostMult = calcDamageBoosts(char, ability, newTarget, party);
-    const damage = Math.floor(rawDamage * boostMult * (0.9 + Math.random() * 0.2));
+    const damage = Math.floor(rawDamage * boostMult * (0.5 + Math.random() * 0.2));
 
     newTarget = {
       ...newTarget,
@@ -163,6 +196,17 @@ export function executeHeal(
 
   // Equipment heal_boost effect
   healMult += sumEquipEffect(char, 'heal_boost');
+
+  // Auto ability heal_boost effects (medic_plus etc.)
+  for (const autoId of (char.autoAbilityIds ?? [])) {
+    const auto = getAutoById(autoId);
+    if (!auto || auto.effect.type !== 'heal_boost') continue;
+    const trig = auto.trigger;
+    const triggerMet =
+      trig.type === 'always' ||
+      (trig.type === 'role_active' && char.currentRole === trig.role);
+    if (triggerMet) healMult += auto.effect.value;
+  }
 
   for (const eff of char.statusEffects) {
     if (eff.id === 'faith') healMult += 0.30;

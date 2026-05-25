@@ -78,6 +78,10 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
   const lvCost = levelUpCost(level);
   const canLevelUp = gil >= lvCost;
 
+  // Skill board bonuses (for dynamic role cap + unlocked autos display)
+  const skillBonuses = calcSkillBonuses(charData.growthType, charSave.unlockedSkillNodes ?? []);
+  const roleCaps = skillBonuses.roleCaps;
+
   function getMaterialQty(itemId: string): number {
     return materials.find(m => m.itemId === itemId)?.quantity ?? 0;
   }
@@ -106,7 +110,8 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
 
   const handleRoleLevelUp = (role: RoleId) => {
     const currentRoleLv = charSave.roleLevels?.[role] ?? 1;
-    if (currentRoleLv >= 10) return;
+    const roleCap = 10 + (roleCaps[role] ?? 0);
+    if (currentRoleLv >= roleCap) return;
     const isExtra = !charData.roles.includes(role);
     const cost = roleLevelCost(role, currentRoleLv, isExtra);
     const crystalId = ROLE_CRYSTAL_MAP[role];
@@ -461,7 +466,8 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
             const crystalId = ROLE_CRYSTAL_MAP[role];
             const crystalQty = getMaterialQty(crystalId);
             const crystalMat = MATERIALS.find(m => m.id === crystalId);
-            const canUp = roleLv < 10 && gil >= cost.gil && crystalQty >= cost.crystals;
+            const roleCap = 10 + (roleCaps[role] ?? 0);
+            const canUp = roleLv < roleCap && gil >= cost.gil && crystalQty >= cost.crystals;
             return (
               <div key={role} className={`role-level-card ${canUp ? 'can-upgrade' : ''}`}>
                 {/* ヘッダー行 */}
@@ -469,32 +475,35 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
                   <span className="rlc-icon">{getRoleEmoji(role)}</span>
                   <div className="rlc-title">
                     <span className="rlc-name">{getRoleLabel(role)}</span>
-                    <span className="role-lv">Lv.{roleLv} / 10</span>
+                    <span className="role-lv">
+                      Lv.{roleLv} / {roleCap}
+                      {roleCap > 10 && <span className="role-cap-badge">解放済</span>}
+                    </span>
                     {isExtra && <span className="extra-role-badge">解放</span>}
                   </div>
-                  {roleLv >= 10
+                  {roleLv >= roleCap
                     ? <span className="max-badge">MAX</span>
                     : <button className="btn-small btn-role-up" onClick={() => handleRoleLevelUp(role)} disabled={!canUp}>強化</button>
                   }
                 </div>
 
-                {/* ピップ進捗バー */}
+                {/* ピップ進捗バー（上限分まで表示） */}
                 <div className="role-pip-bar">
-                  {Array.from({ length: 10 }, (_, i) => (
-                    <div key={i} className={`role-pip ${i < roleLv ? 'filled' : ''}`} />
+                  {Array.from({ length: roleCap }, (_, i) => (
+                    <div key={i} className={`role-pip ${i < roleLv ? 'filled' : ''} ${i >= 10 ? 'extended' : ''}`} />
                   ))}
                 </div>
 
                 {/* 現在の効果 → 次の効果 */}
                 <div className="rlc-bonus-row">
                   <span className="rlc-bonus-now">{roleBonusDesc(role, roleLv)}</span>
-                  {roleLv < 10 && (
+                  {roleLv < roleCap && (
                     <span className="rlc-bonus-next">→ {roleBonusDesc(role, roleLv + 1)}</span>
                   )}
                 </div>
 
                 {/* コスト */}
-                {roleLv < 10 && (
+                {roleLv < roleCap && (
                   <div className="rlc-cost-row">
                     <span className={`rlc-cost-item ${gil >= cost.gil ? '' : 'shortage'}`}>
                       💰 {cost.gil.toLocaleString()}
@@ -754,6 +763,34 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
                 {bonuses.str  > 0 && <span className="skill-bonus-val">STR <b>+{bonuses.str}</b></span>}
                 {bonuses.mag  > 0 && <span className="skill-bonus-val">MAG <b>+{bonuses.mag}</b></span>}
                 {bonuses.atbExtra > 0 && <span className="skill-bonus-val">ATB <b>+{bonuses.atbExtra}</b></span>}
+                {Object.entries(bonuses.roleCaps).map(([role, amt]) =>
+                  amt ? <span key={role} className="skill-bonus-val">{role}上限 <b>+{amt}</b></span> : null
+                )}
+                {bonuses.unlockAutos.length > 0 && (
+                  <div className="skill-auto-unlocks">
+                    <span className="skill-auto-title">⭐ 解放オートアビリティ</span>
+                    <div className="skill-auto-list">
+                      {bonuses.unlockAutos.map(autoId => {
+                        // Import getAutoById from abilities
+                        const AUTO_NAMES: Record<string, string> = {
+                          break_hunter: 'ブレイクハンター（ブレイク中+30%）',
+                          elemental_amp: '属性増幅（弱点チェーン×1.8）',
+                          iron_will: 'アイアンウィル（HP+20%）',
+                          auto_regen: 'オートリジェネ（毎秒HP+0.5%）',
+                          combo_boost: 'コンボブースト（多段+20%）',
+                          solidarity: '連帯感（味方HP低下時ATK+）',
+                          brave_heart: 'ブレイブハート（ATK+15%）',
+                          speed_up: 'スピードアップ（ATB速度+20%）',
+                        };
+                        return (
+                          <span key={autoId} className="skill-auto-badge">
+                            ✅ {AUTO_NAMES[autoId] ?? autoId}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 {unlocked.size === 0 && <span className="skill-bonus-empty">未解放</span>}
               </div>
             </div>

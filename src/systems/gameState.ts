@@ -56,10 +56,25 @@ export function createCharacterInstance(
 
   // Skill board bonuses
   const skillBonuses = calcSkillBonuses(data.growthType, save?.unlockedSkillNodes ?? []);
-  const totalHP  = stats.hp  + bonusHP  + skillBonuses.hp;
+
+  // Combine innate and skill-board-unlocked auto abilities (deduplicated)
+  const allAutoIds = [...data.autoAbilities];
+  for (const id of skillBonuses.unlockAutos) {
+    if (!allAutoIds.includes(id)) allAutoIds.push(id);
+  }
+
+  // iron_will auto ability: HP +20%
+  const ironWillMult = allAutoIds.includes('iron_will') ? 1.20 : 1.0;
+  const rawHP = stats.hp + bonusHP + skillBonuses.hp;
+  const totalHP  = Math.floor(rawHP * ironWillMult);
   const totalSTR = stats.str + bonusSTR + skillBonuses.str;
   const totalMAG = stats.mag + bonusMAG + skillBonuses.mag;
   const levelATBBonus = (level >= 15 ? 1 : 0) + (level >= 30 ? 1 : 0);
+
+  // speed_up auto ability: ATB speed +20%
+  const speedUpBonus = allAutoIds.includes('speed_up') ? 0.20 : 0;
+  const totalATBSpeed = 1.0 + bonusATBSpeed + speedUpBonus;
+
   const totalATB = data.atbMax + bonusATB + skillBonuses.atbExtra + levelATBBonus;
 
   return {
@@ -72,7 +87,7 @@ export function createCharacterInstance(
     str: totalSTR,
     mag: totalMAG,
     currentRole: data.roles[0],
-    atb: { current: 0, max: totalATB, speedMultiplier: 1.0 + bonusATBSpeed },
+    atb: { current: 0, max: totalATB, speedMultiplier: totalATBSpeed },
     statusEffects: (() => {
       // auto_buff 効果を持つ装備から戦闘開始バフを付与
       const startBuffs: import('../types').StatusEffect[] = [];
@@ -91,6 +106,7 @@ export function createCharacterInstance(
     equipment: eq,
     roleLevels: save?.roleLevels ?? {},
     unlockedSkillNodes: save?.unlockedSkillNodes ?? [],
+    autoAbilityIds: allAutoIds,
     isAlive: true,
     reviveUsed: false,
     comboCount: 0,

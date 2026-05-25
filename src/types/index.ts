@@ -126,6 +126,7 @@ export interface CharacterInstance {
   };
   roleLevels: Partial<Record<RoleId, number>>;
   unlockedSkillNodes: string[];
+  autoAbilityIds: string[];     // innate + skill-board-unlocked auto abilities
   isAlive: boolean;
   reviveUsed: boolean;  // for revive_once auto ability
   comboCount?: number;  // consecutive action bonus

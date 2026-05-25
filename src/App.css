@@ -3286,3 +3286,55 @@ button {
   transition: background 0.15s;
 }
 .btn-mute:hover { background: rgba(255,255,255,0.14); }
+
+/* ── ロールレベル上限解放バッジ ── */
+.role-cap-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #cc8800, #ffaa00);
+  color: #000;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* ロールピップバー: 上限解放分（11個目以降）は金色 */
+.role-pip.extended {
+  background: rgba(255, 170, 0, 0.15);
+  border-color: rgba(255, 170, 0, 0.5);
+}
+.role-pip.extended.filled {
+  background: linear-gradient(135deg, #cc8800, #ffcc00);
+  border-color: #ffaa00;
+  box-shadow: 0 0 4px rgba(255, 170, 0, 0.5);
+}
+
+/* ── スキルボード: オートアビリティ解放表示 ── */
+.skill-auto-unlocks {
+  width: 100%;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.skill-auto-title {
+  display: block;
+  font-size: 11px;
+  color: #aab0cc;
+  margin-bottom: 4px;
+}
+.skill-auto-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.skill-auto-badge {
+  display: inline-block;
+  background: rgba(80, 120, 255, 0.15);
+  border: 1px solid rgba(80, 120, 255, 0.3);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: #99bbff;
+}

@@ -1,5 +1,6 @@
 import type { EnemyInstance, CharacterInstance, CommandAbility, Element } from '../types';
 import { getEquipmentById, ENHANCE_MULTIPLIERS } from '../data/equipment';
+import { getAutoById } from '../data/abilities';
 
 function getEquipChainBoost(char: CharacterInstance): number {
   let total = 0;
@@ -61,6 +62,22 @@ export function applyChainHit(
   const equipChain = getEquipChainBoost(char);
   if (equipChain > 0) chainIncrease *= 1 + equipChain;
 
+  // Auto ability chain_boost (chain_master: always, elemental_amp: weakness only)
+  let autoChainBoost = 0;
+  for (const autoId of (char.autoAbilityIds ?? [])) {
+    const auto = getAutoById(autoId);
+    if (!auto || auto.effect.type !== 'chain_boost') continue;
+    const isWeaknessHit = isWeakness;
+    const triggerMet =
+      auto.trigger.type === 'always' ||
+      auto.trigger.type === 'on_hit' ||
+      (auto.trigger.type === 'break_active' && enemy.isBreaking);
+    // elemental_amp only fires on weakness
+    if (autoId === 'elemental_amp' && !isWeaknessHit) continue;
+    if (triggerMet) autoChainBoost += auto.effect.value;
+  }
+  if (autoChainBoost > 0) chainIncrease *= 1 + autoChainBoost;
+
   // weakness multiplier
   if (isWeakness) chainIncrease *= 1.5;
 
@@ -72,11 +89,22 @@ export function applyChainHit(
   const wasBreaking = enemy.isBreaking;
   const nowBreaking = enemy.isBreaking || newGauge >= breakAt;
 
+  // break_extend auto ability: add extra seconds to initial break
+  let breakExtendBonus = 0;
+  if (!wasBreaking && nowBreaking) {
+    for (const autoId of (char.autoAbilityIds ?? [])) {
+      const auto = getAutoById(autoId);
+      if (auto && auto.effect.type === 'break_extend') {
+        breakExtendBonus += auto.effect.value;
+      }
+    }
+  }
+
   return {
     ...enemy,
     chainGauge: newGauge,
     isBreaking: nowBreaking,
-    breakTimer: nowBreaking ? (wasBreaking ? enemy.breakTimer : BREAK_DURATION) : 0,
+    breakTimer: nowBreaking ? (wasBreaking ? enemy.breakTimer : BREAK_DURATION + breakExtendBonus) : 0,
     lastHitTime: timestamp,
     chainDecayTimer: 0,
   };

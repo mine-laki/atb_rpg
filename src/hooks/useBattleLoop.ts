@@ -8,6 +8,7 @@ import { executeAttack, executeHeal, executeRevive, calcEnemyDamage } from '../s
 import { getEnemyById } from '../data/enemies';
 import { getEquipmentById, ENHANCE_MULTIPLIERS } from '../data/equipment';
 import { CHARACTERS } from '../data/characters';
+import { getAutoById } from '../data/abilities';
 import { seHit, seMagicHit, seHeal, seBuff, seDebuff, seBreak } from '../systems/sound';
 
 const MAX_LOG = 30;
@@ -75,6 +76,13 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
             const mult = ENHANCE_MULTIPLIERS[inst.enhanceLevel] ?? 1.0;
             for (const eff of d.effects) {
               if (eff.type === 'auto_regen') autoRegenRate += eff.value * mult;
+            }
+          }
+          // Auto ability auto_regen effect
+          for (const autoId of (updated.autoAbilityIds ?? [])) {
+            const auto = getAutoById(autoId);
+            if (auto && auto.effect.type === 'auto_regen') {
+              autoRegenRate += auto.effect.value;
             }
           }
           if (autoRegenRate > 0) {
@@ -195,7 +203,10 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
           // ENH role level bonus: +8% buff duration per level
           const enhRoleLv = party[charIdx].currentRole === 'ENH'
             ? (party[charIdx].roleLevels?.['ENH'] ?? 1) : 0;
-          const buffDurationMult = 1 + enhRoleLv * 0.08;
+          // enhance_ex auto ability: +50% buff duration when in ENH role
+          const enhanceExBonus = (party[charIdx].currentRole === 'ENH' &&
+            (party[charIdx].autoAbilityIds ?? []).includes('enhance_ex')) ? 0.50 : 0;
+          const buffDurationMult = 1 + enhRoleLv * 0.08 + enhanceExBonus;
 
           for (const bt of targets) {
             const pi = party.findIndex(p => p.id === bt.id);
@@ -250,7 +261,10 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
             const eData = getEnemyById(enemies[eIdx].dataId);
             const successRate = eData?.debuffSuccessRate ?? 100;
 
-            if (Math.random() * 100 < successRate) {
+            // jam_boost auto ability: +30% debuff success rate when in JAM role
+            const jamBoostBonus = (party[charIdx].currentRole === 'JAM' &&
+              (party[charIdx].autoAbilityIds ?? []).includes('jam_boost')) ? 30 : 0;
+            if (Math.random() * 100 < successRate + jamBoostBonus) {
               // JAM role level bonus: +8% debuff duration per level
               const jamRoleLv = party[charIdx].currentRole === 'JAM'
                 ? (party[charIdx].roleLevels?.['JAM'] ?? 1) : 0;
@@ -419,7 +433,25 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
                 }
                 if (damage > 0) {
                   const newHP = Math.max(0, target.currentHP - damage);
-                  if (pi >= 0) party[pi] = { ...party[pi], currentHP: newHP, isAlive: newHP > 0 };
+                  if (pi >= 0) {
+                    // revive_once auto ability: auto-revive at 30% HP when first defeated
+                    if (newHP <= 0 && !party[pi].reviveUsed &&
+                        (party[pi].autoAbilityIds ?? []).includes('revive_once')) {
+                      const reviveHP = Math.floor(party[pi].maxHP * 0.30);
+                      party[pi] = { ...party[pi], currentHP: reviveHP, isAlive: true, reviveUsed: true };
+                      newLogs.push({
+                        id: logId(), timestamp: now,
+                        actorEmoji: CHARACTERS.find(c => c.id === party[pi].dataId)?.emoji ?? '✨',
+                        actorName: CHARACTERS.find(c => c.id === party[pi].dataId)?.name ?? party[pi].dataId,
+                        targetName: CHARACTERS.find(c => c.id === party[pi].dataId)?.name ?? party[pi].dataId,
+                        abilityName: '不死鳥の加護',
+                        value: reviveHP,
+                        type: 'heal',
+                      });
+                    } else {
+                      party[pi] = { ...party[pi], currentHP: newHP, isAlive: newHP > 0 };
+                    }
+                  }
                   newLogs.push({
                     id: logId(), timestamp: now,
                     actorEmoji: enemyData.emoji,

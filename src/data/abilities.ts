@@ -115,8 +115,8 @@ export const COMMAND_ABILITIES: CommandAbility[] = [
   { id: 'enh_chainboost',name: 'チェーンブースト',    role: 'ENH', cost: 3,                             chainBonus: 0, isUnique: true, uniqueOwner: 'ran' },
 
   // ---- JAM ----
-  { id: 'jam_deprotect', name: 'デプロテ',            role: 'JAM', cost: 2, debuff: ['deprot'],          chainBonus: 0 },
-  { id: 'jam_deshell',   name: 'デシェル',            role: 'JAM', cost: 2, debuff: ['deshell'],         chainBonus: 0 },
+  { id: 'jam_deprotect', name: 'デプロテ',            role: 'JAM', cost: 1, debuff: ['deprot'],          chainBonus: 0 },
+  { id: 'jam_deshell',   name: 'デシェル',            role: 'JAM', cost: 1, debuff: ['deshell'],         chainBonus: 0 },
   { id: 'jam_slow',      name: 'スロウ',              role: 'JAM', cost: 3, debuff: ['slow'],            chainBonus: 0,
     allowedFor: ['daku', 'ran', 'jio', 'kika', 'kaze', 'gan', 'pose', 'va'] },
   { id: 'jam_pain',      name: 'ペイン',              role: 'JAM', cost: 3, debuff: ['pain'],            chainBonus: 0,
@@ -127,7 +127,6 @@ export const COMMAND_ABILITIES: CommandAbility[] = [
     allowedFor: ['daku', 'kika', 'ran', 'voru', 'cho', 'gan'] },
   { id: 'jam_poison',    name: 'ポイズン',            role: 'JAM', cost: 2, debuff: ['poison'],          chainBonus: 0,
     allowedFor: ['va', 'fa', 'kaze', 'kika', 'pose', 'jio'] },
-  { id: 'jam_instant',   name: 'インスタント',        role: 'JAM', cost: 1, power: 0,                   chainBonus: 0 },
   // 全体デバフ・ガ系（スペシャリスト限定）
   { id: 'jam_deprotga',  name: 'デプロテガ',          role: 'JAM', cost: 3, debuff: ['deprot'],  aoe: true, chainBonus: 0,
     allowedFor: ['daku', 'jio', 'kaze', 'voru', 'fa', 'kika'] },

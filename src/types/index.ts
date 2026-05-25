@@ -374,6 +374,7 @@ export interface ProgressData {
   unlockedCharacters: string[];
   selectedStage?: number;
   encounteredEnemies: string[];
+  obtainedEquipments: string[];   // 過去に入手したことのある装備のitemId一覧
 }
 
 export interface PlayerSaveData {

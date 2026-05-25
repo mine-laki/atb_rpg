@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { ENEMIES } from '../../data/enemies';
-import { MATERIALS, getEquipmentById } from '../../data/equipment';
+import { EQUIPMENT_DATA, MATERIALS, getEquipmentById } from '../../data/equipment';
 import type { EnemyData } from '../../types';
 
 interface EnemyReportScreenProps {
   encounteredEnemies: string[];
+  obtainedEquipments: string[];
   onBack: () => void;
 }
 
@@ -34,7 +36,6 @@ function getItemLabel(itemId: string, dropType?: string): { name: string; emoji:
 
 function DropList({ enemy }: { enemy: EnemyData }) {
   const { common, uncommon, rare } = enemy.dropTable;
-  // 固有ドロップのみ表示（enhance_stone_normalは省く）
   const uniqueCommon   = common.filter(d => d.itemId !== 'enhance_stone_normal');
   const allUncommon    = uncommon;
   const allRare        = rare;
@@ -135,41 +136,160 @@ function EnemyCard({ enemy }: { enemy: EnemyData }) {
   );
 }
 
-export function EnemyReportScreen({ encounteredEnemies, onBack }: EnemyReportScreenProps) {
+const WEAPON_TYPE_LABEL: Record<string, string> = {
+  sword: '⚔️ 剣', staff: '🪄 杖', bow: '🏹 弓', shield: '🛡️ 盾',
+  holy: '✨ 聖', instrument: '🎵 楽器', cursed: '💀 呪器',
+};
+
+function effectLabel(eff: { type: string; value: number; element?: string }): string | null {
+  if (eff.type === 'atb_expand')    return 'ATB+1';
+  if (eff.type === 'atb_speed')     return `速度+${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'heal_boost')    return `回復+${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'chain_boost')   return `チェーン+${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'damage_boost')  return `ダメ+${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'buff_extend')   return `バフ+${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'debuff_rate')   return `デバフ率+${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'auto_regen')    return 'リジェネ';
+  if (eff.type === 'magic_cost_reduce') return `魔法コスト-${eff.value}`;
+  if (eff.type === 'element_resist') return `${eff.element}耐性+${Math.round(eff.value * 100)}%`;
+  if (eff.type === 'auto_buff')     return '開幕バフ';
+  if (eff.type === 'revive_once')   return '復活';
+  return null;
+}
+
+function EquipCatalog({ obtainedEquipments }: { obtainedEquipments: string[] }) {
+  const obtained = new Set(obtainedEquipments);
+  const weapons     = EQUIPMENT_DATA.filter(e => e.type === 'weapon');
+  const accessories = EQUIPMENT_DATA.filter(e => e.type === 'accessory');
+
+  const obtainedCount = EQUIPMENT_DATA.filter(e => obtained.has(e.id)).length;
+
+  function EquipRow({ e }: { e: typeof EQUIPMENT_DATA[0] }) {
+    const isObtained = obtained.has(e.id);
+    if (!isObtained) {
+      return (
+        <div className="equip-catalog-row unknown">
+          <span className="equip-catalog-emoji">？</span>
+          <div className="equip-catalog-info">
+            <span className="equip-catalog-name unknown-name">
+              {e.type === 'weapon'
+                ? (WEAPON_TYPE_LABEL[e.weaponType ?? ''] ?? '武器')
+                : 'アクセサリ'}
+            </span>
+            <span className="equip-catalog-hint">未入手</span>
+          </div>
+        </div>
+      );
+    }
+
+    const stats = [
+      e.baseStats.hp  ? `HP+${e.baseStats.hp}`   : null,
+      e.baseStats.str ? `STR+${e.baseStats.str}`  : null,
+      e.baseStats.mag ? `MAG+${e.baseStats.mag}`  : null,
+    ].filter(Boolean);
+    const effs = e.effects.map(ef => effectLabel(ef)).filter(Boolean) as string[];
+
+    return (
+      <div className="equip-catalog-row obtained">
+        <span className="equip-catalog-emoji">{e.emoji}</span>
+        <div className="equip-catalog-info">
+          <div className="equip-catalog-name-row">
+            <span className="equip-catalog-name">{e.name}</span>
+            {e.type === 'weapon' && e.weaponType && (
+              <span className="equip-catalog-type-tag">
+                {WEAPON_TYPE_LABEL[e.weaponType] ?? e.weaponType}
+              </span>
+            )}
+          </div>
+          {(stats.length > 0 || effs.length > 0) && (
+            <div className="equip-catalog-tags">
+              {stats.map((s, i) => <span key={i} className="equip-tag stat">{s}</span>)}
+              {effs.map((ef, i) => <span key={i} className="equip-tag eff">{ef}</span>)}
+              {e.shopPrice === 0 && <span className="equip-tag drop-only">ドロップ専用</span>}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="equip-catalog">
+      <div className="equip-catalog-header">
+        <span className="equip-catalog-progress">
+          入手済み {obtainedCount} / {EQUIPMENT_DATA.length}
+        </span>
+      </div>
+
+      <div className="equip-catalog-section">
+        <h3 className="equip-catalog-section-title">⚔️ 武器</h3>
+        <div className="equip-catalog-list">
+          {weapons.map(e => <EquipRow key={e.id} e={e} />)}
+        </div>
+      </div>
+
+      <div className="equip-catalog-section">
+        <h3 className="equip-catalog-section-title">💍 アクセサリ</h3>
+        <div className="equip-catalog-list">
+          {accessories.map(e => <EquipRow key={e.id} e={e} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function EnemyReportScreen({ encounteredEnemies, obtainedEquipments, onBack }: EnemyReportScreenProps) {
+  const [tab, setTab] = useState<'enemy' | 'equip'>('enemy');
+
   const encountered = ENEMIES.filter(e => encounteredEnemies.includes(e.id));
   const normals = encountered.filter(e => !e.isBoss);
-  const bosses = encountered.filter(e => e.isBoss);
+  const bosses  = encountered.filter(e => e.isBoss);
 
   return (
     <div className="enemy-report-screen">
       <div className="enhance-header">
         <button className="btn-back" onClick={onBack}>← 戻る</button>
-        <h2>エネミーレポート</h2>
-        <span className="enemy-report-count">{encountered.length} / {ENEMIES.length}</span>
+        <h2>{tab === 'enemy' ? 'エネミーレポート' : '装備図鑑'}</h2>
+        {tab === 'enemy'
+          ? <span className="enemy-report-count">{encountered.length} / {ENEMIES.length}</span>
+          : <span className="enemy-report-count">{(obtainedEquipments ?? []).length} / {EQUIPMENT_DATA.length}</span>
+        }
       </div>
 
-      {encountered.length === 0 && (
-        <div className="no-items" style={{ textAlign: 'center', marginTop: '2rem' }}>
-          まだ戦闘していません。バトルで敵を倒すとレポートが記録されます。
-        </div>
+      {/* タブ */}
+      <div className="report-tabs">
+        <button className={tab === 'enemy' ? 'active' : ''} onClick={() => setTab('enemy')}>📋 エネミー</button>
+        <button className={tab === 'equip' ? 'active' : ''} onClick={() => setTab('equip')}>⚔️ 装備図鑑</button>
+      </div>
+
+      {tab === 'enemy' && (
+        <>
+          {encountered.length === 0 && (
+            <div className="no-items" style={{ textAlign: 'center', marginTop: '2rem' }}>
+              まだ戦闘していません。バトルで敵を倒すとレポートが記録されます。
+            </div>
+          )}
+          {normals.length > 0 && (
+            <div className="enemy-report-section">
+              <h3 className="enemy-report-section-title">通常敵</h3>
+              <div className="enemy-report-list">
+                {normals.map(e => <EnemyCard key={e.id} enemy={e} />)}
+              </div>
+            </div>
+          )}
+          {bosses.length > 0 && (
+            <div className="enemy-report-section">
+              <h3 className="enemy-report-section-title">ボス</h3>
+              <div className="enemy-report-list">
+                {bosses.map(e => <EnemyCard key={e.id} enemy={e} />)}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
-      {normals.length > 0 && (
-        <div className="enemy-report-section">
-          <h3 className="enemy-report-section-title">通常敵</h3>
-          <div className="enemy-report-list">
-            {normals.map(e => <EnemyCard key={e.id} enemy={e} />)}
-          </div>
-        </div>
-      )}
-
-      {bosses.length > 0 && (
-        <div className="enemy-report-section">
-          <h3 className="enemy-report-section-title">ボス</h3>
-          <div className="enemy-report-list">
-            {bosses.map(e => <EnemyCard key={e.id} enemy={e} />)}
-          </div>
-        </div>
+      {tab === 'equip' && (
+        <EquipCatalog obtainedEquipments={obtainedEquipments ?? []} />
       )}
     </div>
   );

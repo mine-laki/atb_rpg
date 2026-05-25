@@ -3351,3 +3351,150 @@ button {
   font-size: 11px;
   color: #99bbff;
 }
+
+/* ── エネミーレポート: タブ ── */
+.report-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 8px;
+}
+.report-tabs button {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #aab0cc;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px 8px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.report-tabs button.active {
+  color: #cce0ff;
+  border-bottom-color: #5588ff;
+}
+.report-tabs button:hover:not(.active) {
+  color: #dde4ff;
+}
+
+/* ── 装備図鑑 ── */
+.equip-catalog {
+  padding: 8px 12px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.equip-catalog-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.equip-catalog-progress {
+  font-size: 12px;
+  color: #99aacc;
+  background: rgba(80,100,160,0.2);
+  border: 1px solid rgba(80,100,160,0.3);
+  border-radius: 10px;
+  padding: 3px 10px;
+}
+.equip-catalog-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.equip-catalog-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #bbccee;
+  margin: 0 0 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.equip-catalog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.equip-catalog-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.equip-catalog-row.obtained {
+  background: rgba(80,120,200,0.08);
+  border-color: rgba(80,120,200,0.2);
+}
+.equip-catalog-row.unknown {
+  opacity: 0.55;
+}
+.equip-catalog-emoji {
+  font-size: 22px;
+  flex-shrink: 0;
+  width: 30px;
+  text-align: center;
+}
+.equip-catalog-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+.equip-catalog-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.equip-catalog-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #dde4ff;
+}
+.equip-catalog-name.unknown-name {
+  color: #778899;
+  font-style: italic;
+}
+.equip-catalog-hint {
+  font-size: 11px;
+  color: #667788;
+}
+.equip-catalog-type-tag {
+  font-size: 10px;
+  background: rgba(60,80,140,0.5);
+  color: #99aadd;
+  border: 1px solid rgba(80,100,180,0.3);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.equip-catalog-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.equip-tag {
+  font-size: 10px;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.equip-tag.stat {
+  background: rgba(60,140,80,0.25);
+  color: #88dd99;
+  border: 1px solid rgba(60,140,80,0.3);
+}
+.equip-tag.eff {
+  background: rgba(100,80,180,0.25);
+  color: #bb99ff;
+  border: 1px solid rgba(100,80,180,0.3);
+}
+.equip-tag.drop-only {
+  background: rgba(180,100,40,0.25);
+  color: #ffbb66;
+  border: 1px solid rgba(180,100,40,0.3);
+}

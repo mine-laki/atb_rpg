@@ -123,6 +123,7 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
       enhanceLevel: 0,
     };
 
+    const prevObtained = saveData.progress.obtainedEquipments ?? [];
     onUpdate({
       ...saveData,
       progress: {
@@ -132,6 +133,9 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
           gil: gil - item.shopPrice,
           equipments: [...equipments, newInstance],
         },
+        obtainedEquipments: prevObtained.includes(itemId)
+          ? prevObtained
+          : [...prevObtained, itemId],
       },
     });
   }
@@ -392,11 +396,16 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
             }
           }
 
+          const prevObtained = saveData.progress.obtainedEquipments ?? [];
+          const craftedItemId = recipe.resultType === 'equipment' ? recipe.resultItemId : null;
           onUpdate({
             ...saveData,
             progress: {
               ...saveData.progress,
               inventory: { ...saveData.progress.inventory, materials: newMats, equipments: newEquipments },
+              obtainedEquipments: craftedItemId && !prevObtained.includes(craftedItemId)
+                ? [...prevObtained, craftedItemId]
+                : prevObtained,
             },
           });
         }

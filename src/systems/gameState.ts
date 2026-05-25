@@ -167,6 +167,7 @@ export function buildInitialSaveData(): SaveData {
     unlockedShopStage: 0,
     unlockedCharacters: INITIAL_UNLOCKED,
     encounteredEnemies: [],
+    obtainedEquipments: [],
   };
 
   return {

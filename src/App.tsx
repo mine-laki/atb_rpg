@@ -219,6 +219,10 @@ export default function App() {
       });
 
       const equipDrops = buildEquipmentDrops(filteredDrops);
+      const newObtained = [...(prev.progress.obtainedEquipments ?? [])];
+      for (const inst of equipDrops) {
+        if (!newObtained.includes(inst.itemId)) newObtained.push(inst.itemId);
+      }
       const updated: SaveData = {
         ...prev,
         newGamePlus: newNGPlus,
@@ -235,6 +239,7 @@ export default function App() {
           currentStage: resetStage,
           playTime: prev.progress.playTime + Math.floor(finalState.elapsed),
           encounteredEnemies: newEncountered,
+          obtainedEquipments: newObtained,
         },
       };
       syncToCache(updated);
@@ -364,6 +369,7 @@ export default function App() {
     return (
       <EnemyReportScreen
         encounteredEnemies={saveData.progress.encounteredEnemies ?? []}
+        obtainedEquipments={saveData.progress.obtainedEquipments ?? []}
         onBack={() => setScreen('home')}
       />
     );

@@ -3506,10 +3506,27 @@ button {
   border-bottom: 1px solid rgba(255,255,255,0.07);
 }
 .setup-presets-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 6px;
   font-size: 11px;
   color: #778899;
-  margin-bottom: 6px;
   letter-spacing: 0.03em;
+  cursor: pointer;
+  text-align: left;
+}
+.setup-presets-title:hover {
+  color: #aabbcc;
+}
+.setup-presets-chevron {
+  font-size: 9px;
+  opacity: 0.6;
+  margin-left: 4px;
 }
 .setup-preset-list {
   display: flex;

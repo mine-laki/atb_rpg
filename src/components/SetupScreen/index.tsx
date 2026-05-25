@@ -21,6 +21,10 @@ export function SetupScreen({ saveData, onStart, onBack, setupPresets, onSavePre
   const [paradigms, setParadigms] = useState<ParadigmData[]>(saveData.paradigms);
   const [tab, setTab] = useState<'party' | 'paradigm'>('party');
   const [savedSlot, setSavedSlot] = useState<number | null>(null);
+  // SP では初期折りたたみ、PC では初期展開
+  const [presetsOpen, setPresetsOpen] = useState(
+    () => window.matchMedia('(min-width: 600px)').matches
+  );
 
   const unlockedChars = CHARACTERS
     .filter(c => saveData.progress.unlockedCharacters.includes(c.id))
@@ -99,8 +103,15 @@ export function SetupScreen({ saveData, onStart, onBack, setupPresets, onSavePre
 
       {/* プリセットパネル */}
       <div className="setup-presets">
-        <div className="setup-presets-title">📁 プリセット保存／読込</div>
-        <div className="setup-preset-list">
+        <button
+          className="setup-presets-title"
+          onClick={() => setPresetsOpen(o => !o)}
+          aria-expanded={presetsOpen}
+        >
+          <span>📁 プリセット保存／読込</span>
+          <span className="setup-presets-chevron">{presetsOpen ? '▲' : '▼'}</span>
+        </button>
+        {presetsOpen && <div className="setup-preset-list">
           {([0, 1, 2] as const).map(slot => {
             const preset = setupPresets[slot] ?? null;
             const isSaved = savedSlot === slot;
@@ -139,7 +150,7 @@ export function SetupScreen({ saveData, onStart, onBack, setupPresets, onSavePre
               </div>
             );
           })}
-        </div>
+        </div>}
       </div>
 
       {tab === 'party' && (

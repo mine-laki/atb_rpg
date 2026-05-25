@@ -28,6 +28,118 @@ function formatPlayTime(seconds: number): string {
   return `${s}秒`;
 }
 
+// パーティカードを Canvas で描画して PNG ダウンロード
+function downloadPartyCard(params: {
+  stageLabel: string;
+  partyMembers: { emoji: string; name: string; level: number; roles: string[]; roleEmojis: string[] }[];
+  unlockedCount: number;
+  ngCount: number;
+  paradigmName?: string;
+}) {
+  const W = 400, H = 520;
+  const canvas = document.createElement('canvas');
+  canvas.width = W * 2;  // retina
+  canvas.height = H * 2;
+  const ctx = canvas.getContext('2d')!;
+  ctx.scale(2, 2);
+
+  // 背景
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#0a0a1a');
+  bg.addColorStop(1, '#161628');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // 枠
+  ctx.strokeStyle = 'rgba(100,100,220,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(4, 4, W - 8, H - 8);
+
+  // タイトル
+  ctx.font = 'bold 22px sans-serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.fillText('🎮 EmojiParadigm', W / 2, 36);
+
+  // ステージ
+  ctx.font = '13px sans-serif';
+  ctx.fillStyle = '#aaaacc';
+  ctx.fillText(params.stageLabel, W / 2, 56);
+
+  // 区切り線
+  ctx.strokeStyle = 'rgba(100,100,200,0.25)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(20, 66); ctx.lineTo(W - 20, 66); ctx.stroke();
+
+  // キャラ一覧
+  const startY = 80;
+  params.partyMembers.forEach((m, i) => {
+    const y = startY + i * 120;
+
+    // キャラ枠
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    ctx.beginPath();
+    ctx.roundRect(16, y, W - 32, 110, 8);
+    ctx.fill();
+
+    // 絵文字
+    ctx.font = '36px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(m.emoji, 26, y + 46);
+
+    // 名前・レベル
+    ctx.font = 'bold 15px sans-serif';
+    ctx.fillStyle = '#eee';
+    ctx.fillText(m.name, 74, y + 28);
+
+    ctx.font = '12px sans-serif';
+    ctx.fillStyle = '#8899bb';
+    ctx.fillText(`Lv.${m.level}`, 74, y + 46);
+
+    // ロールバッジ
+    let rx = 74;
+    m.roleEmojis.forEach((re, ri) => {
+      ctx.font = '13px sans-serif';
+      ctx.fillStyle = '#ccddff';
+      ctx.fillText(`${re} ${m.roles[ri]}`, rx, y + 68);
+      rx += ctx.measureText(`${re} ${m.roles[ri]}`).width + 10;
+    });
+
+    // 区切り
+    if (i < params.partyMembers.length - 1) {
+      ctx.strokeStyle = 'rgba(80,80,120,0.3)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(20, y + 116);
+      ctx.lineTo(W - 20, y + 116);
+      ctx.stroke();
+    }
+  });
+
+  // メタ情報
+  const metaY = startY + params.partyMembers.length * 120 + 10;
+  ctx.font = '12px sans-serif';
+  ctx.fillStyle = '#888899';
+  ctx.textAlign = 'center';
+  ctx.fillText(`👥 ${params.unlockedCount}人解放${params.ngCount > 0 ? `  🔁 NG+${params.ngCount}` : ''}`, W / 2, metaY);
+  if (params.paradigmName) {
+    ctx.fillStyle = '#6677aa';
+    ctx.fillText(`オプティマ: ${params.paradigmName}`, W / 2, metaY + 18);
+  }
+
+  // フッター
+  ctx.font = '10px sans-serif';
+  ctx.fillStyle = 'rgba(100,100,150,0.6)';
+  ctx.fillText('EmojiParadigm', W / 2, H - 12);
+
+  // ダウンロード
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = `party_${Date.now()}.png`;
+  a.click();
+}
+
 export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, currentStage, selectedStage, onSelectStage, ngPlus, selectedNgPlus, onSelectNgPlus }: HomeScreenProps) {
   const [showCard, setShowCard] = useState(false);
   const playTime = saveData.progress.playTime ?? 0;
@@ -63,6 +175,24 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
     : `Stage 1 挑戦中`;
   const unlockedCount = saveData.progress.unlockedCharacters.length;
   const ngCount = ngPlus ?? 0;
+
+  const handleDownloadCard = () => {
+    downloadPartyCard({
+      stageLabel,
+      partyMembers: partyMembers
+        .filter(m => m.charData)
+        .map(m => ({
+          emoji: m.charData!.emoji,
+          name: m.charData!.name,
+          level: m.level,
+          roles: m.allRoles,
+          roleEmojis: m.allRoles.map(r => getRoleEmoji(r)),
+        })),
+      unlockedCount,
+      ngCount,
+      paradigmName: paradigm0?.name,
+    });
+  };
 
   // 過去NG難易度を選択中なら全ステージ開放
   const viewingNg = selectedNgPlus ?? ngCount;
@@ -135,8 +265,10 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
               </div>
             )}
 
-            <div className="party-card-hint">📸 スクリーンショットで保存できます</div>
-            <button className="party-card-close" onClick={() => setShowCard(false)}>✕ 閉じる</button>
+            <div className="party-card-actions">
+              <button className="party-card-dl" onClick={handleDownloadCard}>⬇️ PNG 保存</button>
+              <button className="party-card-close" onClick={() => setShowCard(false)}>✕ 閉じる</button>
+            </div>
           </div>
         </div>
       )}

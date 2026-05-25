@@ -2017,15 +2017,33 @@ button {
   font-style: italic;
 }
 
+.party-card-actions {
+  display: flex;
+  gap: 8px;
+}
+.party-card-dl {
+  flex: 1;
+  background: rgba(40,80,160,0.5);
+  color: #aaccff;
+  border: 1px solid rgba(80,120,220,0.4);
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.party-card-dl:hover { filter: brightness(1.2); }
 .party-card-close {
+  flex: 1;
   background: rgba(255,255,255,0.07);
   color: #aaa;
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
   padding: 8px;
   font-size: 13px;
-  width: 100%;
+  cursor: pointer;
 }
+.party-card-close:hover { background: rgba(255,255,255,0.12); }
 
 /* ================================================================
    SP コンパクト戦闘UI  (max-height: 750px 相当のスマホ向け)

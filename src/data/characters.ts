@@ -338,3 +338,46 @@ export function getStatsAtLevel(charData: CharacterData, level: number) {
 export function levelUpCost(currentLevel: number): number {
   return Math.floor(100 * Math.pow(1.18, currentLevel - 1));
 }
+
+// ─── キャラクタープロフィール ─────────────────────────────
+export interface CharProfile {
+  description: string;
+  playstyle: string;
+}
+
+const CHARACTER_PROFILES: Record<string, CharProfile> = {
+  rai:  { description: '電光石火の剣士。ATBゲージが早く回転し、素早いコンボで敵のチェーンを稼ぐ。',     playstyle: 'ATKで物理コンボ→BLAで追い打ち。ヘイスト状態との相性抜群。' },
+  ifu:  { description: '炎を纏う重戦士。圧倒的なSTRで敵を粉砕するが、魔法耐性はやや低め。',           playstyle: 'ブレイク後のATKで最大火力を出す。ラストスタンドで瀕死時の逆転も狙える。' },
+  fa:   { description: '野生の本能を持つ双剣士。チェーン構築とデバフを両立できるオールラウンダー。', playstyle: 'DEFでタンク役もこなしつつ、JAMでデバフをかけてATKに繋ぐ。' },
+  kuri: { description: '氷魔法の使い手。高いMAGと属性攻撃で弱点を突くエレメンタルスペシャリスト。', playstyle: 'BLAで氷弱点の敵に集中。ENHでフェイスを付与して魔法倍率を上げよう。' },
+  kaze: { description: '風を操る弓使い。物理・魔法どちらもこなせる万能型。スピードも高い。',         playstyle: '状況に応じてATK/BLAを使い分け。JAMのディスペルが厄介なバフ持ち敵に刺さる。' },
+  tora: { description: '猛虎の如き近接戦士。高HPと物理攻撃を兼ね備えた前衛の要。',                   playstyle: 'DEFで挑発して味方を守りつつATKで殴り続ける守りながら攻めるスタイル。' },
+  taka: { description: '鋭い眼を持つ弓兵。高いSTRで遠距離から連続攻撃を繰り出す。',                 playstyle: 'ATKのコンボで安定してチェーンを稼ぐ。DEFで急な防御切替も可能。' },
+  voru: { description: '火山の化身。狂戦士スタイルで自らを傷つけながら爆発的ダメージを叩き出す。', playstyle: 'バーサク状態での超火力が真骨頂。回復役との連携で瀕死をキープして戦え。' },
+  reo:  { description: '百獣の王。高いHPと攻撃力でブレイク中に最大火力を発揮するブレイクハンター。', playstyle: 'DEFで粘り強く耐えつつブレイクを待つ。ブレイク直後にATKで奥義を叩き込め。' },
+  bom:  { description: '爆発魔法のエキスパート。低HPだが高MAGで敵の弱点を連続爆撃する火力特化型。', playstyle: 'BLAで弱点を突いてチェーンを伸ばしブレイクを狙う。ENHでフェイスをかけてから攻めると吉。' },
+  ho:   { description: '月の魔導師。攻撃・回復・強化を器用にこなす全方位魔法使い。',                 playstyle: 'BLAで牽制しつつHLRで回復。ENHの強化バフを序盤に展開するのが基本。' },
+  sac:  { description: '海の歌姫。流水のような素早い動きでENHを得意とし、味方全体を底上げする。',   playstyle: 'ENHでプロテス・シェル・ヘイストを素早く展開。BLAも高水準でサブ火力にもなれる。' },
+  va:   { description: '自然の力を宿す治癒者。高い回復量と独自のリジェネ系スキルで味方を支える。', playstyle: 'HLRで安定回復を担い、JAMで敵にデバフをかけながら戦況をコントロール。' },
+  daku: { description: '闇の魔術師。強力なデバフと闇属性攻撃で敵の弱点を突く邪悪な戦略家。',       playstyle: 'JAMでストップ・カース等の凶悪デバフを叩き込みBLAで追い打ち。対ボス最強格。' },
+  en:   { description: '聖なる光の使い手。回復と強化を高次元で両立し、パーティを完璧に支援する。', playstyle: 'ENHでバフ展開しHLRで回復。アライズ持ちなので戦闘不能時の立て直しが得意。' },
+  jio:  { description: '大地の巨人。地属性魔法と重力で敵の動きを縛る変則的な魔法使い。',           playstyle: 'JAMのグラビラで敵HPを割合削りBLAの地震で一掃。ENHでデバフ効果を延長。' },
+  doc:  { description: '薬師。ケアルジャによる大回復とエスナでの状態異常解除が専門。',               playstyle: 'HLRで全体回復とエスナをメインに担当。ENHのヴェイルで状態異常を防ぐ先手も有効。' },
+  ran:  { description: 'サイコロを転がす変則魔法使い。チェーンブーストと魔法爆発が真骨頂。',       playstyle: 'ENHでチェーンブーストをかけてからBLAで一気にブレイク。JAMのグラビラも便利。' },
+  hana: { description: '花の癒し手。リジェネ系スキルで継続回復を重視した持久戦型サポート。',       playstyle: 'HLRでリジェネを維持しながらENHでバフ展開。長期戦で最も輝くキャラ。' },
+  kou:  { description: '虹色の魔導師。トライディザスターで複数属性を同時に扱える万能攻撃型。',     playstyle: 'BLAで多属性カバー、ENHで強化を素早く展開。弱点が分からない敵に特に有効。' },
+  gar:  { description: '鉄壁の守護者。盾を持つ防衛のエース。高HPで味方を守りながら攻撃もこなす。', playstyle: 'DEFで挑発して被弾を引き受け、ATKで反撃。バランス型パーティの中核として活躍。' },
+  roku: { description: '山岳の鬼神。不動の守護者として高い物理防御を活かし最前線に立ち続ける。',   playstyle: 'DEFで壁を務めATKで反撃。ENHで仲間にバフをかけつつ陣形を安定させるのが理想。' },
+  roza: { description: '戦乙女の弓手。ATKとHLRを兼ね備えた攻守バランス型の弓使い。',               playstyle: 'BLAで牽制しATKで追撃。パーティが安定していればHLRでサポートにも回れる。' },
+  cho:  { description: '蝶のように舞う奇術師。ATK/BLA/ENH/JAMの4ロールで状況適応力が最高峰。',    playstyle: '固有のチェーンブーストでブレイクを後押し。4ロールを使い分ける立ち回りが重要。' },
+  ryu:  { description: '龍騎士。防御と回復を兼備した自己完結型の前衛で、単独でも粘り強く戦える。', playstyle: 'ATKとDEFを切り替えながら自立して戦える。HLRで自分を回復しつつ持久戦に持ち込む。' },
+  kika: { description: '機械仕掛けの楽師。ENHとJAMで味方強化と敵弱体を同時進行する戦略家。',       playstyle: 'ヴェイルとインペリルを素早く展開。属性弱点持ちの敵にはインペリルが驚異的に機能する。' },
+  ste:  { description: '輝く星の戦士。仲間と連携することで真価を発揮するソリダリティスペシャリスト。', playstyle: 'ATKでブレイクハンターを活かしつつ、味方との連携シナジーを意識して立ち回る。' },
+  baru: { description: '演奏で仲間を鼓舞する楽師。チェーンブーストとアライズで戦局を動かす。',     playstyle: 'ENHのチェーンブーストで全体チェーンを加速。アライズで戦闘不能から即時復活させる。' },
+  pose: { description: '海神の申し子。水属性と重力で場を支配し、攻撃とデバフを同時にこなす。',     playstyle: 'BLAのウォータガで水弱点を突きつつJAMのグラビラでHP割合ダメージ。チェーン構築も速い。' },
+  gan:  { description: '闇眼の魔人。ATK/BLA/ENH/JAMの4ロールを使いこなす万能の野心家。',          playstyle: '固有のマジックバーストとインペリルで被ダメージを爆発的に増幅する戦術が強力。' },
+};
+
+export function getCharProfile(id: string): CharProfile | undefined {
+  return CHARACTER_PROFILES[id];
+}

@@ -101,6 +101,8 @@ export interface CharacterData {
   attackType: 'physical' | 'magical' | 'mixed';
   physDef: number;   // 0-100, default 0
   magDef: number;    // 0-100, default 0
+  description?: string;  // キャラクター説明文
+  playstyle?: string;    // 得意戦法・運用ヒント
 }
 
 export interface CharacterInstance {

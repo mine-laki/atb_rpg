@@ -3084,3 +3084,39 @@ button {
 }
 .btn-craft.disabled { background: rgba(60,60,60,0.5); color: #666; cursor: not-allowed; }
 .btn-craft:not(.disabled):hover { filter: brightness(1.2); }
+
+/* ── キャラクタープロフィール ── */
+.char-profile-panel {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.char-profile-desc {
+  font-size: 0.82em;
+  color: #bbb;
+  margin: 0;
+  line-height: 1.5;
+}
+.char-profile-playstyle {
+  background: rgba(80,120,80,0.15);
+  border: 1px solid rgba(80,160,80,0.2);
+  border-radius: 6px;
+  padding: 6px 9px;
+}
+.char-profile-hint-label {
+  font-size: 0.75em;
+  color: #88cc88;
+  display: block;
+  margin-bottom: 3px;
+}
+.char-profile-hint-text {
+  font-size: 0.8em;
+  color: #aaddaa;
+  margin: 0;
+  line-height: 1.4;
+}

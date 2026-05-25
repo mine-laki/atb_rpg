@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { SaveData, RoleId, CharacterSaveData, EquipmentInstance } from '../../types';
-import { CHARACTERS, getStatsAtLevel, levelUpCost } from '../../data/characters';
+import { CHARACTERS, getStatsAtLevel, levelUpCost, getCharProfile } from '../../data/characters';
 import { MATERIALS, getEquipmentById, ENHANCE_MULTIPLIERS } from '../../data/equipment';
 import { getSkillNodes, calcSkillBonuses } from '../../data/skillBoard';
 import { getRoleEmoji, getRoleLabel } from '../../systems/paradigm';
@@ -358,6 +358,21 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
           })}
         </div>
       </div>
+
+        {/* ── キャラプロフィール ── */}
+        {(() => {
+          const profile = getCharProfile(charData.id);
+          if (!profile) return null;
+          return (
+            <div className="char-profile-panel">
+              <p className="char-profile-desc">{profile.description}</p>
+              <div className="char-profile-playstyle">
+                <span className="char-profile-hint-label">💡 運用ヒント</span>
+                <p className="char-profile-hint-text">{profile.playstyle}</p>
+              </div>
+            </div>
+          );
+        })()}
       </div>{/* /char-sidebar */}
 
       {/* ── タブ ── */}

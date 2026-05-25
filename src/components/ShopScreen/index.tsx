@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { SaveData, EquipmentInstance } from '../../types';
 import { EQUIPMENT_DATA, getEquipmentById, ENHANCE_COSTS, ENHANCE_MULTIPLIERS, MATERIAL_SHOP, MATERIALS } from '../../data/equipment';
 import { getCraftRecipes } from '../../data/crafting';
+import { CHARACTERS } from '../../data/characters';
 import { seBuy } from '../../systems/sound';
 
 // 装備をソートするヘルパー: type(weapon→accessory) → weaponType → shopPrice
@@ -41,12 +42,16 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
 
   const { gil, equipments } = saveData.progress.inventory;
 
-  // 装着中のinstanceIdセット（売却不可チェック用）
+  // 装着中のinstanceIdセット（売却不可チェック用）＆装備者マップ
   const equippedInstanceIds = new Set<string>();
+  const instanceToEquipper = new Map<string, string>(); // instanceId → charId
   for (const char of saveData.player.roster) {
     const eq = char.equipment;
     [eq.weapon, eq.accessory1, eq.accessory2, eq.accessory3, eq.accessory4]
-      .filter(Boolean).forEach(id => equippedInstanceIds.add(id!));
+      .filter(Boolean).forEach(id => {
+        equippedInstanceIds.add(id!);
+        instanceToEquipper.set(id!, char.id);
+      });
   }
 
   function calcSellPrice(shopPrice: number, enhanceLevel: number): number {
@@ -284,6 +289,13 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
                     <span className="item-name">{data.name}</span>
                     <span className="enhance-level-badge">+{lv}{lv >= 5 && ' MAX'}</span>
                   </div>
+                  {(() => {
+                    const equipper = instanceToEquipper.get(inst.instanceId);
+                    const char = equipper ? CHARACTERS.find(c => c.id === equipper) : null;
+                    return char ? (
+                      <span className="enhance-equippedby">{char.emoji} {char.name}</span>
+                    ) : null;
+                  })()}
                 </div>
                 {isSelected && (
                   <div className="enhance-inline-panel" onClick={e => e.stopPropagation()}>

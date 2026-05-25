@@ -3030,3 +3030,57 @@ button {
   color: #cc88ff; border-radius: 4px; padding: 1px 5px;
   border: 1px solid rgba(160,60,200,0.5); margin-left: 4px;
 }
+
+/* ── 装備合成 (craft) ── */
+.craft-list { display: flex; flex-direction: column; gap: 10px; }
+.craft-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.craft-card.craftable {
+  border-color: rgba(80,200,120,0.4);
+  background: rgba(20,60,30,0.2);
+}
+.craft-result {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.craft-result-emoji { font-size: 28px; line-height: 1; }
+.craft-result-info  { display: flex; flex-direction: column; gap: 2px; }
+.craft-result-name  { font-weight: bold; font-size: 0.92em; color: #eee; }
+.craft-result-desc  { font-size: 0.78em; color: #888; }
+.craft-result-stats { font-size: 0.8em; color: #88ccff; }
+.craft-materials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.craft-mat-item {
+  font-size: 0.78em;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  padding: 2px 7px;
+  color: #ccc;
+}
+.craft-mat-item.shortage { color: #ff7777; border-color: rgba(255,80,80,0.35); }
+.craft-mat-owned { color: #666; margin-left: 3px; }
+.btn-craft {
+  align-self: flex-end;
+  background: rgba(60,160,80,0.7);
+  color: #9fe;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 14px;
+  font-size: 0.85em;
+  cursor: pointer;
+  font-weight: bold;
+}
+.btn-craft.disabled { background: rgba(60,60,60,0.5); color: #666; cursor: not-allowed; }
+.btn-craft:not(.disabled):hover { filter: brightness(1.2); }

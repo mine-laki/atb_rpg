@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { SaveData, EquipmentInstance } from '../../types';
 import { EQUIPMENT_DATA, getEquipmentById, ENHANCE_COSTS, ENHANCE_MULTIPLIERS, MATERIAL_SHOP, MATERIALS } from '../../data/equipment';
+import { getCraftRecipes } from '../../data/crafting';
 
 // 装備をソートするヘルパー: type(weapon→accessory) → weaponType → shopPrice
 function sortEquipInstances(insts: EquipmentInstance[]): EquipmentInstance[] {
@@ -30,7 +31,7 @@ interface ShopScreenProps {
   onBack: () => void;
 }
 
-type ShopTab = 'buy' | 'material' | 'sell' | 'enhance';
+type ShopTab = 'buy' | 'material' | 'sell' | 'enhance' | 'craft';
 
 export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
   const [tab, setTab] = useState<ShopTab>('buy');
@@ -140,6 +141,7 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
         <button className={tab === 'material' ? 'active' : ''} onClick={() => setTab('material')}>素材購入</button>
         <button className={tab === 'sell' ? 'active' : ''} onClick={() => setTab('sell')}>売却</button>
         <button className={tab === 'enhance' ? 'active' : ''} onClick={() => setTab('enhance')}>装備強化</button>
+        <button className={tab === 'craft' ? 'active' : ''} onClick={() => setTab('craft')}>⚗️合成</button>
       </div>
 
       {tab === 'buy' && (
@@ -321,6 +323,131 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
           })}
         </div>
       )}
+
+      {/* ── 合成タブ ── */}
+      {tab === 'craft' && (() => {
+        const { materials } = saveData.progress.inventory;
+        const recipes = getCraftRecipes(maxStage);
+
+        function getMaterialQty(itemId: string) {
+          return materials.find(m => m.itemId === itemId)?.quantity ?? 0;
+        }
+        function getMaterialEmoji(itemId: string) {
+          return MATERIALS.find(m => m.id === itemId)?.emoji ?? '📦';
+        }
+        function getMaterialName(itemId: string) {
+          return MATERIALS.find(m => m.id === itemId)?.name ?? itemId;
+        }
+
+        function canCraft(recipeId: string): boolean {
+          const recipe = recipes.find(r => r.id === recipeId);
+          if (!recipe) return false;
+          return recipe.materials.every(m => getMaterialQty(m.itemId) >= m.quantity);
+        }
+
+        function handleCraft(recipeId: string) {
+          const recipe = recipes.find(r => r.id === recipeId);
+          if (!recipe || !canCraft(recipeId)) return;
+
+          // 素材を消費
+          let newMats = [...materials];
+          for (const mat of recipe.materials) {
+            newMats = newMats.map(m =>
+              m.itemId !== mat.itemId ? m : { ...m, quantity: m.quantity - mat.quantity }
+            ).filter(m => m.quantity > 0);
+          }
+
+          let newEquipments = [...equipments];
+          if (recipe.resultType === 'equipment') {
+            const newInst: EquipmentInstance = {
+              instanceId: `${recipe.resultItemId}_craft_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+              itemId: recipe.resultItemId,
+              enhanceLevel: 0,
+            };
+            newEquipments = [...newEquipments, newInst];
+          } else {
+            // material
+            const existing = newMats.find(m => m.itemId === recipe.resultItemId);
+            if (existing) {
+              newMats = newMats.map(m =>
+                m.itemId !== recipe.resultItemId ? m : { ...m, quantity: m.quantity + recipe.resultQuantity }
+              );
+            } else {
+              newMats.push({ itemId: recipe.resultItemId, quantity: recipe.resultQuantity });
+            }
+          }
+
+          onUpdate({
+            ...saveData,
+            progress: {
+              ...saveData.progress,
+              inventory: { ...saveData.progress.inventory, materials: newMats, equipments: newEquipments },
+            },
+          });
+        }
+
+        if (recipes.length === 0) {
+          return (
+            <div className="shop-items">
+              <p className="no-items">ステージをクリアして合成レシピを解放しよう！</p>
+            </div>
+          );
+        }
+
+        return (
+          <div className="shop-items craft-list">
+            {recipes.map(recipe => {
+              const craftable = canCraft(recipe.id);
+              const resultData = recipe.resultType === 'equipment'
+                ? getEquipmentById(recipe.resultItemId)
+                : null;
+              const resultMat = recipe.resultType === 'material'
+                ? MATERIALS.find(m => m.id === recipe.resultItemId)
+                : null;
+
+              return (
+                <div key={recipe.id} className={`craft-card ${craftable ? 'craftable' : ''}`}>
+                  <div className="craft-result">
+                    <span className="craft-result-emoji">
+                      {resultData?.emoji ?? resultMat?.emoji ?? '📦'}
+                    </span>
+                    <div className="craft-result-info">
+                      <span className="craft-result-name">{recipe.name}</span>
+                      <span className="craft-result-desc">{recipe.description}</span>
+                      {recipe.resultType === 'equipment' && resultData && (
+                        <span className="craft-result-stats">
+                          {resultData.baseStats.str ? `STR+${resultData.baseStats.str} ` : ''}
+                          {resultData.baseStats.mag ? `MAG+${resultData.baseStats.mag} ` : ''}
+                          {resultData.baseStats.hp  ? `HP+${resultData.baseStats.hp}` : ''}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="craft-materials">
+                    {recipe.materials.map(mat => {
+                      const have = getMaterialQty(mat.itemId);
+                      const ok = have >= mat.quantity;
+                      return (
+                        <span key={mat.itemId} className={`craft-mat-item ${ok ? '' : 'shortage'}`}>
+                          {getMaterialEmoji(mat.itemId)} {getMaterialName(mat.itemId)} ×{mat.quantity}
+                          <span className="craft-mat-owned">（{have}）</span>
+                        </span>
+                      );
+                    })}
+                  </div>
+                  <button
+                    className={`btn-craft ${craftable ? '' : 'disabled'}`}
+                    onClick={() => handleCraft(recipe.id)}
+                    disabled={!craftable}
+                  >
+                    {craftable ? '⚗️ 合成' : '素材不足'}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* 売却確認モーダル */}
       {sellConfirm && (() => {

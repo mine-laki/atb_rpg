@@ -354,7 +354,7 @@ export const ENEMIES: EnemyData[] = [
       rare:     [{ itemId: 'god_proof', rate: 0.50 }, { itemId: 'fragment_pose', rate: 0.55 }, { itemId: 'fragment_gan', rate: 0.55 }, { itemId: 'relic_seraph', rate: 0.10, dropType: 'equipment' as const }, { itemId: 'relic_omega', rate: 0.08, dropType: 'equipment' as const }, { itemId: 'chaos_trident', rate: 0.10, dropType: 'equipment' as const }, { itemId: 'dark_grimoire', rate: 0.08, dropType: 'equipment' as const }, { itemId: 'starlight_codex', rate: 0.12, dropType: 'equipment' as const }],
     },
     actions: [
-      { id: 'fb_doom',    name: '運命の宣告',   power: 0, powerPercent: 0.90, aoe: true, cooldown: 120.0 },
+      { id: 'fb_doom',    name: '運命の宣告',   power: 0, powerPercent: 0.99, aoe: true, cooldown: 120.0, postGlobalCooldown: 15.0 },
       { id: 'fb_fire',    name: 'ファイガ',     power: 2.0, element: 'fire',    cooldown: 4.0 },
       { id: 'fb_ice',     name: 'ブリザガ',     power: 2.0, element: 'ice',     cooldown: 4.0 },
       { id: 'fb_thunder', name: 'サンダガ',     power: 2.0, element: 'thunder', cooldown: 4.0 },

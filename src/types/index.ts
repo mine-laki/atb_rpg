@@ -168,8 +168,9 @@ export interface EnemyAction {
   aoe?: boolean;
   debuff?: DebuffId;        // applies debuff to target party member(s)
   selfBuff?: BuffId[];      // applies buff to self (the enemy)
-  powerPercent?: number;    // deal this % of target's max HP as damage (ignores power)
+  powerPercent?: number;    // deal this % of target's CURRENT HP as damage (ignores power)
   cooldown: number;         // seconds
+  postGlobalCooldown?: number;  // after this action, set ALL action cooldowns to this value
   condition?: string;       // e.g. 'phase2'
 }
 

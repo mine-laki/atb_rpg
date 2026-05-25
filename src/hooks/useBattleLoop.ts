@@ -390,6 +390,12 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
           const aliveParty = party.filter(p => p.isAlive);
           if (!aliveParty.length) break;
 
+          // postGlobalCooldown: 全行動クールダウンをリセット（宣告後スタンなど）
+          if (action.postGlobalCooldown) {
+            for (const k of Object.keys(newCooldowns)) {
+              newCooldowns[k] = Math.max(newCooldowns[k] ?? 0, action.postGlobalCooldown);
+            }
+          }
           newCooldowns[action.id] = action.cooldown * 3;
           didAct = true;
 
@@ -426,8 +432,8 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
               let damage = 0;
               if (action.power > 0 || !action.debuff) {
                 if (action.powerPercent) {
-                  // 割合ダメージ（ラスボスの宣告など）
-                  damage = Math.floor(target.maxHP * action.powerPercent);
+                  // 割合ダメージ: 現在HPの指定% (ラスボスの宣告など)
+                  damage = Math.floor(target.currentHP * action.powerPercent);
                 } else if (action.power > 0) {
                   damage = calcEnemyDamage(scaledEnemyData, action.power, target, action.element);
                 }

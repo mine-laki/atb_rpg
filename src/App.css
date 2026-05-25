@@ -3120,3 +3120,131 @@ button {
   margin: 0;
   line-height: 1.4;
 }
+
+/* ══════════════════════════════════════════════
+   モバイル縦持ち最適化 (max-width: 480px)
+   ══════════════════════════════════════════════ */
+@media (max-width: 480px) {
+
+  /* ── 全般: タッチターゲット最小44px ── */
+  button {
+    min-height: 36px;
+  }
+  .btn-back {
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+
+  /* ── バトル画面 ── */
+  .battle-screen {
+    padding: 6px 6px 0;
+    gap: 5px;
+  }
+  /* オプティマボタン: タッチしやすく */
+  .paradigm-btn {
+    min-height: 44px;
+    min-width: 52px;
+    font-size: 11px;
+    padding: 5px 3px;
+  }
+  /* バトルコントロール: 大きめに */
+  .btn-escape,
+  .btn-pause {
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  .btn-battle-item {
+    min-height: 40px;
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+
+  /* ── ショップタブ: 横スクロール ── */
+  .shop-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+    gap: 6px;
+  }
+  .shop-tabs button {
+    flex-shrink: 0;
+    min-width: 68px;
+    min-height: 38px;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  /* ── 強化タブ: 横スクロール ── */
+  .enhance-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+    gap: 4px;
+  }
+  .enhance-tabs button {
+    flex-shrink: 0;
+    min-height: 36px;
+    font-size: 11px;
+    padding: 5px 8px;
+    white-space: nowrap;
+  }
+
+  /* ── 強化画面のchar-selector: 横スクロールに ── */
+  .char-selector {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px;
+    padding: 8px 10px;
+  }
+  .char-selector-btn {
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+    padding: 6px 4px;
+    gap: 2px;
+  }
+  .char-sel-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+  .char-sel-name  { font-size: 10px; }
+  .char-sel-level { font-size: 9px; }
+
+  /* ── 装備プリセット: 1列に ── */
+  .equip-preset-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── ホームメニュー: ボタン間隔調整 ── */
+  .home-btn {
+    min-height: 48px;
+    font-size: 15px;
+  }
+
+  /* ── セットアップ画面: キャラカード ── */
+  .char-roster {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* ── リザルト画面: 読みやすく ── */
+  .result-screen {
+    padding: 12px;
+  }
+
+  /* ── スクロールバー: スマホではできるだけ非表示 ── */
+  .char-selector::-webkit-scrollbar,
+  .enhance-tabs::-webkit-scrollbar,
+  .shop-tabs::-webkit-scrollbar {
+    display: none;
+  }
+}

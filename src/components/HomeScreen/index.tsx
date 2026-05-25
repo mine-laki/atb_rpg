@@ -5,6 +5,7 @@ import { getEquipmentById } from '../../data/equipment';
 import { getRoleEmoji } from '../../systems/paradigm';
 import { SaveLoadPanel } from '../SaveLoadPanel';
 import { STAGE_WAVES } from '../../data/enemies';
+import { setSoundMuted, isSoundMuted } from '../../systems/sound';
 
 interface HomeScreenProps {
   saveData: SaveData;
@@ -142,6 +143,13 @@ function downloadPartyCard(params: {
 
 export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, currentStage, selectedStage, onSelectStage, ngPlus, selectedNgPlus, onSelectNgPlus }: HomeScreenProps) {
   const [showCard, setShowCard] = useState(false);
+  const [muted, setMuted] = useState(isSoundMuted());
+
+  const toggleMute = () => {
+    const next = !muted;
+    setSoundMuted(next);
+    setMuted(next);
+  };
   const playTime = saveData.progress.playTime ?? 0;
 
   // パーティメンバー情報を取得
@@ -208,7 +216,12 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
           <span className="home-gil">💰 {saveData.progress.inventory.gil.toLocaleString()} Gil</span>
           {playTime > 0 && <span className="home-playtime">⏱ {formatPlayTime(playTime)}</span>}
         </div>
-        <SaveLoadPanel gameData={saveData} onLoad={onLoad} />
+        <div className="home-header-row">
+          <SaveLoadPanel gameData={saveData} onLoad={onLoad} />
+          <button className="btn-mute" onClick={toggleMute} title={muted ? '音をオンにする' : '音をオフにする'}>
+            {muted ? '🔇' : '🔊'}
+          </button>
+        </div>
       </div>
 
       {/* パーティ表示 */}

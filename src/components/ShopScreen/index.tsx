@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { SaveData, EquipmentInstance } from '../../types';
 import { EQUIPMENT_DATA, getEquipmentById, ENHANCE_COSTS, ENHANCE_MULTIPLIERS, MATERIAL_SHOP, MATERIALS } from '../../data/equipment';
 import { getCraftRecipes } from '../../data/crafting';
+import { seBuy } from '../../systems/sound';
 
 // 装備をソートするヘルパー: type(weapon→accessory) → weaponType → shopPrice
 function sortEquipInstances(insts: EquipmentInstance[]): EquipmentInstance[] {
@@ -85,6 +86,7 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
 
   function buyMaterial(itemId: string, price: number) {
     if (gil < price) return;
+    seBuy();
     const newMaterials = [...saveData.progress.inventory.materials];
     const existing = newMaterials.find(m => m.itemId === itemId);
     if (existing) {
@@ -108,6 +110,7 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
   function buyEquipment(itemId: string) {
     const item = getEquipmentById(itemId);
     if (!item || item.shopPrice > gil) return;
+    seBuy();
 
     const newInstance: EquipmentInstance = {
       instanceId: `${itemId}_${Date.now()}_${Math.random().toString(36).slice(2)}`,

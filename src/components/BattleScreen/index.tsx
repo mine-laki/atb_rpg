@@ -8,6 +8,7 @@ import { useBattleLoop } from '../../hooks/useBattleLoop';
 import { switchParadigm } from '../../systems/paradigm';
 import { createEnemyInstance } from '../../systems/gameState';
 import { getItemById } from '../../data/items';
+import { seParadigmShift, seVictory, seDefeat } from '../../systems/sound';
 
 interface BattleScreenProps {
   initialState: BattleState;
@@ -31,6 +32,7 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
       const next = updater(prev);
 
       if (next.phase === 'victory' && prev.phase !== 'victory') {
+        seVictory();
         setIsRunning(false);
         const nextWave = next.waveIndex + 1;
 
@@ -67,6 +69,7 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
       }
 
       if (next.phase === 'defeat' && prev.phase !== 'defeat' && !resultCalledRef.current) {
+        seDefeat();
         resultCalledRef.current = true;
         setIsRunning(false);
         setTimeout(() => onDefeat(), 1500);
@@ -79,6 +82,7 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
   useBattleLoop({ state, onStateUpdate: handleStateUpdate, isRunning });
 
   const handleParadigmSwitch = useCallback((slot: number) => {
+    seParadigmShift();
     const wasRunning = isRunning;
     setIsRunning(false);
     setState(prev => {

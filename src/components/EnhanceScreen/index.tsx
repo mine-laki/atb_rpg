@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { SaveData, RoleId, CharacterSaveData, EquipmentInstance } from '../../types';
 import { CHARACTERS, getStatsAtLevel, levelUpCost, getCharProfile } from '../../data/characters';
+import { seLevelUp } from '../../systems/sound';
 import { MATERIALS, getEquipmentById, ENHANCE_MULTIPLIERS } from '../../data/equipment';
 import { getSkillNodes, calcSkillBonuses } from '../../data/skillBoard';
 import { getRoleEmoji, getRoleLabel } from '../../systems/paradigm';
@@ -93,6 +94,7 @@ export function EnhanceScreen({ saveData, onUpdate, onBack }: EnhanceScreenProps
 
   const handleLevelUp = () => {
     if (!canLevelUp) return;
+    seLevelUp();
     onUpdate({
       ...updateRoster({ ...charSave, level: charSave.level + 1 }),
       progress: {

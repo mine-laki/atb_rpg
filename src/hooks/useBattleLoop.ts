@@ -8,6 +8,7 @@ import { executeAttack, executeHeal, executeRevive, calcEnemyDamage } from '../s
 import { getEnemyById } from '../data/enemies';
 import { getEquipmentById, ENHANCE_MULTIPLIERS } from '../data/equipment';
 import { CHARACTERS } from '../data/characters';
+import { seHit, seMagicHit, seHeal, seBuff, seDebuff, seBreak } from '../systems/sound';
 
 const MAX_LOG = 30;
 let logSeq = 0;
@@ -168,6 +169,7 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
             ? party.filter(p => p.isAlive)
             : [party[tIdx]].filter(Boolean) as CharacterInstance[];
 
+          seHeal();
           const { newTargets, logs } = executeHeal(party[charIdx], ability, targets);
           logs.forEach(l => {
             l.actorEmoji = actorEmoji;
@@ -183,6 +185,7 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
 
         } else if (ability.buff && ability.buff.length > 0) {
           // Buff
+          seBuff();
           const buffAll = ability.aoe;
           const tIdx = targetCharIdx ?? charIdx;
           const targets = buffAll
@@ -241,6 +244,7 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
 
         } else if (ability.debuff && ability.debuff.length > 0) {
           // Debuff enemy
+          seDebuff();
           const eIdx = targetEnemyIdx ?? enemies.findIndex(e => e.currentHP > 0);
           if (eIdx >= 0 && enemies[eIdx]) {
             const eData = getEnemyById(enemies[eIdx].dataId);
@@ -295,6 +299,11 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
               l.isBreak    = newTarget.isBreaking && !wasBreaking;
             });
             newLogs.push(...logs);
+            // SE: 属性攻撃は魔法音、物理は打撃音
+            if (ability.element) seMagicHit();
+            else seHit();
+            // ブレイク発生
+            if (newTarget.isBreaking && !wasBreaking) seBreak();
             enemies[eIdx] = newTarget;
           }
 

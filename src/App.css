@@ -2046,16 +2046,18 @@ button {
 .party-card-close:hover { background: rgba(255,255,255,0.12); }
 
 /* ================================================================
-   SP コンパクト戦闘UI  (max-height: 750px 相当のスマホ向け)
+   SP コンパクト戦闘UI  (スマホ縦持ち / iPhone16 PWAを含む)
+   ・max-width: 500px  → 幅500px以下のスマホのみ対象
+   ・max-height: 900px → iPhone16 PWA縦持ち(~760-800px)も捕捉
    敵カード・キャラカードをどちらも 2カラムグリッドに変換し
    敵3体+味方3体を画面内に収める
    ================================================================ */
-@media (max-height: 750px) {
+@media (max-height: 900px) and (max-width: 500px) {
   /* 全体ギャップ・パディング削減 */
   .battle-screen { gap: 4px; padding: 6px 8px; }
 
-  /* ---- 敵エリア: 高さ制限なし → コンパクトな自然サイズに任せる ---- */
-  .enemy-area { max-height: none; gap: 4px; min-height: 40px; }
+  /* ---- 敵エリア: 画面高さの33%上限でコンパクトに収める ---- */
+  .enemy-area { max-height: 33%; gap: 4px; min-height: 40px; overflow-y: auto; }
 
   /* 敵カード: 2カラムグリッド（左:絵文字+名前 / 右:HP+チェーン+弱点） */
   .enemy-card {

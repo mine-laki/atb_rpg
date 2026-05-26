@@ -42,6 +42,9 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,mp3}'],
         navigateFallback: '/atb_rpg/',
         navigateFallbackDenylist: [/^\/api/],
+        // 新しいSWを即座に有効化（開いているタブも含む）
+        skipWaiting: true,
+        clientsClaim: true,
       },
       devOptions: {
         enabled: false,

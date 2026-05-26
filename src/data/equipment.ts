@@ -4,7 +4,7 @@ export const EQUIPMENT_DATA: EquipmentData[] = [
   // ---- 武器 ----
   // ── 各武器種 最安価スターター（100G）──
   { id: 'sword_starter',      name: '粗末な剣',     emoji: '🗡️', type: 'weapon', weaponType: 'sword',
-    preferredRole: 'ATK', baseStats: { str: 10 }, effects: [], unlockStage: 0, shopPrice: 100 },
+    preferredRole: 'ATK', baseStats: { str: 15 }, effects: [], unlockStage: 0, shopPrice: 100 },
   { id: 'staff_starter',      name: 'ぼろぼろの杖', emoji: '🪄',  type: 'weapon', weaponType: 'staff',
     preferredRole: 'BLA', baseStats: { mag: 10 }, effects: [], unlockStage: 0, shopPrice: 100 },
   { id: 'bow_starter',        name: '竹の弓',       emoji: '🏹',  type: 'weapon', weaponType: 'bow',

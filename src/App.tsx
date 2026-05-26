@@ -56,7 +56,8 @@ function buildBattleState(saveData: SaveData, stageOverride?: number, ngPlusOver
 function calcBattleRewards(state: BattleState, ngPlus: number = 0): { gil: number; drops: DropItem[] } {
   let gil = 0;
   const drops: DropItem[] = [];
-  const ngMult = 1 + 0.5 * ngPlus;
+  const ngMult = 1 + 0.5 * ngPlus;           // ドロップ率倍率（線形）
+  const gilMult = Math.pow(1.75, ngPlus);     // ギル倍率（1.75倍ずつ指数増加）
 
   for (const enemy of state.enemies) {
     if (enemy.currentHP > 0) continue;
@@ -104,7 +105,7 @@ function calcBattleRewards(state: BattleState, ngPlus: number = 0): { gil: numbe
     }
   }
 
-  gil = Math.floor(gil * ngMult);
+  gil = Math.floor(gil * gilMult);
 
   return { gil, drops };
 }

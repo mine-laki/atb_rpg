@@ -29,7 +29,7 @@ export const ENEMIES: EnemyData[] = [
     gilReward: 80, debuffSuccessRate: 90,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
-      uncommon: [{ itemId: 'crystal_bla', rate: 0.40 }, { itemId: 'fragment_ho', rate: 0.35 }],
+      uncommon: [{ itemId: 'crystal_bla', rate: 0.40 }, { itemId: 'fragment_ho', rate: 0.35 }, { itemId: 'fragment_kuri', rate: 0.25 }],
       rare:     [{ itemId: 'fragment_va', rate: 0.25 }, { itemId: 'fragment_en', rate: 0.20 }],
     },
     actions: [
@@ -116,7 +116,7 @@ export const ENEMIES: EnemyData[] = [
     gilReward: 120, debuffSuccessRate: 80,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
-      uncommon: [{ itemId: 'crystal_atk', rate: 0.40 }, { itemId: 'fragment_fa', rate: 0.35 }],
+      uncommon: [{ itemId: 'crystal_atk', rate: 0.40 }, { itemId: 'fragment_fa', rate: 0.35 }, { itemId: 'fragment_taka', rate: 0.25 }],
       rare:     [{ itemId: 'fragment_rai', rate: 0.22 }, { itemId: 'fragment_tora', rate: 0.18 }],
     },
     actions: [
@@ -133,7 +133,7 @@ export const ENEMIES: EnemyData[] = [
     gilReward: 90, debuffSuccessRate: 85,
     dropTable: {
       common:   [{ itemId: 'enhance_stone_normal', rate: 1.0 }],
-      uncommon: [{ itemId: 'crystal_bla', rate: 0.38 }, { itemId: 'fragment_daku', rate: 0.32 }],
+      uncommon: [{ itemId: 'crystal_bla', rate: 0.38 }, { itemId: 'fragment_daku', rate: 0.32 }, { itemId: 'fragment_kaze', rate: 0.25 }],
       rare:     [{ itemId: 'fragment_ho', rate: 0.20 }],
     },
     actions: [

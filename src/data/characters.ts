@@ -311,6 +311,170 @@ export const CHARACTERS: CharacterData[] = [
 export const INITIAL_UNLOCKED = ['rai', 'va', 'fa', 'ho', 'gar', 'ifu'];
 export const INITIAL_PARTY: [string, string, string] = ['rai', 'va', 'fa'];
 
+// ─── 追加解放ロールのアビリティ白リスト ─────────────────────────────
+// キャラクターの固有ロール以外で解放した場合に使えるアビリティを指定。
+// 未設定のロールはデフォルト（全アビリティ）が適用される。
+// 固有ロールには影響しない（固有ロールはそのまま abilities.ts の allowedFor で制御）。
+const ROLE_ABILITIES_MAP: Record<string, Partial<Record<import('../types').RoleId, string[]>>> = {
+  // ---- 攻撃系 ----
+  rai: { // 固有: ATK/BLA/HLR
+    DEF: ['def_guard', 'def_stabilize'],
+    ENH: ['enh_protect', 'enh_shell'],
+    JAM: ['jam_deprotect', 'jam_deshell'],
+  },
+  ifu: { // 固有: ATK/BLA/ENH
+    DEF: ['def_guard', 'def_heavyguard'],
+    HLR: ['hlr_cure', 'hlr_cura'],
+    JAM: ['jam_deprotect'],
+  },
+  fa: { // 固有: ATK/DEF/JAM
+    BLA: ['bla_fire', 'bla_thunder'],
+    HLR: ['hlr_cure'],
+    ENH: ['enh_protect', 'enh_haste'],
+  },
+  kuri: { // 固有: ATK/BLA/ENH
+    DEF: ['def_guard', 'def_stabilize'],
+    HLR: ['hlr_cure', 'hlr_cura'],
+    JAM: ['jam_deprotect', 'jam_deshell'],
+  },
+  kaze: { // 固有: ATK/BLA/JAM
+    DEF: ['def_guard'],
+    HLR: ['hlr_cure'],
+    ENH: ['enh_protect', 'enh_haste'],
+  },
+  tora: { // 固有: ATK/DEF/HLR
+    BLA: ['bla_fire', 'bla_thunder'],
+    ENH: ['enh_protect'],
+    JAM: ['jam_deprotect'],
+  },
+  taka: { // 固有: ATK/BLA/DEF
+    HLR: ['hlr_cure'],
+    ENH: ['enh_protect', 'enh_haste'],
+    JAM: ['jam_deprotect', 'jam_deshell'],
+  },
+  voru: { // 固有: ATK/DEF/JAM
+    BLA: ['bla_fire', 'bla_thunder'],
+    HLR: ['hlr_cure'],
+    ENH: ['enh_protect'],
+  },
+  reo: { // 固有: ATK/BLA/DEF
+    HLR: ['hlr_cure', 'hlr_cura'],
+    ENH: ['enh_protect', 'enh_shell'],
+    JAM: ['jam_deprotect'],
+  },
+  bom: { // 固有: ATK/BLA/ENH
+    DEF: ['def_guard'],
+    HLR: ['hlr_cure', 'hlr_cura'],
+    JAM: ['jam_deprotect', 'jam_deshell'],
+  },
+  // ---- 魔法・支援系 ----
+  ho: { // 固有: BLA/HLR/ENH
+    ATK: ['atk_fight', 'atk_rush'],
+    DEF: ['def_guard', 'def_regenguard'],
+    JAM: ['jam_deprotect', 'jam_deshell', 'jam_slow'],
+  },
+  sac: { // 固有: ENH/BLA/HLR
+    ATK: ['atk_fight'],
+    DEF: ['def_guard', 'def_stabilize'],
+    JAM: ['jam_deprotect', 'jam_deshell'],
+  },
+  va: { // 固有: BLA/JAM/HLR
+    ATK: ['atk_fight', 'atk_rush'],
+    DEF: ['def_guard', 'def_stabilize'],
+    ENH: ['enh_protect', 'enh_shell', 'enh_haste'],
+  },
+  daku: { // 固有: BLA/JAM/ENH
+    ATK: ['atk_fight', 'atk_rush'],
+    DEF: ['def_guard'],
+    HLR: ['hlr_cure'],
+  },
+  en: { // 固有: ENH/BLA/HLR
+    ATK: ['atk_fight'],
+    DEF: ['def_guard', 'def_regenguard'],
+    JAM: ['jam_deprotect', 'jam_deshell'],
+  },
+  jio: { // 固有: BLA/JAM/ENH
+    ATK: ['atk_fight', 'atk_rush'],
+    DEF: ['def_guard', 'def_heavyguard'],
+    HLR: ['hlr_cure'],
+  },
+  doc: { // 固有: HLR/ENH/BLA
+    ATK: ['atk_fight'],
+    DEF: ['def_guard', 'def_stabilize'],
+    JAM: ['jam_deprotect', 'jam_deshell'],
+  },
+  ran: { // 固有: BLA/ENH/JAM
+    ATK: ['atk_fight', 'atk_rush'],
+    DEF: ['def_guard'],
+    HLR: ['hlr_cure', 'hlr_cura'],
+  },
+  hana: { // 固有: HLR/ENH/BLA
+    ATK: ['atk_fight'],
+    DEF: ['def_guard', 'def_regenguard'],
+    JAM: ['jam_deprotect'],
+  },
+  kou: { // 固有: BLA/ENH/HLR
+    ATK: ['atk_fight', 'atk_rush'],
+    DEF: ['def_guard'],
+    JAM: ['jam_deprotect', 'jam_deshell'],
+  },
+  // ---- 防衛・万能系 ----
+  gar: { // 固有: ATK/BLA/DEF
+    HLR: ['hlr_cure', 'hlr_cura'],
+    ENH: ['enh_protect', 'enh_shell'],
+    JAM: ['jam_deprotect'],
+  },
+  roku: { // 固有: DEF/ATK/ENH
+    BLA: ['bla_fire', 'bla_thunder'],
+    HLR: ['hlr_cure'],
+    JAM: ['jam_deprotect'],
+  },
+  roza: { // 固有: ATK/BLA/HLR
+    DEF: ['def_guard', 'def_stabilize'],
+    ENH: ['enh_protect', 'enh_haste'],
+    JAM: ['jam_deprotect', 'jam_deshell'],
+  },
+  cho: { // 固有: ATK/BLA/ENH/JAM（4ロール）
+    DEF: ['def_guard', 'def_regenguard'],
+    HLR: ['hlr_cure', 'hlr_cura'],
+  },
+  ryu: { // 固有: ATK/DEF/HLR
+    BLA: ['bla_fire', 'bla_thunder'],
+    ENH: ['enh_protect', 'enh_shell'],
+    JAM: ['jam_deprotect'],
+  },
+  kika: { // 固有: ENH/JAM/BLA
+    ATK: ['atk_fight', 'atk_rush'],
+    DEF: ['def_guard', 'def_stabilize'],
+    HLR: ['hlr_cure', 'hlr_cura'],
+  },
+  ste: { // 固有: ATK/BLA/HLR
+    DEF: ['def_guard', 'def_regenguard'],
+    ENH: ['enh_protect', 'enh_shell', 'enh_haste'],
+    JAM: ['jam_deprotect', 'jam_deshell'],
+  },
+  baru: { // 固有: ENH/HLR/BLA
+    ATK: ['atk_fight'],
+    DEF: ['def_guard', 'def_stabilize'],
+    JAM: ['jam_deprotect', 'jam_deshell'],
+  },
+  pose: { // 固有: ATK/BLA/JAM
+    DEF: ['def_guard', 'def_stabilize'],
+    HLR: ['hlr_cure', 'hlr_cura'],
+    ENH: ['enh_protect', 'enh_shell'],
+  },
+  gan: { // 固有: ATK/BLA/ENH/JAM（4ロール）
+    DEF: ['def_guard', 'def_stabilize'],
+    HLR: ['hlr_cure', 'hlr_cura'],
+  },
+};
+
+// CHARACTERS への roleAbilities 適用
+for (const char of CHARACTERS) {
+  const override = ROLE_ABILITIES_MAP[char.id];
+  if (override) char.roleAbilities = override;
+}
+
 export function getCharacterById(id: string): CharacterData | undefined {
   return CHARACTERS.find(c => c.id === id);
 }

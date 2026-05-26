@@ -103,6 +103,8 @@ export interface CharacterData {
   magDef: number;    // 0-100, default 0
   description?: string;  // キャラクター説明文
   playstyle?: string;    // 得意戦法・運用ヒント
+  /** 追加解放ロールで使えるアビリティIDの白リスト（未定義ロールは全解放） */
+  roleAbilities?: Partial<Record<RoleId, string[]>>;
 }
 
 export interface CharacterInstance {

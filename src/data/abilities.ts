@@ -1,4 +1,5 @@
-import type { CommandAbility, AutoAbility } from '../types';
+import type { CommandAbility, AutoAbility, RoleId } from '../types';
+import { CHARACTERS } from './characters';
 
 export const COMMAND_ABILITIES: CommandAbility[] = [
   // ---- ATK ----
@@ -209,20 +210,29 @@ export function getAbilityUnlockLevel(ab: CommandAbility): number {
 
 /** ロール+キャラID+レベルでアビリティを返す（アルティメットは除く） */
 export function getAbilitiesForRole(role: string, charId?: string, charLevel: number = 999): CommandAbility[] {
+  // キャラクターの roleAbilities 白リスト（未設定ロールは全開放）
+  const charData = charId ? CHARACTERS.find(c => c.id === charId) : undefined;
+  const whitelist = charData?.roleAbilities?.[role as RoleId];
+
   return COMMAND_ABILITIES.filter(ab =>
     ab.role === role &&
     !ab.isUltimate &&
     (!ab.isUnique || ab.uniqueOwner === charId) &&
     (!ab.allowedFor || !charId || ab.allowedFor.includes(charId)) &&
+    (!whitelist || ab.isUnique || whitelist.includes(ab.id)) &&
     charLevel >= getAbilityUnlockLevel(ab)
   );
 }
 
 /** AbilityViewer 用：ロックされているアビリティも含めて全件返す */
 export function getAllAbilitiesForRole(role: string, charId?: string): CommandAbility[] {
+  const charData = charId ? CHARACTERS.find(c => c.id === charId) : undefined;
+  const whitelist = charData?.roleAbilities?.[role as RoleId];
+
   return COMMAND_ABILITIES.filter(ab =>
     ab.role === role &&
     (!ab.isUnique || ab.uniqueOwner === charId) &&
-    (!ab.allowedFor || !charId || ab.allowedFor.includes(charId))
+    (!ab.allowedFor || !charId || ab.allowedFor.includes(charId)) &&
+    (!whitelist || ab.isUnique || whitelist.includes(ab.id))
   );
 }

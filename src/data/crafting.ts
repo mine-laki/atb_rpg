@@ -136,6 +136,151 @@ export const CRAFT_RECIPES: CraftRecipe[] = [
     resultQuantity: 1,
     minCleared: 5,
   },
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  //  合成専用アクセサリ レシピ
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  // ── デメリット付き・高ステータス系 ──
+  {
+    id: 'craft_berserker',
+    name: '狂戦士の腕輪 鍛造',
+    description: '竜の鱗と赤クリスタルから作る。STR/MAG大幅UP、ATB鈍化のデメリット付き。',
+    materials: [
+      { itemId: 'dragon_scale',  quantity: 3 },
+      { itemId: 'crystal_atk',   quantity: 8 },
+    ],
+    resultType: 'equipment',
+    resultItemId: 'acc_berserker',
+    resultQuantity: 1,
+    minCleared: 2,
+  },
+  {
+    id: 'craft_iron_shackle',
+    name: '鉄の枷 鍛造',
+    description: '大量の強化素材から作る超高耐久アクセサリ。ATBが大幅に鈍化する。',
+    materials: [
+      { itemId: 'enhance_stone_normal', quantity: 10 },
+      { itemId: 'crystal_def',          quantity: 8 },
+    ],
+    resultType: 'equipment',
+    resultItemId: 'acc_iron_shackle',
+    resultQuantity: 1,
+    minCleared: 2,
+  },
+  {
+    id: 'craft_blood_pact',
+    name: '血盟の証 精製',
+    description: '竜の牙と赤クリスタルで作る。ダメージ+30%だが回復が激減する両刃の剣。',
+    materials: [
+      { itemId: 'dragon_fang',   quantity: 2 },
+      { itemId: 'crystal_atk',   quantity: 5 },
+    ],
+    resultType: 'equipment',
+    resultItemId: 'acc_blood_pact',
+    resultQuantity: 1,
+    minCleared: 3,
+  },
+  {
+    id: 'craft_glass_cannon',
+    name: 'ガラスの砲 精製',
+    description: '竜の牙と青クリスタルで作る超高MAGアクセサリ。回復が半減するデメリットあり。',
+    materials: [
+      { itemId: 'dragon_fang',   quantity: 2 },
+      { itemId: 'crystal_bla',   quantity: 5 },
+    ],
+    resultType: 'equipment',
+    resultItemId: 'acc_glass_cannon',
+    resultQuantity: 1,
+    minCleared: 3,
+  },
+  {
+    id: 'craft_sluggard',
+    name: '怠惰の石板 鍛造',
+    description: '神の証と防御クリスタルで作る。STR/MAG/HP全上昇だがATBが激遅になる。',
+    materials: [
+      { itemId: 'dragon_fang',   quantity: 2 },
+      { itemId: 'crystal_atk',   quantity: 4 },
+      { itemId: 'crystal_bla',   quantity: 4 },
+      { itemId: 'crystal_def',   quantity: 4 },
+    ],
+    resultType: 'equipment',
+    resultItemId: 'acc_sluggard',
+    resultQuantity: 1,
+    minCleared: 4,
+  },
+
+  // ── 高コスト・強力系 ──
+  {
+    id: 'craft_dragon_heart',
+    name: '竜の心臓 精製',
+    description: '竜の鱗5枚から作る。STR・HP・リジェネを同時強化する全能アクセサリ。',
+    materials: [
+      { itemId: 'dragon_scale',  quantity: 5 },
+      { itemId: 'crystal_atk',   quantity: 3 },
+      { itemId: 'crystal_hlr',   quantity: 3 },
+    ],
+    resultType: 'equipment',
+    resultItemId: 'acc_dragon_heart',
+    resultQuantity: 1,
+    minCleared: 3,
+  },
+  {
+    id: 'craft_arcane_focus',
+    name: '魔法陣の核 精製',
+    description: '竜の牙と青クリスタルの塊から作る。MAG+200・魔法コスト-1・チェーン強化。',
+    materials: [
+      { itemId: 'dragon_fang',        quantity: 3 },
+      { itemId: 'crystal_bla',        quantity: 8 },
+      { itemId: 'enhance_stone_rare', quantity: 1 },
+    ],
+    resultType: 'equipment',
+    resultItemId: 'acc_arcane_focus',
+    resultQuantity: 1,
+    minCleared: 4,
+  },
+  {
+    id: 'craft_phoenix_charm',
+    name: '不死鳥の守護 精製',
+    description: '神の証と緑クリスタルで作る。一度だけ戦闘不能から復活し、リジェネも付与。',
+    materials: [
+      { itemId: 'god_proof',          quantity: 1 },
+      { itemId: 'crystal_hlr',        quantity: 5 },
+      { itemId: 'enhance_stone_rare', quantity: 2 },
+    ],
+    resultType: 'equipment',
+    resultItemId: 'acc_phoenix_charm',
+    resultQuantity: 1,
+    minCleared: 4,
+  },
+  {
+    id: 'craft_chain_god',
+    name: 'チェーン神器 鍛造',
+    description: '竜の牙と複数クリスタルで作る。チェーン・ダメージ・ATBをまとめて強化。',
+    materials: [
+      { itemId: 'dragon_fang',   quantity: 2 },
+      { itemId: 'crystal_atk',   quantity: 4 },
+      { itemId: 'crystal_bla',   quantity: 4 },
+    ],
+    resultType: 'equipment',
+    resultItemId: 'acc_chain_god',
+    resultQuantity: 1,
+    minCleared: 4,
+  },
+  {
+    id: 'craft_omniscient',
+    name: '全知の眼 精製',
+    description: '神の証2個+竜の牙3本で作る最高峰全能アクセサリ。STR・MAG・HP・チェーンを全強化。',
+    materials: [
+      { itemId: 'god_proof',          quantity: 2 },
+      { itemId: 'dragon_fang',        quantity: 3 },
+      { itemId: 'enhance_stone_rare', quantity: 3 },
+    ],
+    resultType: 'equipment',
+    resultItemId: 'acc_omniscient',
+    resultQuantity: 1,
+    minCleared: 5,
+  },
 ];
 
 export function getCraftRecipes(clearedCount: number): CraftRecipe[] {

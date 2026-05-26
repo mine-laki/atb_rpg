@@ -500,7 +500,8 @@ export function getStatsAtLevel(charData: CharacterData, level: number) {
 }
 
 export function levelUpCost(currentLevel: number): number {
-  return Math.floor(100 * Math.pow(1.18, currentLevel - 1));
+  // 1.18 → 1.10 に緩和（Lv50の必要ギルが約1/15、Lv100が約1/70に）
+  return Math.floor(80 * Math.pow(1.10, currentLevel - 1));
 }
 
 // ─── キャラクタープロフィール ─────────────────────────────

@@ -2,24 +2,40 @@ import type { EquipmentData, MaterialData } from '../types';
 
 export const EQUIPMENT_DATA: EquipmentData[] = [
   // ---- 武器 ----
+  // ── 各武器種 最安価スターター（100G）──
+  { id: 'sword_starter',      name: '粗末な剣',     emoji: '🗡️', type: 'weapon', weaponType: 'sword',
+    preferredRole: 'ATK', baseStats: { str: 10 }, effects: [], unlockStage: 0, shopPrice: 100 },
+  { id: 'staff_starter',      name: 'ぼろぼろの杖', emoji: '🪄',  type: 'weapon', weaponType: 'staff',
+    preferredRole: 'BLA', baseStats: { mag: 10 }, effects: [], unlockStage: 0, shopPrice: 100 },
+  { id: 'bow_starter',        name: '竹の弓',       emoji: '🏹',  type: 'weapon', weaponType: 'bow',
+    baseStats: { str: 6, mag: 4 }, effects: [], unlockStage: 0, shopPrice: 100 },
+  { id: 'shield_starter',     name: '木の盾',       emoji: '🪵',  type: 'weapon', weaponType: 'shield',
+    preferredRole: 'DEF', baseStats: { def: 5, hp: 120 }, effects: [], unlockStage: 0, shopPrice: 100 },
+  { id: 'holy_starter',       name: '貝殻の数珠',   emoji: '🐚',  type: 'weapon', weaponType: 'holy',
+    preferredRole: 'HLR', baseStats: { mag: 8 }, effects: [], unlockStage: 0, shopPrice: 100 },
+  { id: 'instrument_starter', name: 'ぼろ楽器',     emoji: '🪗',  type: 'weapon', weaponType: 'instrument',
+    preferredRole: 'ENH', baseStats: {}, effects: [], unlockStage: 0, shopPrice: 100 },
+  { id: 'cursed_starter',     name: '錆びた爪',     emoji: '🩸',  type: 'weapon', weaponType: 'cursed',
+    preferredRole: 'JAM', baseStats: { mag: 8 }, effects: [], unlockStage: 0, shopPrice: 100 },
+
   { id: 'sword_rusty',   name: '錆びた剣',   emoji: '⚔️',  type: 'weapon', weaponType: 'sword',
-    preferredRole: 'ATK', baseStats: { str: 30 }, effects: [], unlockStage: 0, shopPrice: 300 },
+    preferredRole: 'ATK', baseStats: { str: 60 }, effects: [], unlockStage: 0, shopPrice: 300 },
   { id: 'sword_steel',   name: '鋼鉄の剣',   emoji: '⚔️',  type: 'weapon', weaponType: 'sword',
-    preferredRole: 'ATK', baseStats: { str: 50 }, effects: [{ type: 'atb_expand', value: 1 }], unlockStage: 1, shopPrice: 800 },
+    preferredRole: 'ATK', baseStats: { str: 100 }, effects: [{ type: 'atb_expand', value: 1 }], unlockStage: 1, shopPrice: 800 },
   { id: 'staff_old',     name: '古い杖',     emoji: '🪄',  type: 'weapon', weaponType: 'staff',
-    preferredRole: 'BLA', baseStats: { mag: 40 }, effects: [], unlockStage: 0, shopPrice: 300 },
+    preferredRole: 'BLA', baseStats: { mag: 80 }, effects: [], unlockStage: 0, shopPrice: 300 },
   { id: 'staff_magic',   name: '魔封の杖',   emoji: '🪄',  type: 'weapon', weaponType: 'staff',
-    preferredRole: 'BLA', baseStats: { mag: 70 }, effects: [{ type: 'magic_cost_reduce', value: 1 }], unlockStage: 1, shopPrice: 1200 },
+    preferredRole: 'BLA', baseStats: { mag: 140 }, effects: [{ type: 'magic_cost_reduce', value: 1 }], unlockStage: 1, shopPrice: 1200 },
   { id: 'bow_silver',    name: '銀の弓',     emoji: '🏹',  type: 'weapon', weaponType: 'bow',
-    baseStats: { str: 30, mag: 20 }, effects: [{ type: 'atb_speed', value: 0.15 }], unlockStage: 2, shopPrice: 1200 },
+    baseStats: { str: 60, mag: 40 }, effects: [{ type: 'atb_speed', value: 0.15 }], unlockStage: 2, shopPrice: 1200 },
   { id: 'shield_heavy',  name: '重厚の盾',   emoji: '🛡',  type: 'weapon', weaponType: 'shield',
-    preferredRole: 'DEF', baseStats: { def: 25, hp: 400 }, effects: [], unlockStage: 2, shopPrice: 1500 },
+    preferredRole: 'DEF', baseStats: { def: 50, hp: 800 }, effects: [], unlockStage: 2, shopPrice: 1500 },
   { id: 'holy_item',     name: '聖なる数珠',   emoji: '📿',  type: 'weapon', weaponType: 'holy',
-    preferredRole: 'HLR', baseStats: { mag: 30 }, effects: [{ type: 'heal_boost', value: 0.20 }], unlockStage: 3, shopPrice: 1500 },
+    preferredRole: 'HLR', baseStats: { mag: 60 }, effects: [{ type: 'heal_boost', value: 0.20 }], unlockStage: 3, shopPrice: 1500 },
   { id: 'instrument',    name: '魔法の楽器', emoji: '🎸',  type: 'weapon', weaponType: 'instrument',
     preferredRole: 'ENH', baseStats: {}, effects: [{ type: 'buff_extend', value: 0.20 }, { type: 'atb_speed', value: 0.15 }], unlockStage: 3, shopPrice: 2000 },
   { id: 'cursed_tool',   name: '呪具',       emoji: '💀',  type: 'weapon', weaponType: 'cursed',
-    preferredRole: 'JAM', baseStats: { mag: 20 }, effects: [{ type: 'debuff_rate', value: 0.25 }], unlockStage: 3, shopPrice: 2500 },
+    preferredRole: 'JAM', baseStats: { mag: 40 }, effects: [{ type: 'debuff_rate', value: 0.25 }], unlockStage: 3, shopPrice: 2500 },
 
   // ---- アクセサリ ----
   { id: 'acc_guard_small', name: 'アイアンバングル', emoji: '💎', type: 'accessory',
@@ -55,49 +71,49 @@ export const EQUIPMENT_DATA: EquipmentData[] = [
 
   // ---- 追加武器 ----
   { id: 'sword_dragon',   name: '竜鱗の大剣', emoji: '🗡️', type: 'weapon', weaponType: 'sword',
-    preferredRole: 'ATK', baseStats: { str: 100, hp: 300 }, effects: [{ type: 'damage_boost', value: 0.15 }], unlockStage: 3, shopPrice: 2800 },
+    preferredRole: 'ATK', baseStats: { str: 200, hp: 600 }, effects: [{ type: 'damage_boost', value: 0.15 }], unlockStage: 3, shopPrice: 2800 },
   { id: 'staff_holy',     name: '聖光の杖',   emoji: '✨', type: 'weapon', weaponType: 'holy',
-    preferredRole: 'HLR', baseStats: { mag: 100 }, effects: [{ type: 'heal_boost', value: 0.30 }, { type: 'buff_extend', value: 0.20 }], unlockStage: 3, shopPrice: 3000 },
+    preferredRole: 'HLR', baseStats: { mag: 200 }, effects: [{ type: 'heal_boost', value: 0.30 }, { type: 'buff_extend', value: 0.20 }], unlockStage: 3, shopPrice: 3000 },
   { id: 'staff_dark',     name: '闇の杖',     emoji: '🌑', type: 'weapon', weaponType: 'cursed',
-    preferredRole: 'BLA', baseStats: { mag: 110 }, effects: [{ type: 'debuff_rate', value: 0.25 }, { type: 'magic_cost_reduce', value: 1 }], unlockStage: 4, shopPrice: 3500 },
+    preferredRole: 'BLA', baseStats: { mag: 220 }, effects: [{ type: 'debuff_rate', value: 0.25 }, { type: 'magic_cost_reduce', value: 1 }], unlockStage: 4, shopPrice: 3500 },
   { id: 'bow_swift',      name: '疾風の弓',   emoji: '💨', type: 'weapon', weaponType: 'bow',
-    baseStats: { str: 60, mag: 60 }, effects: [{ type: 'atb_speed', value: 0.25 }, { type: 'chain_boost', value: 0.12 }], unlockStage: 4, shopPrice: 4000 },
+    baseStats: { str: 120, mag: 120 }, effects: [{ type: 'atb_speed', value: 0.25 }, { type: 'chain_boost', value: 0.12 }], unlockStage: 4, shopPrice: 4000 },
   { id: 'sword_masterwork', name: '極剣',     emoji: '⚔️', type: 'weapon', weaponType: 'sword',
-    preferredRole: 'ATK', baseStats: { str: 140 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'damage_boost', value: 0.15 }], unlockStage: 5, shopPrice: 6000 },
+    preferredRole: 'ATK', baseStats: { str: 280 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'damage_boost', value: 0.15 }], unlockStage: 5, shopPrice: 6000 },
   // ATB拡張 – 各武器種最強
   { id: 'staff_arcane',     name: '魔導の杖',     emoji: '🔯', type: 'weapon', weaponType: 'staff',
-    preferredRole: 'BLA', baseStats: { mag: 140 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'magic_cost_reduce', value: 1 }], unlockStage: 5, shopPrice: 6500 },
+    preferredRole: 'BLA', baseStats: { mag: 280 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'magic_cost_reduce', value: 1 }], unlockStage: 5, shopPrice: 6500 },
   { id: 'bow_heaven',       name: '天空の弓',     emoji: '🏹', type: 'weapon', weaponType: 'bow',
-    baseStats: { str: 80, mag: 80 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'chain_boost', value: 0.15 }], unlockStage: 5, shopPrice: 6500 },
+    baseStats: { str: 160, mag: 160 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'chain_boost', value: 0.15 }], unlockStage: 5, shopPrice: 6500 },
   { id: 'shield_aegis',     name: '神盾',         emoji: '🛡️', type: 'weapon', weaponType: 'shield',
-    preferredRole: 'DEF', baseStats: { def: 45, hp: 900 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'damage_boost', value: -0.05 }], unlockStage: 5, shopPrice: 6000 },
+    preferredRole: 'DEF', baseStats: { def: 90, hp: 1800 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'damage_boost', value: -0.05 }], unlockStage: 5, shopPrice: 6000 },
   { id: 'holy_archangel',   name: '大天使の聖具', emoji: '👼', type: 'weapon', weaponType: 'holy',
-    preferredRole: 'HLR', baseStats: { mag: 80, hp: 300 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'heal_boost', value: 0.40 }], unlockStage: 5, shopPrice: 6000 },
+    preferredRole: 'HLR', baseStats: { mag: 160, hp: 600 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'heal_boost', value: 0.40 }], unlockStage: 5, shopPrice: 6000 },
   { id: 'instrument_harmony', name: '響鳴の楽器', emoji: '🎵', type: 'weapon', weaponType: 'instrument',
-    preferredRole: 'ENH', baseStats: { mag: 40 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'buff_extend', value: 0.40 }, { type: 'atb_speed', value: 0.20 }], unlockStage: 5, shopPrice: 6500 },
+    preferredRole: 'ENH', baseStats: { mag: 80 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'buff_extend', value: 0.40 }, { type: 'atb_speed', value: 0.20 }], unlockStage: 5, shopPrice: 6500 },
   { id: 'cursed_void',      name: '虚無の呪具',   emoji: '🌀', type: 'weapon', weaponType: 'cursed',
-    preferredRole: 'JAM', baseStats: { mag: 70 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'debuff_rate', value: 0.45 }], unlockStage: 5, shopPrice: 6000 },
+    preferredRole: 'JAM', baseStats: { mag: 140 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'debuff_rate', value: 0.45 }], unlockStage: 5, shopPrice: 6000 },
   // ボスドロップ限定レア武器 (shopPrice: 0)
   { id: 'relic_chaos',      name: 'カオスブレード', emoji: '⚡', type: 'weapon', weaponType: 'sword',
-    preferredRole: 'ATK', baseStats: { str: 200 }, effects: [{ type: 'chain_boost', value: 0.35 }, { type: 'damage_boost', value: 0.25 }], unlockStage: 999, shopPrice: 0 },
+    preferredRole: 'ATK', baseStats: { str: 400 }, effects: [{ type: 'chain_boost', value: 0.35 }, { type: 'damage_boost', value: 0.25 }], unlockStage: 999, shopPrice: 0 },
   { id: 'relic_lich',       name: '死霊の魔杖',   emoji: '💀', type: 'weapon', weaponType: 'staff',
-    preferredRole: 'BLA', baseStats: { mag: 200 }, effects: [{ type: 'magic_cost_reduce', value: 2 }, { type: 'chain_boost', value: 0.30 }], unlockStage: 999, shopPrice: 0 },
+    preferredRole: 'BLA', baseStats: { mag: 400 }, effects: [{ type: 'magic_cost_reduce', value: 2 }, { type: 'chain_boost', value: 0.30 }], unlockStage: 999, shopPrice: 0 },
   { id: 'relic_guardian',   name: '守護の聖盾',   emoji: '✨', type: 'weapon', weaponType: 'shield',
-    preferredRole: 'DEF', baseStats: { def: 60, hp: 1500 }, effects: [{ type: 'auto_regen', value: 0.008 }, { type: 'atb_expand', value: 1 }], unlockStage: 999, shopPrice: 0 },
+    preferredRole: 'DEF', baseStats: { def: 120, hp: 3000 }, effects: [{ type: 'auto_regen', value: 0.008 }, { type: 'atb_expand', value: 1 }], unlockStage: 999, shopPrice: 0 },
   { id: 'relic_seraph',     name: '熾天使の聖具', emoji: '🌟', type: 'weapon', weaponType: 'holy',
-    preferredRole: 'HLR', baseStats: { mag: 150, hp: 400 }, effects: [{ type: 'heal_boost', value: 0.60 }, { type: 'buff_extend', value: 0.35 }, { type: 'atb_expand', value: 1 }], unlockStage: 999, shopPrice: 0 },
+    preferredRole: 'HLR', baseStats: { mag: 300, hp: 800 }, effects: [{ type: 'heal_boost', value: 0.60 }, { type: 'buff_extend', value: 0.35 }, { type: 'atb_expand', value: 1 }], unlockStage: 999, shopPrice: 0 },
   { id: 'relic_omega',      name: '始原の一振り', emoji: '🔱', type: 'weapon', weaponType: 'sword',
-    preferredRole: 'ATK', baseStats: { str: 400 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'chain_boost', value: 0.25 }, { type: 'damage_boost', value: 0.20 }], unlockStage: 999, shopPrice: 0 },
+    preferredRole: 'ATK', baseStats: { str: 800 }, effects: [{ type: 'atb_expand', value: 1 }, { type: 'chain_boost', value: 0.25 }, { type: 'damage_boost', value: 0.20 }], unlockStage: 999, shopPrice: 0 },
 
   // ---- レアドロップ限定武器（ショップ販売なし・敵からのみ入手）----
   { id: 'soul_blade',      name: '魂喰いの刃',   emoji: '🗡️', type: 'weapon', weaponType: 'sword',
-    preferredRole: 'ATK', baseStats: { str: 110 }, effects: [{ type: 'damage_boost', value: 0.20 }, { type: 'chain_boost', value: 0.15 }], unlockStage: 999, shopPrice: 0 },
+    preferredRole: 'ATK', baseStats: { str: 220 }, effects: [{ type: 'damage_boost', value: 0.20 }, { type: 'chain_boost', value: 0.15 }], unlockStage: 999, shopPrice: 0 },
   { id: 'chaos_trident',   name: '混沌の三叉槍', emoji: '🔱', type: 'weapon', weaponType: 'sword',
-    preferredRole: 'ATK', baseStats: { str: 80, mag: 80 }, effects: [{ type: 'damage_boost', value: 0.15 }, { type: 'chain_boost', value: 0.15 }], unlockStage: 999, shopPrice: 0 },
+    preferredRole: 'ATK', baseStats: { str: 160, mag: 160 }, effects: [{ type: 'damage_boost', value: 0.15 }, { type: 'chain_boost', value: 0.15 }], unlockStage: 999, shopPrice: 0 },
   { id: 'dark_grimoire',   name: '闇の秘典',     emoji: '📖', type: 'weapon', weaponType: 'staff',
-    preferredRole: 'HLR', baseStats: { mag: 110 }, effects: [{ type: 'heal_boost', value: 0.25 }, { type: 'chain_boost', value: 0.10 }], unlockStage: 999, shopPrice: 0 },
+    preferredRole: 'HLR', baseStats: { mag: 220 }, effects: [{ type: 'heal_boost', value: 0.25 }, { type: 'chain_boost', value: 0.10 }], unlockStage: 999, shopPrice: 0 },
   { id: 'starlight_codex', name: '星霊の聖典',   emoji: '🌟', type: 'weapon', weaponType: 'holy',
-    preferredRole: 'HLR', baseStats: { mag: 90, hp: 600 }, effects: [{ type: 'heal_boost', value: 0.30 }, { type: 'auto_regen', value: 0.005 }], unlockStage: 999, shopPrice: 0 },
+    preferredRole: 'HLR', baseStats: { mag: 180, hp: 1200 }, effects: [{ type: 'heal_boost', value: 0.30 }, { type: 'auto_regen', value: 0.005 }], unlockStage: 999, shopPrice: 0 },
 
   // ---- 追加アクセサリ（auto_buff: 戦闘開始時バフ付与）----
   { id: 'acc_haste_ring',  name: '加速の石',   emoji: '⚡', type: 'accessory',
@@ -108,6 +124,72 @@ export const EQUIPMENT_DATA: EquipmentData[] = [
     baseStats: {}, effects: [{ type: 'auto_buff', value: 18, buffId: 'faith' }], unlockStage: 3, shopPrice: 2200 },
   { id: 'acc_regen_stone', name: 'リジェネ石',  emoji: '🌿', type: 'accessory',
     baseStats: {}, effects: [{ type: 'auto_buff', value: 30, buffId: 'regen' }, { type: 'auto_regen', value: 0.002 }], unlockStage: 3, shopPrice: 2500 },
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  //  合成専用アクセサリ (shopPrice: 0)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  // ── デメリット付き・高ステータス系 ──
+  { id: 'acc_berserker',    name: '狂戦士の腕輪', emoji: '💢', type: 'accessory',
+    // STR/MAG大幅UP、代償としてATBが25%鈍化
+    baseStats: { str: 150, mag: 50 },
+    effects: [{ type: 'atb_speed', value: -0.25 }],
+    unlockStage: 999, shopPrice: 0 },
+
+  { id: 'acc_iron_shackle', name: '鉄の枷',       emoji: '⛓️', type: 'accessory',
+    // HP+1500・DEF底上げ、代償として大幅ATB鈍化
+    baseStats: { hp: 1500, def: 30 },
+    effects: [{ type: 'atb_speed', value: -0.35 }],
+    unlockStage: 999, shopPrice: 0 },
+
+  { id: 'acc_blood_pact',   name: '血盟の証',     emoji: '🩸', type: 'accessory',
+    // ダメージ+30%、代償として回復効果が60%減
+    baseStats: {},
+    effects: [{ type: 'damage_boost', value: 0.30 }, { type: 'heal_boost', value: -0.60 }],
+    unlockStage: 999, shopPrice: 0 },
+
+  { id: 'acc_glass_cannon', name: 'ガラスの砲',   emoji: '🔭', type: 'accessory',
+    // MAG+180の超火力、代償として回復が半減
+    baseStats: { mag: 180 },
+    effects: [{ type: 'heal_boost', value: -0.50 }],
+    unlockStage: 999, shopPrice: 0 },
+
+  { id: 'acc_sluggard',     name: '怠惰の石板',   emoji: '🐌', type: 'accessory',
+    // STR+120・MAG+120・HP+600、代償として大幅ATB鈍化
+    baseStats: { str: 120, mag: 120, hp: 600 },
+    effects: [{ type: 'atb_speed', value: -0.40 }],
+    unlockStage: 999, shopPrice: 0 },
+
+  // ── 高コスト・強力系 ──
+  { id: 'acc_dragon_heart', name: '竜の心臓',     emoji: '🐉', type: 'accessory',
+    // 全能強化：STR+80・HP+800・ATB+15%・リジェネ
+    baseStats: { str: 80, hp: 800 },
+    effects: [{ type: 'atb_speed', value: 0.15 }, { type: 'auto_regen', value: 0.004 }],
+    unlockStage: 999, shopPrice: 0 },
+
+  { id: 'acc_arcane_focus', name: '魔法陣の核',   emoji: '🌀', type: 'accessory',
+    // MAG+200・魔法コスト-1・チェーン+15%
+    baseStats: { mag: 200 },
+    effects: [{ type: 'magic_cost_reduce', value: 1 }, { type: 'chain_boost', value: 0.15 }],
+    unlockStage: 999, shopPrice: 0 },
+
+  { id: 'acc_phoenix_charm',name: '不死鳥の守護', emoji: '🦅', type: 'accessory',
+    // 戦闘不能から一度復活・リジェネ・回復+20%
+    baseStats: {},
+    effects: [{ type: 'revive_once', value: 1 }, { type: 'auto_regen', value: 0.006 }, { type: 'heal_boost', value: 0.20 }],
+    unlockStage: 999, shopPrice: 0 },
+
+  { id: 'acc_chain_god',    name: 'チェーン神器', emoji: '⚡', type: 'accessory',
+    // チェーン+25%・ダメージ+15%・ATB+10%
+    baseStats: {},
+    effects: [{ type: 'chain_boost', value: 0.25 }, { type: 'damage_boost', value: 0.15 }, { type: 'atb_speed', value: 0.10 }],
+    unlockStage: 999, shopPrice: 0 },
+
+  { id: 'acc_omniscient',   name: '全知の眼',     emoji: '👁️', type: 'accessory',
+    // STR+100・MAG+100・HP+500・チェーン+10%の全能型
+    baseStats: { str: 100, mag: 100, hp: 500 },
+    effects: [{ type: 'chain_boost', value: 0.10 }],
+    unlockStage: 999, shopPrice: 0 },
 ];
 
 export const MATERIALS: MaterialData[] = [

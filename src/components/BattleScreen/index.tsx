@@ -8,7 +8,7 @@ import { useBattleLoop } from '../../hooks/useBattleLoop';
 import { switchParadigm } from '../../systems/paradigm';
 import { createEnemyInstance } from '../../systems/gameState';
 import { getItemById } from '../../data/items';
-import { seParadigmShift, seVictory, seDefeat } from '../../systems/sound';
+import { seParadigmShift, seVictory, seDefeat, seBattleStart } from '../../systems/sound';
 
 interface BattleScreenProps {
   initialState: BattleState;
@@ -23,6 +23,9 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
   const [state, setState] = useState<BattleState>(initialState);
   const [isRunning, setIsRunning] = useState(true);
   const [waveTransition, setWaveTransition] = useState(false);
+
+  // 戦闘開始SE（初回マウント時のみ）
+  useEffect(() => { seBattleStart(); }, []);
   const [showLogModal, setShowLogModal] = useState(false);
   const resultCalledRef = useRef(false);
   const wasRunningBeforeModalRef = useRef(false);

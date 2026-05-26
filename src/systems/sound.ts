@@ -1,5 +1,5 @@
-// ファイルベース SE (魔王魂) + Web Audio API シンセ フォールバック
-// 使用素材: 魔王魂 https://maou.audio/  (利用規約: 無料・クレジット表記推奨)
+// ファイルベース SE (魔王魂 / 効果音ラボ) + Web Audio API シンセ フォールバック
+// 魔王魂: https://maou.audio/  効果音ラボ: https://soundeffect-lab.info/
 
 let _ctx: AudioContext | null = null;
 let _muted = false;
@@ -10,7 +10,6 @@ function getCtx(): AudioContext | null {
   if (!_ctx) {
     try {
       _ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      // AudioContext 作成直後にSEをバックグラウンドロード
       _loadAll().catch(() => {});
     } catch {
       return null;
@@ -28,19 +27,37 @@ export function isSoundMuted(): boolean    { return _muted; }
 export function getSoundVolume(): number   { return _volume; }
 
 // ─── SE ファイル定義 ─────────────────────────────────────
-// 素材: 魔王魂 (maou.audio) — 各ファイルは public/sounds/ に配置
-const SOUND_MAP: Record<string, { file: string; vol: number }> = {
-  hit:      { file: 'maou_se_battle09.mp3',   vol: 0.70 }, // 打撃音
-  magic:    { file: 'maou_se_magical27.mp3',  vol: 0.50 }, // 魔法
-  heal:     { file: 'maou_se_magical25.mp3',  vol: 0.55 }, // しゃーきらきら
-  buff:     { file: 'maou_se_system25.mp3',   vol: 0.65 }, // 決定音
-  debuff:   { file: 'maou_se_magical28.mp3',  vol: 0.55 }, // 能力低下
-  break:    { file: 'maou_se_battle19.mp3',   vol: 0.75 }, // 衝撃
-  paradigm: { file: 'maou_se_system29.mp3',   vol: 0.60 }, // 決定音
-  victory:  { file: 'maou_se_jingle05.mp3',   vol: 0.55 }, // 当たり(ファンファーレ)
-  defeat:   { file: 'maou_se_onepoint06.mp3', vol: 0.60 }, // ガーン！
-  buy:      { file: 'maou_se_system09.mp3',   vol: 0.65 }, // メニュー/決定音
-  levelup:  { file: 'maou_se_jingle06.mp3',   vol: 0.55 }, // 当たり2(レベルアップ)
+interface SoundDef {
+  file: string;
+  vol: number;
+  duration?: number;   // 再生秒数を制限（省略=全体）
+  fadeOut?: number;    // フェードアウト開始位置 (秒)
+}
+
+const SOUND_MAP: Record<string, SoundDef> = {
+  // 物理ヒット: 戦闘17 斬る音
+  hit:      { file: 'maou_se_battle17.mp3',           vol: 0.75 },
+  // 魔法ヒット: 爆発03
+  magic:    { file: 'maou_se_battle_explosion03.mp3', vol: 0.50 },
+  // 回復: きらきら (前作引き続き)
+  heal:     { file: 'maou_se_magical25.mp3',          vol: 0.55 },
+  // バフ: マジカル01
+  buff:     { file: 'maou_se_magical01.mp3',          vol: 0.55 },
+  // デバフ: マジカル02 を 0.5秒でカット
+  debuff:   { file: 'maou_se_magical02.mp3',          vol: 0.55, duration: 0.5 },
+  // ブレイク: 効果音ラボ 石割れ
+  break:    { file: 'stone-break1.mp3',               vol: 0.80 },
+  // 勝利: 効果音ラボ きら2
+  victory:  { file: 'kira2.mp3',                      vol: 0.55 },
+  // 敗北: 効果音ラボ ショック2
+  defeat:   { file: 'shock2.mp3',                     vol: 0.60 },
+  // 購入・装備強化: システム47
+  buy:      { file: 'maou_se_system47.mp3',           vol: 0.65 },
+  // レベルアップ: システム46
+  levelup:  { file: 'maou_se_system46.mp3',           vol: 0.60 },
+  // 戦闘開始: ショック2 を 1秒でフェードアウト
+  battlestart: { file: 'shock2.mp3',                  vol: 0.55, duration: 1.2, fadeOut: 0.2 },
+  // 作戦切替: シンセのみ (おとなしい)
 };
 
 const _buffers = new Map<string, AudioBuffer>();
@@ -53,6 +70,7 @@ async function _loadAll(): Promise<void> {
 
   _loadingPromise = Promise.allSettled(
     Object.entries(SOUND_MAP).map(async ([key, { file }]) => {
+      if (!file) return;
       try {
         const base = (import.meta.env.BASE_URL as string) ?? '/';
         const url = `${base}sounds/${file}`;
@@ -70,17 +88,41 @@ async function _loadAll(): Promise<void> {
   return _loadingPromise;
 }
 
+/** バッファ再生（duration指定で途中カット、fadeOut指定でフェードアウト） */
 function playBuffer(key: string): void {
   const ctx = getCtx();
   const buf = _buffers.get(key);
   if (!ctx || !buf) return;
+
+  const def = SOUND_MAP[key];
+  const vol = (def?.vol ?? 0.6) * _volume;
+  const dur = def?.duration;
+  const fadeAt = def?.fadeOut;
+
   const src = ctx.createBufferSource();
   const gain = ctx.createGain();
   src.buffer = buf;
   src.connect(gain);
   gain.connect(ctx.destination);
-  gain.gain.value = (SOUND_MAP[key]?.vol ?? 0.6) * _volume;
-  src.start();
+
+  const now = ctx.currentTime;
+  gain.gain.setValueAtTime(vol, now);
+
+  if (dur !== undefined && fadeAt !== undefined) {
+    // フェードアウト区間
+    const fadeStart = now + fadeAt;
+    const fadeEnd   = now + dur;
+    gain.gain.setValueAtTime(vol, fadeStart);
+    gain.gain.linearRampToValueAtTime(0, fadeEnd);
+    src.start(now);
+    src.stop(fadeEnd + 0.05);
+  } else if (dur !== undefined) {
+    // 途中カット（フェードなし）
+    src.start(now);
+    src.stop(now + dur);
+  } else {
+    src.start(now);
+  }
 }
 
 // ─── シンセ フォールバック ─────────────────────────────────
@@ -120,7 +162,7 @@ function playTone(params: ToneParams, delayMs = 0): void {
   osc.stop(startAt + fadeEnd + 0.02);
 }
 
-// ─── SE 定義（ファイル優先 → シンセ フォールバック）───────────
+// ─── SE 定義 ─────────────────────────────────────────────
 
 /** 物理攻撃ヒット */
 export function seHit(): void {
@@ -169,12 +211,11 @@ export function seBreak(): void {
   playTone({ freq: 110, type: 'square', duration: 0.3, gain: 0.35, attack: 0.01, decay: 0.05, fadeEnd: 0.3 }, 130);
 }
 
-/** オプティマ切替 */
+/** オプティマ切替（おとなしめのシンセ） */
 export function seParadigmShift(): void {
-  if (_buffers.has('paradigm')) { playBuffer('paradigm'); return; }
-  [440, 550, 880].forEach((f, i) => {
-    playTone({ freq: f, type: 'triangle', duration: 0.15, gain: 0.25, attack: 0.005, decay: 0.02, fadeEnd: 0.15 }, i * 40);
-  });
+  // ファイルなし、シンセで控えめに
+  playTone({ freq: 440, type: 'triangle', duration: 0.10, gain: 0.12, attack: 0.005, decay: 0.02, fadeEnd: 0.10 });
+  playTone({ freq: 660, type: 'triangle', duration: 0.08, gain: 0.10, attack: 0.005, decay: 0.01, fadeEnd: 0.08 }, 60);
 }
 
 /** ビクトリー */
@@ -195,7 +236,7 @@ export function seDefeat(): void {
   });
 }
 
-/** 購入 */
+/** 購入・装備強化 */
 export function seBuy(): void {
   if (_buffers.has('buy')) { playBuffer('buy'); return; }
   [660, 880].forEach((f, i) => {
@@ -209,4 +250,11 @@ export function seLevelUp(): void {
   [523, 659, 784, 1047, 1319].forEach((f, i) => {
     playTone({ freq: f, type: 'triangle', duration: 0.2, gain: 0.25, attack: 0.005, decay: 0.02, fadeEnd: 0.2 }, i * 80);
   });
+}
+
+/** 戦闘開始 (shock2 を 1秒フェードアウト) */
+export function seBattleStart(): void {
+  if (_buffers.has('battlestart')) { playBuffer('battlestart'); return; }
+  // fallback: 短い低音
+  playTone({ freq: 180, type: 'sawtooth', duration: 0.6, gain: 0.20, attack: 0.02, decay: 0.1, fadeEnd: 0.6 });
 }

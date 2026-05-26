@@ -313,6 +313,7 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
                           className="btn-small btn-enhance-inline"
                           onClick={() => {
                             if (!canEnhance) return;
+                            seBuy();
                             const newEquipments = equipments.map(e =>
                               e.instanceId !== inst.instanceId ? e : { ...e, enhanceLevel: e.enhanceLevel + 1 }
                             );

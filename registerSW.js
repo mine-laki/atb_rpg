@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/atb_rpg/sw.js', { scope: '/atb_rpg/' })})}

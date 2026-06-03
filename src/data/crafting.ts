@@ -107,6 +107,22 @@ export const CRAFT_RECIPES: CraftRecipe[] = [
     resultQuantity: 1,
     minCleared: 2,
   },
+  // ── 新規武器合成 ─────────────────────────────
+  {
+    id: 'craft_staff_earth',
+    name: '大地の魔杖 錬成',
+    description: '竜の牙・青クリスタル・アダマンタイトから耐久型魔法杖を作る。HP+1000、MAG高・リジェネ付き。',
+    materials: [
+      { itemId: 'dragon_fang',        quantity: 2 },
+      { itemId: 'crystal_bla',        quantity: 6 },
+      { itemId: 'enhance_stone_rare', quantity: 2 },
+    ],
+    resultType: 'equipment',
+    resultItemId: 'staff_earth',
+    resultQuantity: 1,
+    minCleared: 4,
+  },
+
   // ── 最高レア合成 ─────────────────────────────
   {
     id: 'craft_relic_omega',

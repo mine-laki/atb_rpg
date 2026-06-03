@@ -3171,6 +3171,11 @@ button {
    ══════════════════════════════════════════════ */
 @media (max-width: 480px) {
 
+  /* ── 敵予備動作: SP では文字を非表示にして枠だけ点滅 ── */
+  .enemy-action-warning {
+    display: none;
+  }
+
   /* ── 全般: タッチターゲット最小44px ── */
   button {
     min-height: 36px;

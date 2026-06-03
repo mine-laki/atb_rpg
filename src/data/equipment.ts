@@ -37,6 +37,90 @@ export const EQUIPMENT_DATA: EquipmentData[] = [
   { id: 'cursed_tool',   name: '呪具',       emoji: '💀',  type: 'weapon', weaponType: 'cursed',
     preferredRole: 'JAM', baseStats: { mag: 40 }, effects: [{ type: 'debuff_rate', value: 0.25 }], unlockStage: 3, shopPrice: 2500 },
 
+  // ---- 新規武器（キャラ差別化強化）----
+
+  // ── 中盤武器（ショップ販売、Stage 3〜4）──
+  // 疾風の剣: 速度特化ATK。頻繁に行動してチェーンを稼ぐ。
+  { id: 'sword_quick',    name: '疾風の剣',     emoji: '💨',  type: 'weapon', weaponType: 'sword',
+    preferredRole: 'ATK', baseStats: { str: 140 },
+    effects: [{ type: 'atb_speed', value: 0.20 }, { type: 'damage_boost', value: 0.10 }],
+    unlockStage: 3, shopPrice: 3200 },
+
+  // 爆炎の剣: 重火力ATK。ダメージとチェーン蓄積を両立。
+  { id: 'sword_blaze',    name: '爆炎の剣',     emoji: '🔥',  type: 'weapon', weaponType: 'sword',
+    preferredRole: 'ATK', baseStats: { str: 240 },
+    effects: [{ type: 'damage_boost', value: 0.25 }, { type: 'chain_boost', value: 0.15 }],
+    unlockStage: 4, shopPrice: 4500 },
+
+  // 雷鳴の魔杖: 速度型BLA。ATBが早くチェーンを貯めやすい。
+  { id: 'staff_lightning', name: '雷鳴の魔杖',  emoji: '⚡',  type: 'weapon', weaponType: 'staff',
+    preferredRole: 'BLA', baseStats: { mag: 180 },
+    effects: [{ type: 'atb_speed', value: 0.15 }, { type: 'chain_boost', value: 0.18 }],
+    unlockStage: 3, shopPrice: 3500 },
+
+  // 狙撃の弓: 高威力特化。低頻度だが1打ごとのダメージが高い。
+  { id: 'bow_sniper',     name: '狙撃の弓',     emoji: '🎯',  type: 'weapon', weaponType: 'bow',
+    baseStats: { str: 200, mag: 60 },
+    effects: [{ type: 'damage_boost', value: 0.20 }, { type: 'chain_boost', value: 0.10 }],
+    unlockStage: 4, shopPrice: 4200 },
+
+  // 闘士の盾: 開戦即プロテス+シェル。完全防衛型DEF。
+  { id: 'shield_barrier', name: '闘士の盾',     emoji: '⚔️',  type: 'weapon', weaponType: 'shield',
+    preferredRole: 'DEF', baseStats: { def: 70, hp: 1400 },
+    effects: [{ type: 'auto_buff', value: 25, buffId: 'prot' }, { type: 'auto_buff', value: 20, buffId: 'shell' }],
+    unlockStage: 4, shopPrice: 4500 },
+
+  // 浄化の数珠: 開戦ヴェイル付与。デバフ無効化を優先するHLR向け。
+  { id: 'holy_veil',      name: '浄化の数珠',   emoji: '🌸',  type: 'weapon', weaponType: 'holy',
+    preferredRole: 'HLR', baseStats: { mag: 120, hp: 400 },
+    effects: [{ type: 'heal_boost', value: 0.25 }, { type: 'auto_buff', value: 22, buffId: 'veil' }],
+    unlockStage: 3, shopPrice: 3500 },
+
+  // 軍鼓: 開戦ブレイバリー自動付与。物理パーティを一気に強化するENH。
+  { id: 'instrument_war', name: '軍鼓',         emoji: '🥁',  type: 'weapon', weaponType: 'instrument',
+    preferredRole: 'ENH', baseStats: { mag: 50 },
+    effects: [
+      { type: 'auto_buff', value: 22, buffId: 'bravery' },
+      { type: 'atb_speed', value: 0.15 },
+      { type: 'buff_extend', value: 0.20 },
+    ],
+    unlockStage: 4, shopPrice: 4500 },
+
+  // 癒しの竪琴: 開戦リジェネ+回復量UP。HLRのサポート力を底上げ。
+  { id: 'instrument_harp', name: '癒しの竪琴', emoji: '🎵',  type: 'weapon', weaponType: 'instrument',
+    preferredRole: 'HLR', baseStats: { mag: 80 },
+    effects: [
+      { type: 'heal_boost', value: 0.20 },
+      { type: 'auto_buff', value: 30, buffId: 'regen' },
+      { type: 'buff_extend', value: 0.15 },
+    ],
+    unlockStage: 3, shopPrice: 3500 },
+
+  // 鬼爪: 速度特化JAM。ATBが速く連続デバフを狙える。
+  { id: 'cursed_quick',   name: '鬼爪',         emoji: '👹',  type: 'weapon', weaponType: 'cursed',
+    preferredRole: 'JAM', baseStats: { mag: 120 },
+    effects: [{ type: 'atb_speed', value: 0.20 }, { type: 'debuff_rate', value: 0.30 }],
+    unlockStage: 3, shopPrice: 3500 },
+
+  // 封印の鎖: チェーン×デバフの相乗特化JAM。ゲージを溜めながらデバフ成功率UP。
+  { id: 'cursed_chain',   name: '封印の鎖',     emoji: '⛓️',  type: 'weapon', weaponType: 'cursed',
+    preferredRole: 'JAM', baseStats: { mag: 160 },
+    effects: [{ type: 'chain_boost', value: 0.20 }, { type: 'debuff_rate', value: 0.25 }],
+    unlockStage: 4, shopPrice: 4500 },
+
+  // 聖弓: 回復+バフ延長型。弓でありながらHLR/ENH寄りの立ち回りができる。
+  { id: 'bow_saint',      name: '聖弓',         emoji: '🌈',  type: 'weapon', weaponType: 'bow',
+    baseStats: { str: 100, mag: 140 },
+    effects: [{ type: 'heal_boost', value: 0.20 }, { type: 'buff_extend', value: 0.20 }],
+    unlockStage: 3, shopPrice: 3800 },
+
+  // ── レア武器（合成のみ, shopPrice: 0）──
+  // 大地の魔杖: 高MAG+高HP+リジェネ。魔法を撃ちながら耐久も確保できる重鎧型BLA。
+  { id: 'staff_earth',    name: '大地の魔杖',   emoji: '🌍',  type: 'weapon', weaponType: 'staff',
+    preferredRole: 'BLA', baseStats: { mag: 300, hp: 1000 },
+    effects: [{ type: 'auto_regen', value: 0.007 }, { type: 'magic_cost_reduce', value: 1 }],
+    unlockStage: 999, shopPrice: 0 },
+
   // ---- アクセサリ ----
   { id: 'acc_guard_small', name: 'アイアンバングル', emoji: '💎', type: 'accessory',
     baseStats: { hp: 150 }, effects: [], unlockStage: 0, shopPrice: 300 },

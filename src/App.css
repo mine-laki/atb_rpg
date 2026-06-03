@@ -3739,6 +3739,35 @@ button {
   background: rgba(60,100,200,0.35);
 }
 
+/* ── ショップ 武器ロールチップ ── */
+.item-name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.item-role-chips {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+.item-role-chip {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+  border: 1px solid;
+  line-height: 1.4;
+}
+/* ロール別カラー */
+.role-chip-atk { background: rgba(220,60,60,0.18);  border-color: rgba(220,80,80,0.5);  color: #ff8888; }
+.role-chip-bla { background: rgba(60,100,220,0.18); border-color: rgba(80,130,255,0.5); color: #88aaff; }
+.role-chip-def { background: rgba(200,130,40,0.18); border-color: rgba(220,150,60,0.5); color: #ffbb66; }
+.role-chip-hlr { background: rgba(40,180,80,0.18);  border-color: rgba(60,200,100,0.5); color: #66ee99; }
+.role-chip-enh { background: rgba(140,60,220,0.18); border-color: rgba(160,80,240,0.5); color: #cc88ff; }
+.role-chip-jam { background: rgba(100,100,100,0.18);border-color: rgba(140,140,140,0.5);color: #bbbbcc; }
+
 /* ── リザルト NG+倍率表示 ── */
 .reward-ng-mult {
   display: inline-block;

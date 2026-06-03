@@ -1,9 +1,33 @@
 import { useState } from 'react';
-import type { SaveData, EquipmentInstance } from '../../types';
+import type { SaveData, EquipmentInstance, EquipmentData, RoleId } from '../../types';
 import { EQUIPMENT_DATA, getEquipmentById, ENHANCE_COSTS, ENHANCE_MULTIPLIERS, MAX_ENHANCE_LEVEL, MATERIAL_SHOP, MATERIALS } from '../../data/equipment';
 import { getCraftRecipes } from '../../data/crafting';
 import { CHARACTERS } from '../../data/characters';
 import { seBuy } from '../../systems/sound';
+import { getRoleEmoji } from '../../systems/paradigm';
+
+/** 武器のおすすめロールを返す（装備制限なし・あくまで参考表示） */
+function getWeaponRoles(item: EquipmentData): RoleId[] {
+  if (!item.weaponType) return []; // アクセサリは表示しない
+  if (item.preferredRole) return [item.preferredRole];
+
+  // preferredRole なし（弓など）はエフェクト・ステータスから推定
+  const roles: RoleId[] = [];
+  for (const eff of item.effects) {
+    if (eff.type === 'heal_boost'  && !roles.includes('HLR')) roles.push('HLR');
+    if (eff.type === 'buff_extend' && !roles.includes('ENH')) roles.push('ENH');
+    if (eff.type === 'debuff_rate' && !roles.includes('JAM')) roles.push('JAM');
+    if ((eff.type === 'damage_boost' || eff.type === 'chain_boost') && !roles.includes('ATK')) roles.push('ATK');
+  }
+  if (roles.length === 0) {
+    const str = item.baseStats.str ?? 0;
+    const mag = item.baseStats.mag ?? 0;
+    if (str > 0 && mag === 0) roles.push('ATK');
+    else if (mag > 0 && str === 0) roles.push('BLA');
+    else if (str > 0 && mag > 0) { roles.push('ATK'); roles.push('BLA'); }
+  }
+  return roles;
+}
 
 // 装備をソートするヘルパー: type(weapon→accessory) → weaponType → shopPrice
 function sortEquipInstances(insts: EquipmentInstance[]): EquipmentInstance[] {
@@ -163,12 +187,24 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
           )}
           {availableItems.map(item => {
             const canBuy = gil >= item.shopPrice;
+            const weaponRoles = getWeaponRoles(item);
             return (
               <div key={item.id} className="shop-item">
                 <div className="shop-item-info">
                   <span className="item-emoji">{item.emoji}</span>
                   <div className="item-details">
-                    <span className="item-name">{item.name}</span>
+                    <div className="item-name-row">
+                      <span className="item-name">{item.name}</span>
+                      {weaponRoles.length > 0 && (
+                        <span className="item-role-chips">
+                          {weaponRoles.map(r => (
+                            <span key={r} className={`item-role-chip role-chip-${r.toLowerCase()}`}>
+                              {getRoleEmoji(r)}{r}
+                            </span>
+                          ))}
+                        </span>
+                      )}
+                    </div>
                     <span className="item-type">{item.type === 'weapon' ? '武器' : 'アクセサリ'}</span>
                     <span className="item-stats">
                       {Object.entries(item.baseStats).map(([k, v]) =>
@@ -179,6 +215,12 @@ export function ShopScreen({ saveData, onUpdate, onBack }: ShopScreenProps) {
                         if (e.type === 'atb_speed') return ` / 速度+${Math.round(e.value * 100)}%`;
                         if (e.type === 'heal_boost') return ` / 回復+${Math.round(e.value * 100)}%`;
                         if (e.type === 'chain_boost') return ` / チェーン+${Math.round(e.value * 100)}%`;
+                        if (e.type === 'damage_boost' && e.value > 0) return ` / ダメージ+${Math.round(e.value * 100)}%`;
+                        if (e.type === 'debuff_rate') return ` / デバフ率+${Math.round(e.value * 100)}%`;
+                        if (e.type === 'buff_extend') return ` / バフ延長+${Math.round(e.value * 100)}%`;
+                        if (e.type === 'auto_buff' && e.buffId) return ` / 開戦${e.buffId}`;
+                        if (e.type === 'magic_cost_reduce') return ` / 魔法コスト-${e.value}`;
+                        if (e.type === 'auto_regen') return ' / リジェネ';
                         return null;
                       }).filter(Boolean).join('')}
                     </span>

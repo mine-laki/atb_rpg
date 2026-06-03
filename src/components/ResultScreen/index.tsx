@@ -10,6 +10,7 @@ interface ResultScreenProps {
   drops: DropItem[];
   onContinue: () => void;
   onRetry: () => void;
+  ngPlus?: number;
 }
 
 function calcGil(state: BattleState): number {
@@ -25,7 +26,7 @@ function calcGil(state: BattleState): number {
   return total + breakBonus + speedBonus;
 }
 
-export function ResultScreen({ state, gil, drops, onContinue, onRetry }: ResultScreenProps) {
+export function ResultScreen({ state, gil, drops, onContinue, onRetry, ngPlus = 0 }: ResultScreenProps) {
   const isVictory = state.phase === 'victory';
   const computedGil = gil || calcGil(state);
 
@@ -39,6 +40,11 @@ export function ResultScreen({ state, gil, drops, onContinue, onRetry }: ResultS
         <div className="rewards">
           <div className="reward-gil">
             💰 獲得Gil: <strong>{computedGil.toLocaleString()}</strong>
+            {ngPlus > 0 && (
+              <span className="reward-ng-mult">
+                × {Math.pow(1.75, ngPlus).toFixed(2)} (NG+{ngPlus})
+              </span>
+            )}
           </div>
           {drops.length > 0 && (
             <div className="drops">

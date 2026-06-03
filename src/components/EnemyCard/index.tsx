@@ -92,9 +92,12 @@ export function EnemyCard({ enemy }: EnemyCardProps) {
 
   const isDead = enemy.currentHP <= 0;
   const hpRatio = isDead ? 0 : enemy.currentHP / enemy.maxHP;
+  // 敵が行動する直前（2秒以内）に予備動作を表示
+  const isAboutToAct = !isDead && !enemy.isBreaking &&
+    Object.values(enemy.actionCooldowns).some(cd => cd > 0 && cd <= 2.0);
 
   return (
-    <div className={`enemy-card ${isDead ? 'enemy-dead' : ''} ${flashClass}`}>
+    <div className={`enemy-card ${isDead ? 'enemy-dead' : ''} ${flashClass} ${isAboutToAct ? 'enemy-about-to-act' : ''}`}>
       {/* フロートテキスト */}
       <div className="float-container">
         {floats.map(f => (
@@ -108,6 +111,9 @@ export function EnemyCard({ enemy }: EnemyCardProps) {
         ))}
       </div>
 
+      {isAboutToAct && (
+        <div className="enemy-action-warning">⚠️ 行動準備中</div>
+      )}
       <div className="enemy-header">
         <span className="enemy-emoji">{data.emoji}</span>
         <span className="enemy-name">{data.name}</span>

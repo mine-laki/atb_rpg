@@ -344,6 +344,7 @@ export default function App() {
         state={battleState}
         gil={lastRewards.gil}
         drops={lastRewards.drops}
+        ngPlus={selectedNgPlus ?? saveData.newGamePlus ?? 0}
         onContinue={() => setScreen('home')}
         onRetry={() => {
           const ngPlus = selectedNgPlus ?? saveData.newGamePlus ?? 0;

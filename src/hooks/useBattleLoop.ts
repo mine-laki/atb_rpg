@@ -264,7 +264,12 @@ export function useBattleLoop({ state, onStateUpdate, isRunning }: UseBattleLoop
             // jam_boost auto ability: +30% debuff success rate when in JAM role
             const jamBoostBonus = (party[charIdx].currentRole === 'JAM' &&
               (party[charIdx].autoAbilityIds ?? []).includes('jam_boost')) ? 30 : 0;
-            if (Math.random() * 100 < successRate + jamBoostBonus) {
+            // チェーンゲージが高いほどデバフが入りやすくなる（ブレイク時 +40%）
+            const breakAt = enemies[eIdx].chainResistMax ?? 300;
+            const chainBonus = Math.min(40, Math.floor(
+              (enemies[eIdx].chainGauge / breakAt) * 40
+            ));
+            if (Math.random() * 100 < successRate + jamBoostBonus + chainBonus) {
               // JAM role level bonus: +8% debuff duration per level
               const jamRoleLv = party[charIdx].currentRole === 'JAM'
                 ? (party[charIdx].roleLevels?.['JAM'] ?? 1) : 0;

@@ -217,7 +217,10 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
           {playTime > 0 && <span className="home-playtime">⏱ {formatPlayTime(playTime)}</span>}
         </div>
         <div className="home-header-row">
-          <SaveLoadPanel gameData={saveData} onLoad={onLoad} />
+          <div className="home-data-section">
+            <span className="home-data-label">データ</span>
+            <SaveLoadPanel gameData={saveData} onLoad={onLoad} />
+          </div>
           <button className="btn-mute" onClick={toggleMute} title={muted ? '音をオンにする' : '音をオフにする'}>
             {muted ? '🔇' : '🔊'}
           </button>
@@ -296,8 +299,22 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
         <h3>ステージ選択</h3>
         <div className="stage-list">
           {Array.from({ length: STAGE_WAVES.length }, (_, i) => i + 1).map(s => {
-            if (s > maxVisibleStage) return null;
             const isSelected = selectedStage === s || (!selectedStage && s === currentStage);
+            const isAccessible = s <= maxVisibleStage;
+            const isLocked = !isAccessible;
+            // 未解放ステージはマスク表示（最大2件まで）
+            if (isLocked && s > maxVisibleStage + 2) return null;
+            if (isLocked) {
+              return (
+                <button
+                  key={s}
+                  className="stage-btn stage-locked"
+                  disabled
+                >
+                  🔒 ???
+                </button>
+              );
+            }
             return (
               <button
                 key={s}
@@ -328,6 +345,10 @@ export function HomeScreen({ saveData, onNavigate, onLoad, clearedStages, curren
                   </button>
                 );
               })}
+              {/* 次の未解放サイクルをマスク表示 */}
+              <button className="ng-btn ng-btn-masked" disabled title="さらに周回すると解放されます">
+                ???
+              </button>
             </div>
           </div>
         )}

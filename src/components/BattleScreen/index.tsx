@@ -23,6 +23,8 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
   const [state, setState] = useState<BattleState>(initialState);
   const [isRunning, setIsRunning] = useState(true);
   const [waveTransition, setWaveTransition] = useState(false);
+  const [paradigmLocked, setParadigmLocked] = useState(false);
+  const paradigmLockRef = useRef(false);
 
   // 戦闘開始SE（初回マウント時のみ）
   useEffect(() => { seBattleStart(); }, []);
@@ -85,6 +87,13 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
   useBattleLoop({ state, onStateUpdate: handleStateUpdate, isRunning });
 
   const handleParadigmSwitch = useCallback((slot: number) => {
+    if (paradigmLockRef.current) return;
+    paradigmLockRef.current = true;
+    setParadigmLocked(true);
+    setTimeout(() => {
+      paradigmLockRef.current = false;
+      setParadigmLocked(false);
+    }, 500);
     seParadigmShift();
     const wasRunning = isRunning;
     setIsRunning(false);
@@ -206,7 +215,7 @@ export function BattleScreen({ initialState, waveEnemyIds, onVictory, onDefeat, 
         paradigms={state.paradigms}
         activeSlot={state.activeParadigm}
         onSwitch={handleParadigmSwitch}
-        disabled={state.phase !== 'battle' || waveTransition}
+        disabled={state.phase !== 'battle' || waveTransition || paradigmLocked}
       />
 
       {/* バトルアイテム */}
